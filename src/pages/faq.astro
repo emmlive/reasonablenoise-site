@@ -1,0 +1,91 @@
+﻿---
+import "../styles/global.css";
+
+const faqs = [
+  {
+    q: "What does ReasonableNoise make?",
+    a: "ReasonableNoise prints premium USDOT stickers, custom business decals, vehicle lettering, fleet branding, logo stickers, and other custom sticker products.",
+  },
+  {
+    q: "Can I upload my own design?",
+    a: "Yes. You can upload your logo, design file, reference image, or written instructions. The secure upload flow will be connected in the next backend phase.",
+  },
+  {
+    q: "Do you make USDOT number stickers?",
+    a: "Yes. USDOT sticker sets are one of our main services. You can send your company name, USDOT number, preferred size, color, and quantity.",
+  },
+  {
+    q: "Can I pay online?",
+    a: "Online payment will be added with Stripe Checkout in the next phase. PayPal can be added later as an optional payment method.",
+  },
+  {
+    q: "Do you help with design layout?",
+    a: "Yes. If you do not have a print-ready design, you can request design help and provide the details you want on the sticker.",
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>FAQ | ReasonableNoise</title>
+    <meta name="description" content="Frequently asked questions about ReasonableNoise USDOT stickers, custom decals, uploads, and sticker printing." />
+  </head>
+
+  <body class="min-h-screen bg-[#050608] text-white antialiased">
+    <main class="relative overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute left-1/2 top-0 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-cyan-500/15 blur-[120px]"></div>
+      </div>
+
+      <header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <a href="/" class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">RN</div>
+          <div>
+            <p class="text-sm font-semibold tracking-wide">ReasonableNoise</p>
+            <p class="text-xs text-white/50">Premium sticker printing</p>
+          </div>
+        </a>
+
+        <nav class="hidden items-center gap-8 text-sm text-white/70 md:flex">
+          <a class="hover:text-white" href="/">Home</a>
+          <a class="hover:text-white" href="/usdot-stickers">USDOT Stickers</a>
+          <a class="hover:text-white" href="/upload-design">Upload Design</a>
+        </nav>
+
+        <a href="/upload-design" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
+          Start Order
+        </a>
+      </header>
+
+      <section class="mx-auto max-w-5xl px-6 py-24">
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
+        <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
+          Questions before you print?
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
+          Here are common questions about USDOT stickers, custom decals, design uploads, and online ordering.
+        </p>
+
+        <div class="mt-12 grid gap-4">
+          {faqs.map((item) => (
+            <article class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 backdrop-blur">
+              <h2 class="text-xl font-semibold">{item.q}</h2>
+              <p class="mt-3 leading-7 text-white/60">{item.a}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
+        <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
+        <div class="flex gap-5">
+          <a href="/privacy" class="hover:text-white">Privacy</a>
+          <a href="/terms" class="hover:text-white">Terms</a>
+          <a href="/upload-design" class="hover:text-white">Contact</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>

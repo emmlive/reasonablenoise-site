@@ -1,11 +1,239 @@
----
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+﻿---
+import "../styles/global.css";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const products = [
+  {
+    title: "USDOT Sticker Sets",
+    text: "Clean, compliant-looking USDOT number decals for trucks, trailers, and commercial vehicles.",
+  },
+  {
+    title: "Custom Business Decals",
+    text: "Upload your logo, artwork, or idea and get premium vinyl stickers made for your brand.",
+  },
+  {
+    title: "Fleet Lettering",
+    text: "Consistent vehicle branding for multiple trucks, vans, trailers, and service vehicles.",
+  },
+];
+
+const steps = [
+  "Choose your sticker type",
+  "Send your USDOT number or design",
+  "Approve the layout",
+  "We print and prepare your order",
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ReasonableNoise | Premium USDOT Stickers & Custom Decals</title>
+    <meta
+      name="description"
+      content="ReasonableNoise creates premium USDOT stickers, custom decals, business stickers, and fleet lettering for commercial vehicles and brands."
+    />
+  </head>
+
+  <body class="min-h-screen bg-[#050608] text-white antialiased">
+    <main class="relative overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute left-1/2 top-0 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[120px]"></div>
+        <div class="absolute right-[-120px] top-[260px] h-[420px] w-[420px] rounded-full bg-cyan-400/10 blur-[100px]"></div>
+        <div class="absolute left-[-120px] bottom-[120px] h-[360px] w-[360px] rounded-full bg-white/10 blur-[120px]"></div>
+      </div>
+
+      <header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <a href="/" class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">
+            RN
+          </div>
+          <div>
+            <p class="text-sm font-semibold tracking-wide">ReasonableNoise</p>
+            <p class="text-xs text-white/50">Premium sticker printing</p>
+          </div>
+        </a>
+
+        <nav class="hidden items-center gap-8 text-sm text-white/70 md:flex">
+          <a class="hover:text-white" href="/usdot-stickers">USDOT Stickers</a>
+          <a class="hover:text-white" href="/faq">FAQ</a>
+          <a class="hover:text-white" href="/upload-design">Upload Design</a>
+        </nav>
+
+        <a
+          href="/upload-design"
+          class="rounded-full border border-white/15 bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-2xl shadow-white/10 transition hover:bg-white/90"
+        >
+          Start Order
+        </a>
+      </header>
+
+      <section class="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 pt-16 md:grid-cols-2 md:pb-28 md:pt-24">
+        <div>
+          <div class="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur">
+            USDOT stickers • custom decals • fleet branding
+          </div>
+
+          <h1 class="max-w-4xl text-5xl font-semibold tracking-[-0.05em] text-white md:text-7xl">
+            Premium USDOT Stickers & Custom Decals.
+          </h1>
+
+          <p class="mt-7 max-w-xl text-lg leading-8 text-white/65">
+            Built for working vehicles, business fleets, and brands that need sharp, durable stickers without the complicated ordering process.
+          </p>
+
+          <div class="mt-9 flex flex-col gap-4 sm:flex-row">
+            <a
+              href="/upload-design"
+              class="rounded-full bg-white px-7 py-4 text-center text-sm font-bold text-black shadow-2xl shadow-white/10 transition hover:bg-white/90"
+            >
+              Order USDOT Stickers
+            </a>
+            <a
+              href="/usdot-stickers"
+              class="rounded-full border border-white/15 bg-white/5 px-7 py-4 text-center text-sm font-bold text-white backdrop-blur transition hover:bg-white/10"
+            >
+              View Products
+            </a>
+          </div>
+
+          <div class="mt-10 grid max-w-lg grid-cols-3 gap-4 text-sm text-white/60">
+            <div>
+              <p class="text-2xl font-semibold text-white">Vinyl</p>
+              <p>Weather-resistant material</p>
+            </div>
+            <div>
+              <p class="text-2xl font-semibold text-white">Fast</p>
+              <p>Simple order process</p>
+            </div>
+            <div>
+              <p class="text-2xl font-semibold text-white">Custom</p>
+              <p>Upload your own design</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/40 backdrop-blur-xl">
+            <div class="rounded-[2rem] bg-[#0b0d12] p-6">
+              <div class="mb-5 flex items-center justify-between">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.35em] text-cyan-300">Vehicle decal preview</p>
+                  <p class="mt-2 text-2xl font-semibold">USDOT 1234567</p>
+                </div>
+                <div class="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+                  Print Ready
+                </div>
+              </div>
+
+              <div class="rounded-3xl bg-gradient-to-br from-zinc-900 to-black p-6">
+                <div class="rounded-2xl border border-white/10 bg-white p-6 text-black shadow-xl">
+                  <p class="text-sm font-bold tracking-widest">REASONABLENOISE LOGISTICS</p>
+                  <p class="mt-5 text-5xl font-black tracking-tight">USDOT</p>
+                  <p class="text-6xl font-black tracking-tighter">1234567</p>
+                  <p class="mt-5 text-xs font-semibold uppercase tracking-[0.25em] text-black/50">
+                    Commercial Vehicle Decal Set
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-3 gap-3 text-xs text-white/60">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p class="font-semibold text-white">2 sides</p>
+                  <p>left + right</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p class="font-semibold text-white">Custom</p>
+                  <p>name + number</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p class="font-semibold text-white">Durable</p>
+                  <p>outdoor vinyl</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="products" class="mx-auto max-w-7xl px-6 py-20">
+        <div class="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">USDOT Stickers</p>
+            <h2 class="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              Stickers made for vehicles, businesses, and real-world use.
+            </h2>
+          </div>
+          <p class="max-w-md text-white/60">
+            Start with USDOT stickers, send your design, or request a custom fleet package.
+          </p>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-3">
+          {products.map((product) => (
+            <article class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 backdrop-blur transition hover:bg-white/[0.09]">
+              <div class="mb-12 h-12 w-12 rounded-2xl bg-white text-black flex items-center justify-center font-black">
+                RN
+              </div>
+              <h3 class="text-2xl font-semibold">{product.title}</h3>
+              <p class="mt-4 leading-7 text-white/60">{product.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="process" class="mx-auto max-w-7xl px-6 py-20">
+        <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-8 md:p-12">
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Simple Process</p>
+          <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+            From idea to print-ready sticker without the back and forth.
+          </h2>
+
+          <div class="mt-10 grid gap-4 md:grid-cols-4">
+            {steps.map((step, index) => (
+              <div class="rounded-3xl border border-white/10 bg-black/20 p-6">
+                <p class="text-sm text-white/40">0{index + 1}</p>
+                <p class="mt-8 text-lg font-semibold">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="quote" class="mx-auto max-w-7xl px-6 py-20">
+        <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white text-black p-8 md:grid-cols-2 md:p-12">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/50">Start your order</p>
+            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              Upload your design or request USDOT stickers.
+            </h2>
+            <p class="mt-5 max-w-lg leading-7 text-black/60">
+              The live upload and payment flow is coming next. For now, this page sets the premium front-end foundation.
+            </p>
+          </div>
+
+          <form class="rounded-[2rem] border border-black/10 bg-black/[0.03] p-6">
+            <div class="grid gap-4">
+              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Your name" />
+              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Email address" />
+              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="USDOT number or sticker type" />
+              <textarea class="min-h-32 rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Tell us what you need printed"></textarea>
+              <button class="rounded-full bg-black px-6 py-4 text-sm font-bold text-white" type="button">
+                Upload & Payment Coming Next
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
+        <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
+        <div class="flex gap-5">
+          <a href="#" class="hover:text-white">Privacy</a>
+          <a href="#" class="hover:text-white">Terms</a>
+          <a href="/upload-design" class="hover:text-white">Contact</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
