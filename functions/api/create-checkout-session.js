@@ -45,6 +45,11 @@ export async function onRequestPost(context) {
     const colorPreference = clean(body.colorPreference);
     const material = clean(body.material);
     const notes = clean(body.notes);
+    const artworkObjectKey = clean(body.artworkObjectKey);
+    const artworkFilename = clean(body.artworkFilename);
+    const artworkSize = clean(body.artworkSize);
+    const artworkType = clean(body.artworkType);
+    const uploadId = clean(body.uploadId);
 
     if (!email || !customerName) {
       return json({
@@ -96,6 +101,11 @@ export async function onRequestPost(context) {
     params.set("metadata[color_preference]", colorPreference);
     params.set("metadata[material]", material);
     params.set("metadata[notes]", notes);
+    params.set("metadata[artwork_object_key]", artworkObjectKey);
+    params.set("metadata[artwork_filename]", artworkFilename);
+    params.set("metadata[artwork_size]", artworkSize);
+    params.set("metadata[artwork_type]", artworkType);
+    params.set("metadata[upload_id]", uploadId);
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
@@ -128,3 +138,4 @@ export async function onRequestPost(context) {
     }, 500);
   }
 }
+

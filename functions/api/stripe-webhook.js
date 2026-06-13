@@ -24,6 +24,20 @@ function formatUsd(amountCents, currency = "usd") {
   }).format(amount);
 }
 
+
+function formatFileSize(bytes) {
+  const parsed = Number(bytes || 0);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return "Not uploaded";
+  }
+
+  if (parsed < 1024) return `${parsed} B`;
+  if (parsed < 1024 * 1024) return `${Math.round(parsed / 1024)} KB`;
+
+  return `${(parsed / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function parseStripeSignature(header) {
   const parts = String(header || "").split(",");
   const parsed = { timestamp: "", signatures: [] };
@@ -142,6 +156,12 @@ function orderDetailsFromSession(session) {
     material: metadata.material || "Not provided",
     notes: metadata.notes || "None",
 
+    artworkObjectKey: metadata.artwork_object_key || "",
+    artworkFilename: metadata.artwork_filename || "",
+    artworkSize: metadata.artwork_size || "",
+    artworkType: metadata.artwork_type || "",
+    uploadId: metadata.upload_id || "",
+
     shippingName: shippingDetails.name || customerDetails.name || "Not provided",
     shippingAddress: formatAddress(shippingDetails.address),
   };
@@ -188,6 +208,12 @@ function buildEmailHtml(order) {
         <p><strong>Color:</strong> ${escapeHtml(order.colorPreference)}</p>
         <p><strong>Material:</strong> ${escapeHtml(order.material)}</p>
         <p><strong>Notes:</strong><br />${escapeHtml(order.notes).replaceAll("\n", "<br />")}</p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
+        <p><strong>Artwork file:</strong> ${escapeHtml(order.artworkFilename || "Not uploaded")}</p>
+        <p><strong>Artwork size:</strong> ${escapeHtml(formatFileSize(order.artworkSize))}</p>
+        <p><strong>Artwork type:</strong> ${escapeHtml(order.artworkType || "Not uploaded")}</p>
+        <p><strong>R2 private key:</strong><br />${escapeHtml(order.artworkObjectKey || "Not uploaded")}</p>
+        <p><strong>Upload ID:</strong> ${escapeHtml(order.uploadId || "Not uploaded")}</p>
       </div>
 
       <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px;">
@@ -224,6 +250,13 @@ Quantity: ${order.quantity}
 Color: ${order.colorPreference}
 Material: ${order.material}
 Notes: ${order.notes}
+
+Artwork
+Artwork file: ${order.artworkFilename || "Not uploaded"}
+Artwork size: ${formatFileSize(order.artworkSize)}
+Artwork type: ${order.artworkType || "Not uploaded"}
+R2 private key: ${order.artworkObjectKey || "Not uploaded"}
+Upload ID: ${order.uploadId || "Not uploaded"}
 
 Shipping
 Shipping name: ${order.shippingName}
@@ -338,6 +371,7 @@ function buildCustomerConfirmationHtml(order, env) {
               <tr><td style="padding:8px 0;color:#6b7280;">Quantity</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.quantity || "Not provided")}</td></tr>
               <tr><td style="padding:8px 0;color:#6b7280;">Color</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.colorPreference || "Not provided")}</td></tr>
               <tr><td style="padding:8px 0;color:#6b7280;">Material</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.material || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Artwork file</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.artworkFilename || "Not uploaded")}</td></tr>
             </table>
           </div>
 
@@ -494,5 +528,6 @@ export async function onRequestGet() {
     message: "ReasonableNoise Stripe webhook endpoint is available. Use POST from Stripe.",
   });
 }
+
 
 
