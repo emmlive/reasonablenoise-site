@@ -167,7 +167,19 @@ function orderDetailsFromSession(session) {
   };
 }
 
-function buildEmailHtml(order) {
+
+function getAdminArtworkDownloadUrl(order, env) {
+  if (!order || !order.artworkObjectKey || !env || !env.ADMIN_DOWNLOAD_TOKEN) {
+    return "";
+  }
+
+  const siteUrl = getSiteUrl(env);
+  const key = encodeURIComponent(order.artworkObjectKey);
+  const token = encodeURIComponent(env.ADMIN_DOWNLOAD_TOKEN);
+
+  return `${siteUrl}/api/download-artwork?key=${key}&token=${token}`;
+}
+function buildEmailHtml(order, env) {
   const fulfillmentLabel =
     order.fulfillmentMethod === "shipping"
       ? "Shipping"
@@ -232,7 +244,7 @@ function buildEmailHtml(order) {
   `;
 }
 
-function buildEmailText(order) {
+function buildEmailText(order, env) {
   return `
 New paid ReasonableNoise order
 
@@ -288,8 +300,8 @@ async function sendOrderEmail(env, order) {
     from,
     to: env.ORDER_NOTIFY_EMAIL,
     subject: `New paid ReasonableNoise order - ${order.amountTotal}`,
-    html: buildEmailHtml(order),
-    text: buildEmailText(order),
+    html: buildEmailHtml(order, env),
+    text: buildEmailText(order, env),
   };
 
   if (order.email && order.email !== "Not provided") {
@@ -536,6 +548,7 @@ export async function onRequestGet() {
     message: "ReasonableNoise Stripe webhook endpoint is available. Use POST from Stripe.",
   });
 }
+
 
 
 
