@@ -1,1 +1,97 @@
 @import "tailwindcss";
+
+/* RN-2F-A: Site-wide mobile compatibility polish */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+/* Prevent iOS zoom on form fields and improve touch comfort */
+@media (max-width: 640px) {
+  body,
+  main,
+  section,
+  header,
+  footer,
+  nav,
+  form,
+  div {
+    min-width: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    overflow-wrap: anywhere;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  a[href],
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  input[type="file"] {
+    width: 100%;
+    max-width: 100%;
+    font-size: 14px;
+  }
+
+  input[type="file"]::file-selector-button {
+    margin-right: 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: #050608;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    font-weight: 800;
+  }
+
+  [class*="text-7xl"],
+  [class*="text-6xl"] {
+    line-height: 0.95;
+  }
+
+  [class*="rounded-[2.5rem]"] {
+    border-radius: 2rem;
+  }
+}
