@@ -125,6 +125,7 @@ function orderDetailsFromSession(session) {
   return {
     sessionId: session.id || "",
     paymentStatus: session.payment_status || "",
+    orderReference: metadata.order_reference || session.client_reference_id || session.id || "",
     amountTotal: formatUsd(session.amount_total, session.currency),
     currency: String(session.currency || "usd").toUpperCase(),
 
@@ -196,6 +197,7 @@ function buildEmailHtml(order, env) {
 
       <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px; margin-bottom: 20px;">
         <h2 style="margin: 0 0 12px;">Payment</h2>
+        <p><strong>Order reference:</strong> ${escapeHtml(order.orderReference)}</p>
         <p><strong>Total paid:</strong> ${escapeHtml(order.amountTotal)}</p>
         <p><strong>Payment status:</strong> ${escapeHtml(order.paymentStatus)}</p>
         <p><strong>Stripe Checkout Session:</strong> ${escapeHtml(order.sessionId)}</p>
@@ -249,6 +251,7 @@ function buildEmailText(order, env) {
 New paid ReasonableNoise order
 
 Payment
+Order reference: ${order.orderReference}
 Total paid: ${order.amountTotal}
 Payment status: ${order.paymentStatus}
 Stripe Checkout Session: ${order.sessionId}
@@ -299,7 +302,7 @@ async function sendOrderEmail(env, order) {
   const payload = {
     from,
     to: env.ORDER_NOTIFY_EMAIL,
-    subject: `New paid ReasonableNoise order - ${order.amountTotal}`,
+    subject: `New paid ReasonableNoise order ${order.orderReference} - ${order.amountTotal}`,
     html: buildEmailHtml(order, env),
     text: buildEmailText(order, env),
   };
@@ -416,7 +419,9 @@ function buildCustomerConfirmationHtml(order, env) {
 }
 function buildCustomerConfirmationText(order) {
   return `
-Your ReasonableNoise order has started
+Your ReasonableNoise order  has started
+
+Order reference: 
 
 Thank you. We received your payment and order details.
 
@@ -455,7 +460,7 @@ async function sendCustomerConfirmationEmail(env, order) {
   const payload = {
     from,
     to: order.email,
-    subject: "Your ReasonableNoise order has started",
+    subject: `Your ReasonableNoise order ${order.orderReference} has started`,
     html: buildCustomerConfirmationHtml(order, env),
     text: buildCustomerConfirmationText(order),
   };
@@ -548,6 +553,8 @@ export async function onRequestGet() {
     message: "ReasonableNoise Stripe webhook endpoint is available. Use POST from Stripe.",
   });
 }
+
+
 
 
 

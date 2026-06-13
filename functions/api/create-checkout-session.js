@@ -16,6 +16,17 @@ function centsFromEnv(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+
+function createOrderReference() {
+  const now = new Date();
+  const yyyy = now.getUTCFullYear();
+  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(now.getUTCDate()).padStart(2, "0");
+  const shortId = crypto.randomUUID().split("-")[0].toUpperCase();
+
+  return `RN-${yyyy}${mm}${dd}-${shortId}`;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -50,6 +61,7 @@ export async function onRequestPost(context) {
     const artworkSize = clean(body.artworkSize);
     const artworkType = clean(body.artworkType);
     const uploadId = clean(body.uploadId);
+    const orderReference = createOrderReference();
 
     if (!email || !customerName) {
       return json({
@@ -64,6 +76,7 @@ export async function onRequestPost(context) {
     params.set("success_url", `${siteUrl}/order-success?session_id={CHECKOUT_SESSION_ID}`);
     params.set("cancel_url", `${siteUrl}/upload-design?checkout=cancelled`);
     params.set("customer_email", email);
+    params.set("client_reference_id", orderReference);
     params.set("phone_number_collection[enabled]", "true");
 
     params.set("line_items[0][quantity]", "1");
@@ -88,6 +101,7 @@ export async function onRequestPost(context) {
       params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "7");
     }
 
+    params.set("metadata[order_reference]", orderReference);
     params.set("metadata[customer_name]", customerName);
     params.set("metadata[business_name]", businessName);
     params.set("metadata[email]", email);
