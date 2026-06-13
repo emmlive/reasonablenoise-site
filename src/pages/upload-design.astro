@@ -244,6 +244,7 @@ const orderTypes = [
           const artworkFile = artworkInput?.files?.[0];
 
           if (artworkFile) {
+            button.textContent = "Uploading artwork securely...";
             showMessage("Uploading artwork securely...");
 
             const uploadData = new FormData();
@@ -266,6 +267,7 @@ const orderTypes = [
             payload.artworkType = uploadResult.artworkType;
             payload.uploadId = uploadResult.uploadId;
 
+            button.textContent = "Artwork uploaded. Preparing checkout...";
             showMessage("Artwork uploaded. Preparing Stripe Checkout...");
           }
 
@@ -293,6 +295,7 @@ const orderTypes = [
     </script>
   </body>
 </html>
+
 
 
 
