@@ -274,55 +274,92 @@ async function sendOrderEmail(env, order) {
 }
 
 
-function buildCustomerConfirmationHtml(order) {
+
+function getSiteUrl(env) {
+  return (env.SITE_URL || "https://reasonablenoise.com").replace(/\/$/, "");
+}
+
+function getLogoUrl(env) {
+  return `${getSiteUrl(env)}/assets/rn-logo.png`;
+}
+
+function buildCustomerConfirmationHtml(order, env) {
+  const logoUrl = getLogoUrl(env);
+  const siteUrl = getSiteUrl(env);
+
   const fulfillmentLabel =
     order.fulfillmentMethod === "shipping"
       ? "Shipping"
       : order.fulfillmentMethod === "local_pickup"
         ? "Local pickup"
-        : order.fulfillmentMethod;
+        : order.fulfillmentMethod || "Not provided";
 
   const nextStep =
     order.fulfillmentMethod === "shipping"
-      ? "We will review your order details and follow up if we need anything else before preparing your stickers for shipment."
+      ? "We will review your order details and prepare your stickers for shipment. If we need anything else, we will contact you."
       : "We will review your order details and follow up when your stickers are ready for local pickup.";
 
   return `
-    <div style="font-family: Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 680px;">
-      <h1 style="margin: 0 0 8px;">Your ReasonableNoise order has started</h1>
-      <p style="margin: 0 0 24px; color: #4b5563;">
-        Thank you. We received your payment and order details.
-      </p>
+    <div style="margin:0;padding:24px;background:#050608;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+      <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:28px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="background:#050608;padding:30px 34px;border-bottom:1px solid #1f2937;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            <tr>
+              <td width="76" style="vertical-align:middle;">
+                <img src="${logoUrl}" alt="ReasonableNoise logo" width="64" height="64" style="display:block;width:64px;height:64px;border-radius:18px;background:#050608;border:1px solid rgba(255,255,255,0.16);" />
+              </td>
+              <td style="vertical-align:middle;padding-left:14px;">
+                <div style="font-size:13px;letter-spacing:3px;color:#67e8f9;font-weight:800;text-transform:uppercase;">Payment received</div>
+                <div style="font-size:28px;line-height:1.2;color:#ffffff;font-weight:800;margin-top:7px;">Your sticker order has started.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-      <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px; margin-bottom: 20px;">
-        <h2 style="margin: 0 0 12px;">Payment</h2>
-        <p><strong>Total paid:</strong> ${escapeHtml(order.amountTotal)}</p>
-        <p><strong>Status:</strong> ${escapeHtml(order.paymentStatus)}</p>
-      </div>
+        <div style="padding:34px;">
+          <p style="margin:0 0 22px;font-size:16px;line-height:1.7;color:#374151;">
+            Thank you for your order. We received your payment and order details successfully. ReasonableNoise will review your sticker request and prepare the next step.
+          </p>
 
-      <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px; margin-bottom: 20px;">
-        <h2 style="margin: 0 0 12px;">Order summary</h2>
-        <p><strong>Sticker type:</strong> ${escapeHtml(order.stickerType)}</p>
-        <p><strong>Fulfillment:</strong> ${escapeHtml(fulfillmentLabel)}</p>
-        <p><strong>USDOT number:</strong> ${escapeHtml(order.usdotNumber)}</p>
-        <p><strong>Display name on decal:</strong> ${escapeHtml(order.decalDisplayName)}</p>
-        <p><strong>Size:</strong> ${escapeHtml(order.size)}</p>
-        <p><strong>Quantity:</strong> ${escapeHtml(order.quantity)}</p>
-        <p><strong>Color:</strong> ${escapeHtml(order.colorPreference)}</p>
-        <p><strong>Material:</strong> ${escapeHtml(order.material)}</p>
-      </div>
+          <div style="margin:0 0 22px;padding:20px;border:1px solid #e5e7eb;border-radius:18px;background:#f9fafb;">
+            <h2 style="margin:0 0 12px;font-size:18px;color:#111827;">Payment summary</h2>
+            <p style="margin:6px 0;color:#374151;"><strong>Total paid:</strong> ${escapeHtml(order.amountTotal || "Not provided")}</p>
+            <p style="margin:6px 0;color:#374151;"><strong>Payment status:</strong> ${escapeHtml(order.paymentStatus || "Paid")}</p>
+          </div>
 
-      <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px;">
-        <h2 style="margin: 0 0 12px;">Next step</h2>
-        <p>${escapeHtml(nextStep)}</p>
-        <p style="margin-top: 16px; color: #4b5563;">
-          If anything looks incorrect, reply to this email with your correction.
-        </p>
+          <div style="margin:0 0 22px;padding:20px;border:1px solid #e5e7eb;border-radius:18px;background:#ffffff;">
+            <h2 style="margin:0 0 12px;font-size:18px;color:#111827;">Order details</h2>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:15px;">
+              <tr><td style="padding:8px 0;color:#6b7280;">Sticker type</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.stickerType || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Fulfillment</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(fulfillmentLabel)}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">USDOT number</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.usdotNumber || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Display name</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.decalDisplayName || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Size</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.size || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Quantity</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.quantity || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Color</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.colorPreference || "Not provided")}</td></tr>
+              <tr><td style="padding:8px 0;color:#6b7280;">Material</td><td style="padding:8px 0;color:#111827;font-weight:700;">${escapeHtml(order.material || "Not provided")}</td></tr>
+            </table>
+          </div>
+
+          <div style="margin:0 0 24px;padding:20px;border:1px solid #e5e7eb;border-radius:18px;background:#f9fafb;">
+            <h2 style="margin:0 0 12px;font-size:18px;color:#111827;">Next step</h2>
+            <p style="margin:0;color:#374151;line-height:1.7;">${escapeHtml(nextStep)}</p>
+          </div>
+
+          <div style="text-align:center;margin-top:28px;">
+            <a href="${siteUrl}/upload-design/" style="display:inline-block;background:#050608;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:800;">
+              Start another order
+            </a>
+          </div>
+
+          <p style="margin:28px 0 0;font-size:13px;line-height:1.7;color:#6b7280;text-align:center;">
+            If anything looks incorrect, reply to this email and we will help you update your order.
+          </p>
+        </div>
       </div>
     </div>
   `;
 }
-
 function buildCustomerConfirmationText(order) {
   return `
 Your ReasonableNoise order has started
@@ -365,7 +402,7 @@ async function sendCustomerConfirmationEmail(env, order) {
     from,
     to: order.email,
     subject: "Your ReasonableNoise order has started",
-    html: buildCustomerConfirmationHtml(order),
+    html: buildCustomerConfirmationHtml(order, env),
     text: buildCustomerConfirmationText(order),
   };
 
@@ -457,4 +494,5 @@ export async function onRequestGet() {
     message: "ReasonableNoise Stripe webhook endpoint is available. Use POST from Stripe.",
   });
 }
+
 
