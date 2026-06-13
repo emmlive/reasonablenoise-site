@@ -419,9 +419,9 @@ function buildCustomerConfirmationHtml(order, env) {
 }
 function buildCustomerConfirmationText(order) {
   return `
-Your ReasonableNoise order  has started
+Your ReasonableNoise order ${order.orderReference} has started
 
-Order reference: 
+Order reference: ${order.orderReference}
 
 Thank you. We received your payment and order details.
 
