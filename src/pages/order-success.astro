@@ -1,0 +1,40 @@
+﻿---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Order Started | ReasonableNoise</title>
+    <meta name="description" content="Your ReasonableNoise order payment was received." />
+  </head>
+
+  <body class="min-h-screen bg-[#050608] text-white antialiased">
+    <main class="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-6 py-20">
+      <a href="/" class="mb-12 inline-flex items-center gap-3 text-sm text-white/60 hover:text-white">
+        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">RN</span>
+        ReasonableNoise
+      </a>
+
+      <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-black/40 backdrop-blur md:p-12">
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Payment received</p>
+        <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-6xl">
+          Your sticker order has started.
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-white/65">
+          Thank you. Your payment was received through Stripe. ReasonableNoise will review your order details and prepare the next step.
+        </p>
+
+        <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+          <a href="/" class="rounded-full bg-white px-7 py-4 text-center text-sm font-bold text-black">
+            Back Home
+          </a>
+          <a href="/upload-design" class="rounded-full border border-white/15 bg-white/5 px-7 py-4 text-center text-sm font-bold text-white">
+            Start Another Order
+          </a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
