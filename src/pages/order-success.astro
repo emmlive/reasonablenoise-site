@@ -15,20 +15,62 @@ import "../styles/global.css";
   </head>
 
   <body class="min-h-screen bg-[#050608] text-white antialiased">
-    <main class="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-6 py-20">
-      <a href="/" class="mb-12 inline-flex items-center gap-3 text-sm text-white/60 hover:text-white">
-        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-black text-black">RN</span>
+    <main class="relative mx-auto flex min-h-screen max-w-5xl flex-col justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-16">
+      <div class="pointer-events-none absolute inset-0 -z-10">
+        <div class="absolute left-[-120px] top-[-120px] h-[320px] w-[320px] rounded-full bg-cyan-400/10 blur-[90px]"></div>
+        <div class="absolute bottom-[-160px] right-[-120px] h-[380px] w-[380px] rounded-full bg-white/10 blur-[110px]"></div>
+      </div>
+
+      <a href="/" class="mb-8 inline-flex items-center gap-3 text-sm font-semibold text-white/60 hover:text-white sm:mb-12">
+        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-black p-2 ring-1 ring-white/10">
+          <img src="/assets/rn-logo.png" alt="ReasonableNoise logo" class="h-full w-full rounded-xl object-contain" />
+        </span>
         ReasonableNoise
       </a>
 
-      <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-black/40 backdrop-blur md:p-12">
-        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Payment received</p>
-        <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-6xl">
+      <section class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/40 backdrop-blur sm:rounded-[2.5rem] sm:p-8 md:p-12">
+        <div class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-200">
+          Payment received
+        </div>
+
+        <h1 class="mt-6 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl">
           Your sticker order has started.
         </h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-white/65">
-          Thank you. Your payment was received through Stripe. ReasonableNoise will review your order details and prepare the next step.
+
+        <p class="mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
+          Thank you. Your payment was received through Stripe. ReasonableNoise will review your order details, artwork, and fulfillment choice before preparing the next step.
         </p>
+
+        <div id="order-reference-card" class="mt-8 hidden rounded-3xl border border-white/10 bg-black/30 p-5">
+          <p class="text-xs font-bold uppercase tracking-[0.25em] text-white/45">Order reference</p>
+          <p id="order-reference-value" class="mt-2 break-all text-2xl font-black tracking-[-0.03em] text-white"></p>
+          <p class="mt-3 text-sm leading-6 text-white/50">
+            Keep this reference for your records. We also sent it to your email confirmation.
+          </p>
+        </div>
+
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-5">
+            <p class="text-sm font-bold text-white">1. Check your email</p>
+            <p class="mt-2 text-sm leading-6 text-white/50">
+              You’ll receive your payment confirmation and order reference.
+            </p>
+          </div>
+
+          <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-5">
+            <p class="text-sm font-bold text-white">2. Artwork review</p>
+            <p class="mt-2 text-sm leading-6 text-white/50">
+              We’ll review your uploaded file or order notes before production.
+            </p>
+          </div>
+
+          <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-5">
+            <p class="text-sm font-bold text-white">3. Next step</p>
+            <p class="mt-2 text-sm leading-6 text-white/50">
+              We’ll contact you if anything else is needed before printing.
+            </p>
+          </div>
+        </div>
 
         <div class="mt-10 flex flex-col gap-4 sm:flex-row">
           <a href="/" class="rounded-full bg-white px-7 py-4 text-center text-sm font-bold text-black">
@@ -38,11 +80,19 @@ import "../styles/global.css";
             Start Another Order
           </a>
         </div>
-      </div>
+      </section>
     </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const orderReference = params.get("order_ref");
+      const card = document.getElementById("order-reference-card");
+      const value = document.getElementById("order-reference-value");
+
+      if (orderReference && card && value) {
+        value.textContent = orderReference;
+        card.classList.remove("hidden");
+      }
+    </script>
   </body>
 </html>
-
-
-
-

@@ -73,7 +73,7 @@ export async function onRequestPost(context) {
     const params = new URLSearchParams();
 
     params.set("mode", "payment");
-    params.set("success_url", `${siteUrl}/order-success?session_id={CHECKOUT_SESSION_ID}`);
+    params.set("success_url", `${siteUrl}/order-success?session_id={CHECKOUT_SESSION_ID}&order_ref=${encodeURIComponent(orderReference)}`);
     params.set("cancel_url", `${siteUrl}/upload-design?checkout=cancelled`);
     params.set("customer_email", email);
     params.set("client_reference_id", orderReference);
@@ -152,4 +152,5 @@ export async function onRequestPost(context) {
     }, 500);
   }
 }
+
 
