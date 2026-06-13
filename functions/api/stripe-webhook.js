@@ -491,6 +491,51 @@ async function sendCustomerConfirmationEmail(env, order) {
   }
 }
 
+
+
+function getStripeEventMarkerKey(eventId) {
+  const safeId = String(eventId || "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 160);
+
+  return safeId ? `system/stripe-events/${safeId}.json` : "";
+}
+
+async function hasProcessedStripeEvent(env, eventId) {
+  if (!env.ARTWORK_BUCKET || !eventId) {
+    return false;
+  }
+
+  const markerKey = getStripeEventMarkerKey(eventId);
+  if (!markerKey) return false;
+
+  const existing = await env.ARTWORK_BUCKET.get(markerKey);
+  return Boolean(existing);
+}
+
+async function markStripeEventProcessed(env, eventId, details = {}) {
+  if (!env.ARTWORK_BUCKET || !eventId) {
+    return;
+  }
+
+  const markerKey = getStripeEventMarkerKey(eventId);
+  if (!markerKey) return;
+
+  await env.ARTWORK_BUCKET.put(
+    markerKey,
+    JSON.stringify({
+      eventId,
+      processedAt: new Date().toISOString(),
+      ...details,
+    }, null, 2),
+    {
+      httpMetadata: {
+        contentType: "application/json",
+      },
+    }
+  );
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -528,13 +573,33 @@ export async function onRequestPost(context) {
       return json({ success: false, error: "Missing checkout session." }, 400);
     }
 
+    const alreadyProcessed = await hasProcessedStripeEvent(env, event.id);
+
+    if (alreadyProcessed) {
+      return json({
+        success: true,
+        received: true,
+        duplicate: true,
+        skipped_emails: true,
+        event_id: event.id,
+      });
+    }
+
     const order = orderDetailsFromSession(session);
     const emailResult = await sendOrderEmail(env, order);
     const customerEmailResult = await sendCustomerConfirmationEmail(env, order);
 
+    await markStripeEventProcessed(env, event.id, {
+      checkoutSessionId: session.id || "",
+      orderReference: order.orderReference || "",
+      emailId: emailResult?.id || null,
+      customerEmailId: customerEmailResult?.id || null,
+    });
+
     return json({
       success: true,
       received: true,
+      duplicate: false,
       event_id: event.id,
       email_id: emailResult?.id || null,
       customer_email_result: customerEmailResult,
