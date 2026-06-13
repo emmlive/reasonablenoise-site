@@ -214,6 +214,13 @@ function buildEmailHtml(order) {
         <p><strong>Artwork type:</strong> ${escapeHtml(order.artworkType || "Not uploaded")}</p>
         <p><strong>R2 private key:</strong><br />${escapeHtml(order.artworkObjectKey || "Not uploaded")}</p>
         <p><strong>Upload ID:</strong> ${escapeHtml(order.uploadId || "Not uploaded")}</p>
+        ${getAdminArtworkDownloadUrl(order, env) ? `
+          <div style="margin-top:16px;">
+            <a href="${escapeHtml(getAdminArtworkDownloadUrl(order, env))}" style="display:inline-block;background:#050608;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:999px;font-weight:800;">
+              Download artwork securely
+            </a>
+          </div>
+        ` : ""}
       </div>
 
       <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px;">
@@ -257,6 +264,7 @@ Artwork size: ${formatFileSize(order.artworkSize)}
 Artwork type: ${order.artworkType || "Not uploaded"}
 R2 private key: ${order.artworkObjectKey || "Not uploaded"}
 Upload ID: ${order.uploadId || "Not uploaded"}
+Download artwork: ${getAdminArtworkDownloadUrl(order, env) || "Not available"}
 
 Shipping
 Shipping name: ${order.shippingName}
@@ -528,6 +536,7 @@ export async function onRequestGet() {
     message: "ReasonableNoise Stripe webhook endpoint is available. Use POST from Stripe.",
   });
 }
+
 
 
 
