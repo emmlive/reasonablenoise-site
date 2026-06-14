@@ -22,6 +22,25 @@ const steps = [
   "Approve the layout",
   "We print and prepare your order",
 ];
+
+const homeSeoFaqs = [
+  {
+    question: "What does ReasonableNoise make?",
+    answer:
+      "ReasonableNoise makes premium USDOT stickers, custom business decals, commercial vehicle lettering, fleet decals, and vinyl stickers for brands and working vehicles.",
+  },
+  {
+    question: "Can I order custom decals with my logo?",
+    answer:
+      "Yes. You can upload your logo, artwork, reference image, or design file through the secure upload order form.",
+  },
+  {
+    question: "Can ReasonableNoise make decals for trucks and fleets?",
+    answer:
+      "Yes. ReasonableNoise can prepare USDOT number decals, truck lettering, trailer decals, van decals, and matching fleet branding for multiple vehicles.",
+  },
+];
+
 ---
 
 <html lang="en">
@@ -66,6 +85,18 @@ const steps = [
   "url": "https://reasonablenoise.com"
 }
     </script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: homeSeoFaqs.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    })} />
     <!-- RN-2I-A SEO END -->
   </head>
 
@@ -220,6 +251,51 @@ const steps = [
         </div>
       </section>
 
+
+      <section id="services" class="rn-reveal mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
+        <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:grid-cols-[0.9fr_1.1fr] md:p-12">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Custom Decals & Vehicle Lettering</p>
+            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              Sticker printing for business vehicles, fleets, and brands that need a clean professional look.
+            </h2>
+            <p class="mt-5 leading-7 text-white/60">
+              ReasonableNoise creates custom decals, USDOT stickers, truck lettering, business vehicle decals, fleet graphics, and vinyl stickers for commercial vehicles and brands. The order process is built for speed: choose the sticker type, upload artwork or order details, select pickup or shipping, and pay securely through Stripe.
+            </p>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="font-bold text-white">USDOT stickers</p>
+              <p class="mt-2 text-sm leading-6 text-white/55">
+                Clean USDOT number decals for trucks, trailers, vans, and commercial vehicle doors.
+              </p>
+            </div>
+
+            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="font-bold text-white">Custom business decals</p>
+              <p class="mt-2 text-sm leading-6 text-white/55">
+                Upload a logo, artwork file, or design reference for custom vinyl decals.
+              </p>
+            </div>
+
+            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="font-bold text-white">Fleet lettering</p>
+              <p class="mt-2 text-sm leading-6 text-white/55">
+                Keep vehicle branding consistent across multiple trucks, vans, trailers, or service vehicles.
+              </p>
+            </div>
+
+            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <p class="font-bold text-white">Secure order flow</p>
+              <p class="mt-2 text-sm leading-6 text-white/55">
+                Upload artwork, choose local pickup or shipping, and pay the order deposit online.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="process" class="rn-reveal rn-delay-1 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 sm:p-8 md:rounded-[2.5rem] md:p-12">
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Simple Process</p>
@@ -261,6 +337,25 @@ const steps = [
               </a>
             </div>
           </form>
+        </div>
+      </section>
+
+
+      <section id="home-faq" class="rn-reveal rn-delay-1 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
+        <div class="mb-10">
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
+          <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+            Common sticker order questions.
+          </h2>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3">
+          {homeSeoFaqs.map((item) => (
+            <article class="rn-hover-lift rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 backdrop-blur">
+              <h3 class="text-xl font-semibold text-white">{item.question}</h3>
+              <p class="mt-4 leading-7 text-white/60">{item.answer}</p>
+            </article>
+          ))}
         </div>
       </section>
 
