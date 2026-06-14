@@ -8,14 +8,40 @@ const orderTypes = [
   "Logo / Artwork Printing",
   "Design Help Needed",
 ];
+
+const uploadOrderSteps = [
+  "Submit your sticker details and artwork if available.",
+  "Choose local pickup or shipping during checkout.",
+  "Pay the secure order deposit through Stripe.",
+  "Receive an order reference so we can prepare production.",
+];
+
+const uploadPageFaqs = [
+  {
+    q: "Can I upload artwork before checkout?",
+    a: "Yes. You can upload your logo, artwork file, reference image, or design file before Stripe Checkout. Upload is optional, but it helps ReasonableNoise prepare your sticker order faster.",
+  },
+  {
+    q: "Can I order USDOT stickers from this page?",
+    a: "Yes. Choose USDOT Sticker Set as the sticker type, then enter your USDOT number, display name, size, quantity, color preference, and any notes.",
+  },
+  {
+    q: "Can I choose pickup or shipping?",
+    a: "Yes. You can choose local pickup with no shipping fee or choose shipping with standard shipping added during checkout.",
+  },
+  {
+    q: "Is payment handled securely?",
+    a: "Yes. ReasonableNoise uses Stripe Checkout for secure online order deposits.",
+  },
+];
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Upload Design &amp; Start Sticker Order | ReasonableNoise</title>
-    <meta name="description" content="Start a secure ReasonableNoise sticker order, upload artwork, choose local pickup or shipping, and pay your order deposit through Stripe." />
+    <title>Upload Artwork &amp; Start Custom Sticker Order | ReasonableNoise</title>
+    <meta name="description" content="Upload artwork for USDOT stickers, custom decals, vehicle lettering, and fleet decals. Choose pickup or shipping and pay a secure Stripe order deposit." />
     <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
     <link rel="shortcut icon" type="image/png" href="/assets/rn-logo.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -26,7 +52,7 @@ const orderTypes = [
     <link rel="canonical" href="https://reasonablenoise.com/upload-design/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ReasonableNoise" />
-    <meta property="og:title" content="Upload Design &amp; Start Sticker Order | ReasonableNoise" />
+    <meta property="og:title" content="Upload Artwork &amp; Start Custom Sticker Order | ReasonableNoise" />
     <meta property="og:description" content="Start a secure ReasonableNoise sticker order, upload artwork, choose local pickup or shipping, and pay your order deposit through Stripe." />
     <meta property="og:url" content="https://reasonablenoise.com/upload-design/" />
     <meta property="og:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
@@ -34,6 +60,31 @@ const orderTypes = [
     <meta name="twitter:title" content="Upload Design &amp; Start Sticker Order | ReasonableNoise" />
     <meta name="twitter:description" content="Start a secure ReasonableNoise sticker order, upload artwork, choose local pickup or shipping, and pay your order deposit through Stripe." />
     <meta name="twitter:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Custom sticker order and artwork upload",
+      provider: {
+        "@type": "Organization",
+        name: "ReasonableNoise",
+        url: "https://reasonablenoise.com",
+      },
+      serviceType: "Sticker printing, USDOT stickers, custom decals, vehicle lettering, and fleet decals",
+      areaServed: "United States",
+      url: "https://reasonablenoise.com/upload-design/",
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: uploadPageFaqs.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    })} />
     <!-- RN-2I-A SEO END -->
   </head>
 
@@ -76,15 +127,15 @@ const orderTypes = [
       <section class="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-8 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-12 md:pb-28 md:pt-24">
         <div>
           <div class="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur">
-            Artwork upload • pickup or shipping • secure checkout
+            Secure artwork upload • USDOT stickers • custom decals
           </div>
 
           <h1 class="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-7xl">
-            Start your sticker order.
+            Upload artwork and start your sticker order.
           </h1>
 
           <p class="mt-7 max-w-xl text-lg leading-8 text-white/65">
-            Send your USDOT details, sticker specs, and artwork/reference file. Choose local pickup or shipping before paying the order deposit.
+            Start a secure order for USDOT stickers, custom business decals, truck lettering, fleet decals, or logo sticker printing. Upload artwork now or send it later, then choose local pickup or shipping before paying the order deposit.
           </p>
 
           <div class="mt-10 grid gap-4">
@@ -108,6 +159,20 @@ const orderTypes = [
                 Upload is optional, but recommended. Your file is stored privately before checkout so we can prepare your order faster.
               </p>
             </div>
+          </div>
+
+          <div class="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+            <p class="font-semibold">What happens after checkout?</p>
+            <ol class="mt-4 grid gap-3 text-sm leading-6 text-white/60">
+              {uploadOrderSteps.map((step, index) => (
+                <li class="flex gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-black">
+                    {index + 1}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
 
@@ -218,9 +283,43 @@ const orderTypes = [
         </form>
       </section>
 
-      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
+      <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
+        <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:p-12">
+          <div class="mb-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Order Details</p>
+            <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              What to include with your order.
+            </h2>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3">
+            <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <h3 class="font-bold text-white">USDOT sticker orders</h3>
+              <p class="mt-3 text-sm leading-6 text-white/55">
+                Add your USDOT number, company or legal name, decal size, quantity, color preference, and vehicle type.
+              </p>
+            </article>
+
+            <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <h3 class="font-bold text-white">Custom decal orders</h3>
+              <p class="mt-3 text-sm leading-6 text-white/55">
+                Upload your logo or design file, or describe what you want printed if you need layout help.
+              </p>
+            </article>
+
+            <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <h3 class="font-bold text-white">Pickup or shipping</h3>
+              <p class="mt-3 text-sm leading-6 text-white/55">
+                Choose local pickup with no shipping fee or shipping with address collection during checkout.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between">
         <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
-        <div class="flex gap-5">
+        <div class="flex flex-wrap gap-5">
           <a href="/" class="hover:text-white">Home</a>
           <a href="/usdot-stickers" class="hover:text-white">USDOT Stickers</a>
           <a href="/privacy" class="hover:text-white">Privacy</a>
