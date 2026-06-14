@@ -34,6 +34,54 @@ const uploadPageFaqs = [
     a: "Yes. ReasonableNoise uses Stripe Checkout for secure online order deposits.",
   },
 ];
+
+const pricingGuideItems = [
+  {
+    name: "USDOT sticker pair",
+    price: "$29",
+    note: "Launch price for a standard pair. Normally $30.",
+  },
+  {
+    name: "Extra USDOT pair",
+    price: "$25",
+    note: "Add another matching pair in the same order.",
+  },
+  {
+    name: "One-side USDOT replacement",
+    price: "$18",
+    note: "Good for replacing one door decal.",
+  },
+  {
+    name: "USDOT + business name pair",
+    price: "$39",
+    note: "USDOT number with company or legal business name.",
+  },
+  {
+    name: "Custom business decals",
+    price: "From $35",
+    note: "Logo decals, simple business stickers, and custom vinyl decals.",
+  },
+  {
+    name: "Truck door lettering",
+    price: "From $69",
+    note: "Business name, phone, website, and simple vehicle lettering.",
+  },
+  {
+    name: "Fleet lettering",
+    price: "From $59 / vehicle",
+    note: "Available for 3 or more vehicles with matching layout.",
+  },
+  {
+    name: "Logo sticker batches",
+    price: "From $35",
+    note: "Starter batch pricing for small logo sticker orders.",
+  },
+  {
+    name: "Design cleanup",
+    price: "From $15",
+    note: "Basic file cleanup, layout help, or print prep.",
+  },
+];
 ---
 
 <html lang="en">
@@ -281,6 +329,37 @@ const uploadPageFaqs = [
             Continue to Secure Stripe Checkout
           </button>
         </form>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
+        <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:p-12">
+          <div class="mb-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Pricing Guide</p>
+            <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              Simple pricing before checkout.
+            </h2>
+            <p class="mt-4 max-w-3xl leading-7 text-white/60">
+              Use this as a starting guide for USDOT stickers, custom decals, truck lettering, and fleet orders. Your checkout payment is an order deposit; final pricing is confirmed after artwork, size, quantity, material, and production review.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3">
+            {pricingGuideItems.map((item) => (
+              <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+                <p class="text-sm font-semibold text-white/55">{item.name}</p>
+                <p class="mt-3 text-3xl font-bold tracking-[-0.04em] text-white">{item.price}</p>
+                <p class="mt-3 text-sm leading-6 text-white/55">{item.note}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="mt-7 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Launch offer</p>
+            <p class="mt-3 leading-7 text-white/70">
+              USDOT sticker pairs start at $29 for a limited launch price. Standard deposit is paid online, and any remaining balance is confirmed after order review.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">

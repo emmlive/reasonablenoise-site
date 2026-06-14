@@ -23,6 +23,29 @@ const usdotSeoFaqs = [
       "Yes. You can choose local pickup with no shipping fee or select shipping during checkout. Stripe collects the shipping address when shipping is selected.",
   },
 ];
+
+const usdotPricingItems = [
+  {
+    name: "USDOT sticker pair",
+    price: "$29",
+    note: "Launch price for one standard pair. Normally $30.",
+  },
+  {
+    name: "Extra matching pair",
+    price: "$25",
+    note: "Add a backup pair or another vehicle pair in the same order.",
+  },
+  {
+    name: "One-side replacement",
+    price: "$18",
+    note: "For one truck door or one replacement decal.",
+  },
+  {
+    name: "USDOT + business name pair",
+    price: "$39",
+    note: "Includes USDOT number with company or legal business name.",
+  },
+];
 ---
 
 <html lang="en">
@@ -183,6 +206,39 @@ const usdotSeoFaqs = [
         </div>
       </section>
 
+
+      <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
+        <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:p-12">
+          <div class="mb-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">USDOT Pricing</p>
+            <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+              USDOT pricing that is clear before checkout.
+            </h2>
+            <p class="mt-4 max-w-3xl leading-7 text-white/60">
+              Start with simple USDOT sticker pricing, then add details like business name, quantity, size, color, and vehicle type. Final pricing is confirmed after order review.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-4">
+            {usdotPricingItems.map((item) => (
+              <article class="rounded-3xl border border-white/10 bg-black/20 p-5">
+                <p class="text-sm font-semibold text-white/55">{item.name}</p>
+                <p class="mt-3 text-3xl font-bold tracking-[-0.04em] text-white">{item.price}</p>
+                <p class="mt-3 text-sm leading-6 text-white/55">{item.note}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+            <a href="/upload-design" class="rounded-full bg-white px-6 py-3 text-center text-sm font-bold text-black">
+              Start USDOT Order
+            </a>
+            <a href="/faq" class="rounded-full border border-white/15 px-6 py-3 text-center text-sm font-bold text-white">
+              Read FAQ
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
         <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:grid-cols-[0.9fr_1.1fr] md:p-12">
