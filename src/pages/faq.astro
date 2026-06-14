@@ -4,23 +4,39 @@ import "../styles/global.css";
 const faqs = [
   {
     q: "What does ReasonableNoise make?",
-    a: "ReasonableNoise prints premium USDOT stickers, custom business decals, vehicle lettering, fleet branding, logo stickers, and other custom sticker products.",
-  },
-  {
-    q: "Can I upload my own design?",
-    a: "Yes. You can upload your logo, design file, reference image, or written instructions. The secure upload flow will be connected in the next backend phase.",
+    a: "ReasonableNoise prints premium USDOT stickers, custom business decals, vehicle lettering, fleet decals, truck stickers, logo stickers, and other custom vinyl sticker products.",
   },
   {
     q: "Do you make USDOT number stickers?",
-    a: "Yes. USDOT sticker sets are one of our main services. You can send your company name, USDOT number, preferred size, color, and quantity.",
+    a: "Yes. USDOT sticker sets are one of our main services. You can send your company name, USDOT number, preferred size, color, quantity, and vehicle type.",
+  },
+  {
+    q: "What information do I need for a USDOT sticker order?",
+    a: "For USDOT stickers, include your legal business name or company name, USDOT number, preferred decal size, color, quantity, and whether the stickers are for a truck, trailer, van, or fleet vehicle.",
+  },
+  {
+    q: "Can I upload my own design or logo?",
+    a: "Yes. You can securely upload your logo, artwork file, reference image, or written design instructions through the upload order form before checkout.",
   },
   {
     q: "Can I pay online?",
-    a: "Online payment will be added with Stripe Checkout in the next phase. PayPal can be added later as an optional payment method.",
+    a: "Yes. ReasonableNoise uses Stripe Checkout for secure online order deposits. You can choose local pickup or shipping during the order flow.",
+  },
+  {
+    q: "Do you offer pickup or shipping?",
+    a: "Yes. You can choose local pickup with no shipping fee or select shipping during checkout. Shipping address collection is handled securely during checkout when shipping is selected.",
   },
   {
     q: "Do you help with design layout?",
-    a: "Yes. If you do not have a print-ready design, you can request design help and provide the details you want on the sticker.",
+    a: "Yes. If you do not have a print-ready design, you can provide the details you want printed and request layout help before production.",
+  },
+  {
+    q: "Can you make decals for multiple trucks or fleet vehicles?",
+    a: "Yes. ReasonableNoise can help prepare matching USDOT decals, commercial truck lettering, trailer decals, van decals, and fleet branding for multiple vehicles.",
+  },
+  {
+    q: "What happens after I place an order?",
+    a: "After checkout, ReasonableNoise receives your order details, artwork information, pickup or shipping preference, and order reference. We use that information to prepare the sticker order for production.",
   },
 ];
 ---
@@ -49,6 +65,18 @@ const faqs = [
     <meta name="twitter:title" content="FAQ | ReasonableNoise Sticker Orders" />
     <meta name="twitter:description" content="Frequently asked questions about ReasonableNoise USDOT stickers, custom decals, artwork uploads, pickup, shipping, and order deposits." />
     <meta name="twitter:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    })} />
     <!-- RN-2I-A SEO END -->
   </head>
 
@@ -84,13 +112,13 @@ const faqs = [
         </a>
       </header>
 
-      <section class="mx-auto max-w-5xl px-6 py-24">
+      <section class="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
         <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
         <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
           Questions before you print?
         </h1>
         <p class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
-          Here are common questions about USDOT stickers, custom decals, design uploads, and online ordering.
+          Answers about ordering USDOT stickers, custom decals, artwork uploads, pickup, shipping, online deposits, and fleet vehicle lettering.
         </p>
 
         <div class="mt-12 grid gap-4">
@@ -101,11 +129,29 @@ const faqs = [
             </article>
           ))}
         </div>
+
+        <div class="mt-12 rounded-[2rem] border border-white/10 bg-white p-7 text-black md:p-9">
+          <p class="text-sm font-bold uppercase tracking-[0.25em] text-black/50">Start your order</p>
+          <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
+            Ready to start your sticker order?
+          </h2>
+          <p class="mt-4 max-w-2xl leading-7 text-black/60">
+            Upload your artwork, request USDOT stickers, choose pickup or shipping, and complete your secure order deposit online.
+          </p>
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+            <a href="/upload-design" class="rounded-full bg-black px-6 py-3 text-center text-sm font-bold text-white">
+              Upload Design
+            </a>
+            <a href="/usdot-stickers" class="rounded-full border border-black/10 px-6 py-3 text-center text-sm font-bold text-black">
+              View USDOT Stickers
+            </a>
+          </div>
+        </div>
       </section>
 
-      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
+      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between">
         <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
-        <div class="flex gap-5">
+        <div class="flex flex-wrap gap-5">
           <a href="/privacy" class="hover:text-white">Privacy</a>
           <a href="/terms" class="hover:text-white">Terms</a>
           <a href="/upload-design" class="hover:text-white">Contact</a>
