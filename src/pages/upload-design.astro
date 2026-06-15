@@ -347,6 +347,10 @@ const pricingGuideItems = [
                 <span id="price-preview-shipping" class="font-semibold text-black">Local pickup: $0.00</span>
               </div>
             </div>
+
+            <p class="mt-4 text-xs leading-5 text-black/45">
+              Standard shipping is estimated at $9.99. Large order shipping is estimated at $14.99. Oversized or special packaging may be confirmed after review.
+            </p>
           </div>
 
           <button
@@ -442,7 +446,8 @@ const pricingGuideItems = [
       const artworkInput = document.getElementById("artwork-file");
       const artworkStatus = document.getElementById("artwork-status");
       const ARTWORK_REQUIRED = false;
-      const SHIPPING_PREVIEW_CENTS = 999;
+      const STANDARD_SHIPPING_PREVIEW_CENTS = 999;
+      const LARGE_SHIPPING_PREVIEW_CENTS = 1499;
 
       const PRICE_PREVIEW_OPTIONS = [
         {
@@ -494,6 +499,9 @@ const pricingGuideItems = [
 
       const stickerTypeInput = form?.elements?.stickerType;
       const fulfillmentMethodInput = form?.elements?.fulfillmentMethod;
+      const quantityInput = form?.elements?.quantity;
+      const sizeInput = form?.elements?.size;
+      const notesInput = form?.elements?.notes;
       const pricePreviewLabel = document.getElementById("price-preview-label");
       const pricePreviewDetail = document.getElementById("price-preview-detail");
       const pricePreviewTotal = document.getElementById("price-preview-total");
@@ -519,16 +527,65 @@ const pricingGuideItems = [
         };
       }
 
+      function resolveShippingPreview(selected) {
+        const combined = [
+          stickerTypeInput?.value || "",
+          selected?.label || "",
+          quantityInput?.value || "",
+          sizeInput?.value || "",
+          notesInput?.value || "",
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        const quantityNumber = Number.parseInt(String(quantityInput?.value || ""), 10);
+
+        const largeOrderSignals = [
+          "truck door",
+          "fleet",
+          "logo sticker batch",
+          "large decal",
+          "large order",
+          "oversized",
+          "multi-vehicle",
+          "multiple vehicles",
+          "trailer lettering",
+          "vehicle lettering",
+          "yard sign",
+          "banner",
+        ];
+
+        const isLargeOrder =
+          largeOrderSignals.some((signal) => combined.includes(signal)) ||
+          (Number.isFinite(quantityNumber) && quantityNumber >= 20);
+
+        return isLargeOrder
+          ? {
+              label: "Large order shipping",
+              amountCents: LARGE_SHIPPING_PREVIEW_CENTS,
+            }
+          : {
+              label: "Standard shipping",
+              amountCents: STANDARD_SHIPPING_PREVIEW_CENTS,
+            };
+      }
+
       function getPricePreview() {
         const selected = resolvePricePreview(stickerTypeInput?.value || "");
         const isShipping = fulfillmentMethodInput?.value === "shipping";
-        const shippingCents = isShipping ? SHIPPING_PREVIEW_CENTS : 0;
+        const shipping = isShipping
+          ? resolveShippingPreview(selected)
+          : {
+              label: "Local pickup",
+              amountCents: 0,
+            };
 
         return {
           ...selected,
           isShipping,
-          shippingCents,
-          totalCents: selected.amountCents + shippingCents,
+          shippingLabel: shipping.label,
+          shippingCents: shipping.amountCents,
+          totalCents: selected.amountCents + shipping.amountCents,
         };
       }
 
@@ -549,13 +606,13 @@ const pricingGuideItems = [
 
         if (pricePreviewShipping) {
           pricePreviewShipping.textContent = preview.isShipping
-            ? `Shipping: ${formatMoneyFromCents(preview.shippingCents)}`
+            ? `${preview.shippingLabel}: ${formatMoneyFromCents(preview.shippingCents)}`
             : "Local pickup: $0.00";
         }
 
         if (pricePreviewDetail) {
           pricePreviewDetail.textContent = preview.isShipping
-            ? "Includes standard shipping estimate. Final price is confirmed after artwork, size, quantity, material, and production review."
+            ? `Includes ${preview.shippingLabel.toLowerCase()} estimate. Final price is confirmed after artwork, size, quantity, material, and production review.`
             : "Local pickup selected. Final price is confirmed after artwork, size, quantity, material, and production review.";
         }
 
@@ -591,6 +648,9 @@ const pricingGuideItems = [
 
       stickerTypeInput?.addEventListener("change", updatePricePreview);
       fulfillmentMethodInput?.addEventListener("change", updatePricePreview);
+      quantityInput?.addEventListener("input", updatePricePreview);
+      sizeInput?.addEventListener("input", updatePricePreview);
+      notesInput?.addEventListener("input", updatePricePreview);
       updatePricePreview();
 
       artworkInput?.addEventListener("change", () => {

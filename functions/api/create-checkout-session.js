@@ -96,6 +96,59 @@ function resolveCheckoutPricing(stickerType, env) {
 }
 
 
+function resolveShippingPricing(checkoutPricing, stickerType, quantity, size, notes, env) {
+  const standardShippingCents = centsFromEnv(env.SHIPPING_CENTS, 999);
+  const largeShippingCents = centsFromEnv(env.LARGE_SHIPPING_CENTS, 1499);
+
+  const normalized = [
+    stickerType,
+    checkoutPricing?.label,
+    quantity,
+    size,
+    notes,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  const quantityNumber = Number.parseInt(String(quantity || ""), 10);
+
+  const largeOrderSignals = [
+    "truck door",
+    "fleet",
+    "logo sticker batch",
+    "large decal",
+    "large order",
+    "oversized",
+    "multi-vehicle",
+    "multiple vehicles",
+    "trailer lettering",
+    "vehicle lettering",
+    "yard sign",
+    "banner",
+  ];
+
+  const isLargeOrder =
+    largeOrderSignals.some((signal) => normalized.includes(signal)) ||
+    (Number.isFinite(quantityNumber) && quantityNumber >= 20);
+
+  if (isLargeOrder) {
+    return {
+      label: "Large order shipping",
+      amountCents: largeShippingCents,
+      source: "large_order_shipping",
+      note: "Large order shipping selected based on item type, quantity, or order details.",
+    };
+  }
+
+  return {
+    label: "Standard shipping",
+    amountCents: standardShippingCents,
+    source: "standard_shipping",
+    note: "Standard shipping selected for lightweight sticker order.",
+  };
+}
+
 function createOrderReference() {
   const now = new Date();
   const yyyy = now.getUTCFullYear();
@@ -120,7 +173,6 @@ export async function onRequestPost(context) {
       body.fulfillmentMethod === "shipping" ? "shipping" : "local_pickup";
 
     const siteUrl = (env.SITE_URL || "https://reasonablenoise.com").replace(/\/$/, "");
-    const shippingCents = centsFromEnv(env.SHIPPING_CENTS, 999);
 
     const customerName = clean(body.customerName);
     const businessName = clean(body.businessName);
@@ -141,6 +193,7 @@ export async function onRequestPost(context) {
     const uploadId = clean(body.uploadId);
     const orderReference = createOrderReference();
     const checkoutPricing = resolveCheckoutPricing(stickerType, env);
+    const shippingPricing = resolveShippingPricing(checkoutPricing, stickerType, quantity, size, notes, env);
 
     if (!email || !customerName) {
       return json({
@@ -171,9 +224,9 @@ export async function onRequestPost(context) {
       params.set("shipping_address_collection[allowed_countries][0]", "US");
 
       params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-      params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(shippingCents));
+      params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(shippingPricing.amountCents));
       params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "usd");
-      params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard shipping");
+      params.set("shipping_options[0][shipping_rate_data][display_name]", shippingPricing.label);
       params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]", "business_day");
       params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]", "3");
       params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]", "business_day");
@@ -189,6 +242,10 @@ export async function onRequestPost(context) {
     params.set("metadata[checkout_price_label]", checkoutPricing.label);
     params.set("metadata[checkout_price_cents]", String(checkoutPricing.amountCents));
     params.set("metadata[checkout_price_source]", checkoutPricing.source);
+    params.set("metadata[shipping_price_label]", shippingPricing.label);
+    params.set("metadata[shipping_price_cents]", String(shippingPricing.amountCents));
+    params.set("metadata[shipping_price_source]", shippingPricing.source);
+    params.set("metadata[shipping_price_note]", shippingPricing.note);
     params.set("metadata[fulfillment_method]", fulfillmentMethod);
     params.set("metadata[usdot_number]", usdotNumber);
     params.set("metadata[decal_display_name]", decalDisplayName);
