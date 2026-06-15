@@ -1,0 +1,17 @@
+---
+const phoneNumber = "+2406013875";
+const message = "Hi ReasonableNoise, I need help with a sticker order."; 
+const href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noreferrer"
+  aria-label="Chat with ReasonableNoise on WhatsApp"
+  class="fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full border border-emerald-300/30 bg-emerald-500 px-5 py-3 text-sm font-bold text-white shadow-2xl shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-400"
+>
+  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg text-emerald-600">☎</span>
+  <span class="hidden sm:inline">Chat on WhatsApp</span>
+  <span class="sm:hidden">WhatsApp</span>
+</a>
