@@ -2,11 +2,15 @@
 import "../styles/global.css";
 
 const orderTypes = [
-  "USDOT Sticker Set",
-  "Custom Business Decals",
-  "Fleet Lettering Package",
-  "Logo / Artwork Printing",
-  "Design Help Needed",
+  "USDOT Sticker Pair - $29",
+  "Extra USDOT Pair - $25",
+  "One-Side USDOT Replacement - $18",
+  "USDOT + Business Name Pair - $39",
+  "Custom Business Decals - From $35",
+  "Truck Door Lettering - From $69",
+  "Fleet Lettering Package - From $59 / vehicle",
+  "Logo Sticker Batch - From $35",
+  "Design Cleanup / Layout Help - From $15",
 ];
 
 const uploadOrderSteps = [
@@ -264,7 +268,7 @@ const pricingGuideItems = [
             </label>
 
             <label class="grid gap-2 md:col-span-2">
-              <span class="text-sm font-semibold text-black/70">Sticker type</span>
+              <span class="text-sm font-semibold text-black/70">Sticker type / starting price</span>
               <select name="stickerType" class="rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 outline-none focus:border-black/30">
                 {orderTypes.map((type) => <option>{type}</option>)}
               </select>
@@ -319,6 +323,30 @@ const pricingGuideItems = [
               <span class="text-sm font-semibold text-black/70">Notes</span>
               <textarea name="notes" class="min-h-32 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 outline-none focus:border-black/30" placeholder="Tell us anything important about your order."></textarea>
             </label>
+          </div>
+
+          <div id="price-preview-card" aria-live="polite" class="mt-6 rounded-[1.5rem] border border-black/10 bg-black/[0.04] p-5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-black/40">Estimated checkout today</p>
+                <p id="price-preview-label" class="mt-2 text-lg font-bold text-black">USDOT Sticker Pair</p>
+                <p id="price-preview-detail" class="mt-2 text-sm leading-6 text-black/55">
+                  Final price is confirmed after artwork, size, quantity, material, and production review.
+                </p>
+              </div>
+              <p id="price-preview-total" class="text-3xl font-bold tracking-[-0.04em] text-black">$29.00</p>
+            </div>
+
+            <div class="mt-5 grid gap-2 text-sm text-black/60">
+              <div class="flex items-center justify-between gap-4">
+                <span>Selected item</span>
+                <span id="price-preview-base" class="font-semibold text-black">$29.00</span>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <span>Fulfillment</span>
+                <span id="price-preview-shipping" class="font-semibold text-black">Local pickup: $0.00</span>
+              </div>
+            </div>
           </div>
 
           <button
@@ -414,6 +442,127 @@ const pricingGuideItems = [
       const artworkInput = document.getElementById("artwork-file");
       const artworkStatus = document.getElementById("artwork-status");
       const ARTWORK_REQUIRED = false;
+      const SHIPPING_PREVIEW_CENTS = 999;
+
+      const PRICE_PREVIEW_OPTIONS = [
+        {
+          match: ["extra usdot"],
+          label: "Extra USDOT Pair",
+          amountCents: 2500,
+        },
+        {
+          match: ["one-side", "one side", "replacement"],
+          label: "One-Side USDOT Replacement",
+          amountCents: 1800,
+        },
+        {
+          match: ["usdot + business", "usdot plus business", "business name pair"],
+          label: "USDOT + Business Name Pair",
+          amountCents: 3900,
+        },
+        {
+          match: ["truck door"],
+          label: "Truck Door Lettering",
+          amountCents: 6900,
+        },
+        {
+          match: ["fleet"],
+          label: "Fleet Lettering Package",
+          amountCents: 5900,
+        },
+        {
+          match: ["logo sticker batch", "logo / artwork", "logo artwork", "artwork printing"],
+          label: "Logo Sticker Batch",
+          amountCents: 3500,
+        },
+        {
+          match: ["design cleanup", "design help"],
+          label: "Design Cleanup / Layout Help",
+          amountCents: 1500,
+        },
+        {
+          match: ["custom business", "custom decal"],
+          label: "Custom Business Decals",
+          amountCents: 3500,
+        },
+        {
+          match: ["usdot"],
+          label: "USDOT Sticker Pair",
+          amountCents: 2900,
+        },
+      ];
+
+      const stickerTypeInput = form?.elements?.stickerType;
+      const fulfillmentMethodInput = form?.elements?.fulfillmentMethod;
+      const pricePreviewLabel = document.getElementById("price-preview-label");
+      const pricePreviewDetail = document.getElementById("price-preview-detail");
+      const pricePreviewTotal = document.getElementById("price-preview-total");
+      const pricePreviewBase = document.getElementById("price-preview-base");
+      const pricePreviewShipping = document.getElementById("price-preview-shipping");
+
+      function formatMoneyFromCents(cents) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(Number(cents || 0) / 100);
+      }
+
+      function resolvePricePreview(stickerType) {
+        const normalized = String(stickerType || "").toLowerCase();
+        const selected = PRICE_PREVIEW_OPTIONS.find((option) =>
+          option.match.some((needle) => normalized.includes(needle))
+        );
+
+        return selected || {
+          label: "Custom Sticker Order",
+          amountCents: 2500,
+        };
+      }
+
+      function getPricePreview() {
+        const selected = resolvePricePreview(stickerTypeInput?.value || "");
+        const isShipping = fulfillmentMethodInput?.value === "shipping";
+        const shippingCents = isShipping ? SHIPPING_PREVIEW_CENTS : 0;
+
+        return {
+          ...selected,
+          isShipping,
+          shippingCents,
+          totalCents: selected.amountCents + shippingCents,
+        };
+      }
+
+      function updatePricePreview() {
+        const preview = getPricePreview();
+
+        if (pricePreviewLabel) {
+          pricePreviewLabel.textContent = preview.label;
+        }
+
+        if (pricePreviewTotal) {
+          pricePreviewTotal.textContent = formatMoneyFromCents(preview.totalCents);
+        }
+
+        if (pricePreviewBase) {
+          pricePreviewBase.textContent = formatMoneyFromCents(preview.amountCents);
+        }
+
+        if (pricePreviewShipping) {
+          pricePreviewShipping.textContent = preview.isShipping
+            ? `Shipping: ${formatMoneyFromCents(preview.shippingCents)}`
+            : "Local pickup: $0.00";
+        }
+
+        if (pricePreviewDetail) {
+          pricePreviewDetail.textContent = preview.isShipping
+            ? "Includes standard shipping estimate. Final price is confirmed after artwork, size, quantity, material, and production review."
+            : "Local pickup selected. Final price is confirmed after artwork, size, quantity, material, and production review.";
+        }
+
+        if (button && !button.disabled) {
+          button.textContent = `Continue to Secure Stripe Checkout (${formatMoneyFromCents(preview.totalCents)})`;
+        }
+      }
 
       function showMessage(text, isError = false) {
         if (!message) return;
@@ -439,6 +588,10 @@ const pricingGuideItems = [
           mode === "error" ? "text-red-700" : mode === "success" ? "text-emerald-700" : "text-black/70"
         );
       }
+
+      stickerTypeInput?.addEventListener("change", updatePricePreview);
+      fulfillmentMethodInput?.addEventListener("change", updatePricePreview);
+      updatePricePreview();
 
       artworkInput?.addEventListener("change", () => {
         const file = artworkInput.files?.[0];
@@ -519,7 +672,7 @@ const pricingGuideItems = [
         } catch (error) {
           showMessage(error.message || "Unable to start checkout.", true);
           button.disabled = false;
-          button.textContent = "Continue to Secure Stripe Checkout";
+          updatePricePreview();
         }
       });
     </script>

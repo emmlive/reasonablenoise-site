@@ -16,6 +16,85 @@ function centsFromEnv(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function resolveCheckoutPricing(stickerType, env) {
+  const normalized = String(stickerType || "").toLowerCase();
+
+  const options = [
+    {
+      match: ["extra usdot"],
+      label: "Extra USDOT Pair",
+      amountCents: 2500,
+      description: "Add another matching USDOT sticker pair in the same order.",
+    },
+    {
+      match: ["one-side", "one side", "replacement"],
+      label: "One-Side USDOT Replacement",
+      amountCents: 1800,
+      description: "One replacement USDOT decal for one door or side.",
+    },
+    {
+      match: ["usdot + business", "usdot plus business", "business name pair"],
+      label: "USDOT + Business Name Pair",
+      amountCents: 3900,
+      description: "USDOT number with company or legal business name.",
+    },
+    {
+      match: ["truck door"],
+      label: "Truck Door Lettering",
+      amountCents: 6900,
+      description: "Business name, phone, website, or simple vehicle lettering.",
+    },
+    {
+      match: ["fleet"],
+      label: "Fleet Lettering Package",
+      amountCents: 5900,
+      description: "Starting price for matching fleet lettering.",
+    },
+    {
+      match: ["logo sticker batch", "logo / artwork", "logo artwork", "artwork printing"],
+      label: "Logo Sticker Batch",
+      amountCents: 3500,
+      description: "Starter batch pricing for logo sticker orders.",
+    },
+    {
+      match: ["design cleanup", "design help"],
+      label: "Design Cleanup / Layout Help",
+      amountCents: 1500,
+      description: "Basic design cleanup, layout help, or print prep.",
+    },
+    {
+      match: ["custom business", "custom decal"],
+      label: "Custom Business Decals",
+      amountCents: 3500,
+      description: "Starting price for custom business decals.",
+    },
+    {
+      match: ["usdot"],
+      label: "USDOT Sticker Pair",
+      amountCents: 2900,
+      description: "Launch price for one standard USDOT sticker pair.",
+    },
+  ];
+
+  const selected = options.find((option) =>
+    option.match.some((needle) => normalized.includes(needle))
+  );
+
+  if (selected) {
+    return {
+      ...selected,
+      source: "server_price_map",
+    };
+  }
+
+  return {
+    label: "Custom Sticker Order Deposit",
+    amountCents: centsFromEnv(env.ORDER_DEPOSIT_CENTS, 2500),
+    description: "Custom sticker order deposit.",
+    source: "env_fallback",
+  };
+}
+
 
 function createOrderReference() {
   const now = new Date();
@@ -41,7 +120,6 @@ export async function onRequestPost(context) {
       body.fulfillmentMethod === "shipping" ? "shipping" : "local_pickup";
 
     const siteUrl = (env.SITE_URL || "https://reasonablenoise.com").replace(/\/$/, "");
-    const depositCents = centsFromEnv(env.ORDER_DEPOSIT_CENTS, 2500);
     const shippingCents = centsFromEnv(env.SHIPPING_CENTS, 999);
 
     const customerName = clean(body.customerName);
@@ -62,6 +140,7 @@ export async function onRequestPost(context) {
     const artworkType = clean(body.artworkType);
     const uploadId = clean(body.uploadId);
     const orderReference = createOrderReference();
+    const checkoutPricing = resolveCheckoutPricing(stickerType, env);
 
     if (!email || !customerName) {
       return json({
@@ -81,11 +160,11 @@ export async function onRequestPost(context) {
 
     params.set("line_items[0][quantity]", "1");
     params.set("line_items[0][price_data][currency]", "usd");
-    params.set("line_items[0][price_data][unit_amount]", String(depositCents));
-    params.set("line_items[0][price_data][product_data][name]", "ReasonableNoise Sticker Order Deposit");
+    params.set("line_items[0][price_data][unit_amount]", String(checkoutPricing.amountCents));
+    params.set("line_items[0][price_data][product_data][name]", `ReasonableNoise ${checkoutPricing.label}`);
     params.set(
       "line_items[0][price_data][product_data][description]",
-      `${stickerType} — ${fulfillmentMethod === "shipping" ? "Shipping" : "Local pickup"}`
+      `${checkoutPricing.description} — ${fulfillmentMethod === "shipping" ? "Shipping" : "Local pickup"}`
     );
 
     if (fulfillmentMethod === "shipping") {
@@ -107,6 +186,9 @@ export async function onRequestPost(context) {
     params.set("metadata[email]", email);
     params.set("metadata[phone]", phone);
     params.set("metadata[sticker_type]", stickerType);
+    params.set("metadata[checkout_price_label]", checkoutPricing.label);
+    params.set("metadata[checkout_price_cents]", String(checkoutPricing.amountCents));
+    params.set("metadata[checkout_price_source]", checkoutPricing.source);
     params.set("metadata[fulfillment_method]", fulfillmentMethod);
     params.set("metadata[usdot_number]", usdotNumber);
     params.set("metadata[decal_display_name]", decalDisplayName);
