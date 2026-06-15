@@ -11,6 +11,210 @@ function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getSiteUrl(env) {
+  return (env.SITE_URL || "https://reasonablenoise.com").replace(/\/$/, "");
+}
+
+function getLogoUrl(env) {
+  return `${getSiteUrl(env)}/assets/rn-logo.png`;
+}
+
+function customerCanBeNotified(record, status) {
+  const email = clean(record?.customer?.email || "", 300);
+
+  if (!email || email === "Not provided") {
+    return false;
+  }
+
+  return status === "ready_for_pickup" || status === "shipped";
+}
+
+function getStatusEmailSubject(record, status) {
+  const orderReference = record?.order_reference || "your order";
+
+  if (status === "ready_for_pickup") {
+    return `Your ReasonableNoise order is ready for pickup - ${orderReference}`;
+  }
+
+  if (status === "shipped") {
+    return `Your ReasonableNoise order has shipped - ${orderReference}`;
+  }
+
+  return `ReasonableNoise order update - ${orderReference}`;
+}
+
+function buildCustomerStatusEmailHtml(record, status, env) {
+  const logoUrl = getLogoUrl(env);
+  const siteUrl = getSiteUrl(env);
+  const fulfillment = record.fulfillment || {};
+  const order = record.order || {};
+  const customer = record.customer || {};
+
+  const headline =
+    status === "ready_for_pickup"
+      ? "Your order is ready for pickup."
+      : "Your order has shipped.";
+
+  const body =
+    status === "ready_for_pickup"
+      ? "Good news — your ReasonableNoise order is ready for pickup. Please reply to this email if you need help coordinating pickup."
+      : "Good news — your ReasonableNoise order has shipped. Tracking details are included below when available.";
+
+  const trackingHtml =
+    status === "shipped"
+      ? `
+        <div style="margin-top:18px;padding:18px;border:1px solid #e5e7eb;border-radius:18px;background:#f9fafb;">
+          <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">Shipping details</h2>
+          <p style="margin:0 0 8px;"><strong>Carrier:</strong> ${escapeHtml(fulfillment.carrier || "Not provided")}</p>
+          <p style="margin:0 0 8px;"><strong>Tracking number:</strong> ${escapeHtml(fulfillment.tracking_number || "Not provided")}</p>
+          ${fulfillment.tracking_url ? `
+            <p style="margin:14px 0 0;">
+              <a href="${escapeHtml(fulfillment.tracking_url)}" style="display:inline-block;background:#050608;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:999px;font-weight:800;">
+                Track shipment
+              </a>
+            </p>
+          ` : ""}
+        </div>
+      `
+      : `
+        <div style="margin-top:18px;padding:18px;border:1px solid #e5e7eb;border-radius:18px;background:#f9fafb;">
+          <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">Pickup details</h2>
+          <p style="margin:0;color:#374151;">Reply to this email if you need pickup timing or pickup instructions.</p>
+        </div>
+      `;
+
+  return `
+    <div style="margin:0;padding:24px;background:#050608;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+      <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:28px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="padding:26px 30px;border-bottom:1px solid #eef2f7;background:#ffffff;">
+          <img src="${escapeHtml(logoUrl)}" alt="ReasonableNoise" style="width:72px;height:72px;border-radius:18px;display:block;margin-bottom:14px;" />
+          <p style="margin:0;color:#6b7280;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;font-weight:800;">Order update</p>
+          <h1 style="margin:8px 0 0;font-size:30px;line-height:1.1;color:#111827;">${escapeHtml(headline)}</h1>
+        </div>
+
+        <div style="padding:30px;">
+          <p style="margin:0 0 20px;font-size:16px;line-height:1.7;color:#374151;">
+            Hi ${escapeHtml(customer.name || "there")}, ${escapeHtml(body)}
+          </p>
+
+          <div style="padding:18px;border:1px solid #e5e7eb;border-radius:18px;background:#ffffff;">
+            <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">Order summary</h2>
+            <p style="margin:0 0 8px;"><strong>Order reference:</strong> ${escapeHtml(record.order_reference || "")}</p>
+            <p style="margin:0 0 8px;"><strong>Current status:</strong> ${escapeHtml(record.status_label || "")}</p>
+            <p style="margin:0 0 8px;"><strong>Order type:</strong> ${escapeHtml(order.sticker_type || "Sticker order")}</p>
+            <p style="margin:0;"><strong>Fulfillment:</strong> ${escapeHtml(order.fulfillment_method || "Not provided")}</p>
+          </div>
+
+          ${trackingHtml}
+
+          <p style="margin:24px 0 0;font-size:14px;line-height:1.7;color:#6b7280;">
+            Questions? Reply to this email or visit <a href="${escapeHtml(siteUrl)}" style="color:#111827;font-weight:700;">ReasonableNoise</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildCustomerStatusEmailText(record, status, env) {
+  const fulfillment = record.fulfillment || {};
+  const order = record.order || {};
+
+  const headline =
+    status === "ready_for_pickup"
+      ? "Your order is ready for pickup."
+      : "Your order has shipped.";
+
+  const trackingText =
+    status === "shipped"
+      ? `
+Shipping details
+Carrier: ${fulfillment.carrier || "Not provided"}
+Tracking number: ${fulfillment.tracking_number || "Not provided"}
+Tracking URL: ${fulfillment.tracking_url || "Not provided"}
+`
+      : `
+Pickup details
+Reply to this email if you need pickup timing or pickup instructions.
+`;
+
+  return `
+${headline}
+
+Order reference: ${record.order_reference || ""}
+Current status: ${record.status_label || ""}
+Order type: ${order.sticker_type || "Sticker order"}
+Fulfillment: ${order.fulfillment_method || "Not provided"}
+
+${trackingText}
+
+Questions? Reply to this email or visit ${getSiteUrl(env)}.
+`.trim();
+}
+
+async function sendCustomerStatusEmail(env, record, status) {
+  if (!customerCanBeNotified(record, status)) {
+    return {
+      sent: false,
+      skipped: true,
+      reason: "Status is internal-only or customer email is missing.",
+    };
+  }
+
+  if (!env.RESEND_API_KEY) {
+    return {
+      sent: false,
+      skipped: true,
+      reason: "RESEND_API_KEY is not configured.",
+    };
+  }
+
+  const to = clean(record?.customer?.email || "", 300);
+  const from = env.ORDER_FROM_EMAIL || "ReasonableNoise Orders <onboarding@resend.dev>";
+
+  const payload = {
+    from,
+    to,
+    subject: getStatusEmailSubject(record, status),
+    html: buildCustomerStatusEmailHtml(record, status, env),
+    text: buildCustomerStatusEmailText(record, status, env),
+  };
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    return {
+      sent: false,
+      skipped: false,
+      error: data?.message || "Resend customer status email failed.",
+    };
+  }
+
+  return {
+    sent: true,
+    skipped: false,
+    id: data?.id || null,
+  };
+}
+
 function getAdminToken(env) {
   return clean(env.ADMIN_ORDER_TOKEN || env.ADMIN_DOWNLOAD_TOKEN || "", 500);
 }
@@ -164,6 +368,19 @@ export async function onRequestPost(context) {
     source: "admin_status_update_page",
   });
 
+  const customerEmailResult = await sendCustomerStatusEmail(env, record, status);
+
+  record.timeline.push({
+    status: customerEmailResult.sent ? "customer_email_sent" : "customer_email_not_sent",
+    label: customerEmailResult.sent ? "Customer email sent" : "Customer email not sent",
+    at: new Date().toISOString(),
+    note: customerEmailResult.sent
+      ? `Customer status email sent for ${STATUS_LABELS[status]}.`
+      : customerEmailResult.reason || customerEmailResult.error || "Customer status email was not sent.",
+    source: "admin_status_update_page",
+    email_id: customerEmailResult.id || "",
+  });
+
   await env.ARTWORK_BUCKET.put(result.key, JSON.stringify(record, null, 2), {
     httpMetadata: {
       contentType: "application/json; charset=utf-8",
@@ -177,6 +394,7 @@ export async function onRequestPost(context) {
     status_label: STATUS_LABELS[status],
     updated_at: now,
     record,
-    customer_email_sent: false,
+    customer_email_sent: Boolean(customerEmailResult.sent),
+    customer_email_result: customerEmailResult,
   });
 }

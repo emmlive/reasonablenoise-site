@@ -207,7 +207,11 @@ import "../styles/global.css";
           }
 
           renderRecord(data.record);
-          showMessage(`Status updated to ${data.status_label}. Customer email is not sent yet.`);
+          showMessage(
+            data.customer_email_sent
+              ? `Status updated to ${data.status_label}. Customer email was sent.`
+              : `Status updated to ${data.status_label}. Customer email was not sent.`
+          );
         } catch (error) {
           showMessage(error.message || "Unable to update order.", true);
         } finally {
