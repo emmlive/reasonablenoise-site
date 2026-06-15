@@ -80,6 +80,14 @@ function isAuthorized(request, env, body = {}) {
   return Boolean(expected && token && token === expected);
 }
 
+function getOrderRecordKey(orderReference) {
+  const safeReference = clean(orderReference, 140)
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .slice(0, 120);
+
+  return `orders/status/${safeReference || "unknown-order"}.json`;
+}
+
 function summarizeOrder(record, key) {
   const customer = record.customer || {};
   const order = record.order || {};
@@ -163,5 +171,53 @@ export async function onRequestGet(context) {
     count: orders.length,
     cursor: listed.truncated ? listed.cursor || "" : "",
     truncated: Boolean(listed.truncated),
+  });
+}
+
+
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+
+  if (!isAuthorized(request, env)) {
+    return json({ success: false, error: "Unauthorized admin delete request." }, 401);
+  }
+
+  if (!env.ARTWORK_BUCKET) {
+    return json({ success: false, error: "ARTWORK_BUCKET is not configured." }, 500);
+  }
+
+  const orderReference = clean(url.searchParams.get("order_ref") || url.searchParams.get("orderReference"), 140);
+
+  if (!orderReference) {
+    return json({ success: false, error: "Missing order reference." }, 400);
+  }
+
+  if (!orderReference.startsWith("RN-TEST-")) {
+    return json({
+      success: false,
+      error: "Only RN-TEST-* records can be deleted from this endpoint.",
+    }, 403);
+  }
+
+  const key = getOrderRecordKey(orderReference);
+  const existing = await env.ARTWORK_BUCKET.get(key);
+
+  if (!existing) {
+    return json({
+      success: false,
+      error: "Test order record was not found.",
+      key,
+      order_reference: orderReference,
+    }, 404);
+  }
+
+  await env.ARTWORK_BUCKET.delete(key);
+
+  return json({
+    success: true,
+    deleted: true,
+    key,
+    order_reference: orderReference,
   });
 }

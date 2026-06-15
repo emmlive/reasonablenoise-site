@@ -255,13 +255,62 @@ import "../styles/global.css";
                 </div>
               </div>
 
-              <a href="${updateUrl}" class="rounded-full bg-black px-5 py-3 text-center text-sm font-bold text-white">
-                Open Order
-              </a>
+              <div class="flex flex-col gap-2">
+                <a href="${updateUrl}" class="rounded-full bg-black px-5 py-3 text-center text-sm font-bold text-white">
+                  Open Order
+                </a>
+                ${isTestOrder(order) ? `
+                  <button
+                    type="button"
+                    class="delete-test-order-button rounded-full border border-red-200 bg-red-50 px-5 py-3 text-center text-sm font-bold text-red-700"
+                    data-order-reference="${escapeHtml(order.order_reference || "")}"
+                  >
+                    Delete Test
+                  </button>
+                ` : ""}
+              </div>
             </div>
           `;
 
           ordersList.appendChild(card);
+        }
+      }
+
+      async function deleteTestOrder(orderReference) {
+        if (!orderReference || !orderReference.startsWith("RN-TEST-")) {
+          showMessage("Only RN-TEST orders can be deleted.", true);
+          return;
+        }
+
+        const confirmed = window.confirm(`Delete test order ${orderReference}? This only removes the RN-TEST record from R2.`);
+
+        if (!confirmed) {
+          return;
+        }
+
+        const token = getToken();
+
+        try {
+          const response = await fetch(`/api/admin-orders?order_ref=${encodeURIComponent(orderReference)}`, {
+            method: "DELETE",
+            headers: token
+              ? {
+                  "x-admin-order-token": token,
+                }
+              : {},
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || "Unable to delete test order.");
+          }
+
+          loadedOrders = loadedOrders.filter((order) => order.order_reference !== orderReference);
+          refreshVisibleOrders();
+          showMessage(`Deleted test order ${orderReference}.`, false);
+        } catch (error) {
+          showMessage(error.message || "Unable to delete test order.", true);
         }
       }
 
@@ -323,6 +372,16 @@ import "../styles/global.css";
         sessionStorage.setItem("rnAdminOrderToken", token);
         tokenInput.value = "";
         loadOrders(false);
+      });
+
+      ordersList.addEventListener("click", (event) => {
+        const button = event.target.closest(".delete-test-order-button");
+
+        if (!button) {
+          return;
+        }
+
+        deleteTestOrder(button.dataset.orderReference || "");
       });
 
       refreshButton.addEventListener("click", () => loadOrders(false));
