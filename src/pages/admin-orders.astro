@@ -29,14 +29,14 @@ import "../styles/global.css";
             Refresh Orders
           </button>
           <button id="clear-token-button" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-black">
-            Clear Admin Session
+            Reset Dashboard
           </button>
         </div>
       </header>
 
       <section class="mt-10 grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
         <aside class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
-          <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Cloudflare Access + Token</p>
+          <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Cloudflare Access Protected</p>
           <h1 class="mt-4 text-4xl font-semibold tracking-[-0.04em]">Manage orders without terminal.</h1>
           <p class="mt-4 text-sm leading-6 text-white/60">
             Cloudflare Access protects this admin area. Once your email login is approved, orders load automatically without pasting an admin token.
@@ -54,7 +54,7 @@ import "../styles/global.css";
           <div class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/60">
             <p class="font-bold text-white">Security note</p>
             <p class="mt-2 leading-6">
-              Protected by Cloudflare Access email login. Use Clear Admin Session or close the browser when finished on a shared computer. ADMIN_ORDER_TOKEN remains only as an emergency backend fallback.
+              Protected by Cloudflare Access email login. Use Reset Dashboard to clear local dashboard state, and close the browser when finished on a shared computer. ADMIN_ORDER_TOKEN remains only as an emergency backend fallback.
             </p>
           </div>
         </aside>
@@ -336,12 +336,12 @@ import "../styles/global.css";
         sessionStorage.removeItem("rnAdminOrderToken");
         ordersList.innerHTML = `
           <div class="rounded-3xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/55">
-            Admin session cleared. Refresh the page to re-check Cloudflare Access.
+            Dashboard reset. Refresh the page to re-check Cloudflare Access.
           </div>
         `;
         loadedOrders = [];
         ordersCount.textContent = "Not loaded";
-        showMessage("Admin session cleared.", false);
+        showMessage("Dashboard reset.", false);
       });
 
       loadOrders(false);
