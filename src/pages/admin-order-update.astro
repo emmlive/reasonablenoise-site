@@ -87,7 +87,16 @@ import "../styles/global.css";
 
     <script>
       const params = new URLSearchParams(window.location.search);
-      const token = params.get("token") || "";
+      const tokenFromUrl = params.get("token") || "";
+
+      if (tokenFromUrl) {
+        sessionStorage.setItem("rnAdminOrderToken", tokenFromUrl);
+        params.delete("token");
+        const cleanUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+        window.history.replaceState({}, "", cleanUrl);
+      }
+
+      const token = sessionStorage.getItem("rnAdminOrderToken") || "";
       const orderReference = params.get("order_ref") || params.get("orderReference") || "";
 
       const form = document.getElementById("status-form");
