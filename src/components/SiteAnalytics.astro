@@ -1,0 +1,101 @@
+﻿<script is:inline>
+  (function () {
+    function cleanText(value, max) {
+      return String(value || "").replace(/\s+/g, " ").trim().slice(0, max || 300);
+    }
+
+    function pagePath() {
+      return window.location.pathname + window.location.search;
+    }
+
+    function sendEvent(eventName, detail) {
+      try {
+        const payload = {
+          eventName,
+          pagePath: pagePath(),
+          href: cleanText(detail && detail.href, 700),
+          label: cleanText(detail && detail.label, 300),
+          referrer: document.referrer || "",
+          metadata: (detail && detail.metadata) || {},
+        };
+
+        navigator.sendBeacon
+          ? navigator.sendBeacon(
+              "/api/track-event",
+              new Blob([JSON.stringify(payload)], { type: "application/json" })
+            )
+          : fetch("/api/track-event", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(payload),
+              keepalive: true,
+            }).catch(function () {});
+      } catch (error) {}
+    }
+
+    window.rnTrack = sendEvent;
+
+    document.addEventListener(
+      "click",
+      function (event) {
+        const target = event.target && event.target.closest ? event.target.closest("a,button") : null;
+        if (!target) return;
+
+        const href = target.getAttribute("href") || "";
+        const label = cleanText(target.textContent || target.getAttribute("aria-label") || "", 240);
+        const id = target.getAttribute("id") || "";
+
+        let eventName = "site_click";
+
+        if (href.includes("wa.me")) eventName = "whatsapp_click";
+        else if (href.includes("/contact?topic=dtf")) eventName = "dtf_quote_click";
+        else if (href.includes("/dtf-shirts")) eventName = "dtf_details_click";
+        else if (href.includes("/upload-design")) eventName = "start_order_click";
+        else if (href.includes("/contact")) eventName = "contact_click";
+        else if (id === "checkout-button") eventName = "checkout_button_click";
+        else if (id === "contact-button") eventName = "contact_button_click";
+
+        sendEvent(eventName, {
+          href,
+          label,
+          metadata: {
+            element_id: id,
+          },
+        });
+      },
+      true
+    );
+
+    document.addEventListener(
+      "submit",
+      function (event) {
+        const form = event.target;
+        if (!form || !form.id || typeof FormData === "undefined") return;
+
+        const formData = new FormData(form);
+
+        if (form.id === "order-form") {
+          sendEvent("checkout_form_submit", {
+            label: "Order form submitted",
+            metadata: {
+              stickerType: formData.get("stickerType") || "",
+              fulfillmentMethod: formData.get("fulfillmentMethod") || "",
+              quantity: formData.get("quantity") || "",
+              material: formData.get("material") || "",
+            },
+          });
+        }
+
+        if (form.id === "contact-form") {
+          sendEvent("contact_form_submit", {
+            label: "Contact form submitted",
+            metadata: {
+              contactType: formData.get("contactType") || "",
+            },
+          });
+        }
+      },
+      true
+    );
+  })();
+</script>

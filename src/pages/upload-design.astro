@@ -1,5 +1,6 @@
 ﻿---
 import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
 
 const orderTypes = [
@@ -786,6 +787,16 @@ const pricingGuideItems = [
             throw new Error(data.error || "Unable to start checkout.");
           }
 
+          window.rnTrack?.("stripe_checkout_start", {
+            label: "Stripe Checkout started",
+            metadata: {
+              stickerType: payload.stickerType || "",
+              fulfillmentMethod: payload.fulfillmentMethod || "",
+              quantity: payload.quantity || "",
+              material: payload.material || "",
+            },
+          });
+
           window.location.href = data.url;
         } catch (error) {
           showMessage(error.message || "Unable to start checkout.", true);
@@ -795,6 +806,7 @@ const pricingGuideItems = [
       });
     </script>
       <WhatsAppChat />
+      <SiteAnalytics />
   </body>
 </html>
 

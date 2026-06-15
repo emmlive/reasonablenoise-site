@@ -1,5 +1,6 @@
 ﻿---
 import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
 ---
 
@@ -209,6 +210,13 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
             throw new Error(data.error || "Unable to send message.");
           }
 
+          window.rnTrack?.("contact_form_success", {
+            label: "Contact form sent",
+            metadata: {
+              contactType: payload.contactType || "",
+            },
+          });
+
           form.reset();
           showContactMessage("Message sent. We’ll follow up soon.");
           button.textContent = "Message Sent";
@@ -221,5 +229,6 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
     </script>
 
     <WhatsAppChat />
+      <SiteAnalytics />
   </body>
 </html>
