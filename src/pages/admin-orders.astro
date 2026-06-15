@@ -68,6 +68,35 @@ import "../styles/global.css";
             <p id="orders-count" class="text-sm text-black/50">Not loaded</p>
           </div>
 
+          <div class="mt-6 grid gap-3 rounded-3xl border border-black/10 bg-black/[0.03] p-4 md:grid-cols-[1fr_180px_auto] md:items-end">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-[0.18em] text-black/40" for="admin-order-search">Search</label>
+              <input
+                id="admin-order-search"
+                type="search"
+                placeholder="Search order, customer, email, tracking..."
+                class="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-[0.18em] text-black/40" for="admin-status-filter">Status</label>
+              <select id="admin-status-filter" class="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none">
+                <option value="">All statuses</option>
+                <option value="order_received">Order received</option>
+                <option value="artwork_review_started">Artwork review started</option>
+                <option value="ready_for_pickup">Ready for pickup</option>
+                <option value="shipped">Shipped</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <label class="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/70">
+              <input id="admin-show-test-orders" type="checkbox" class="h-4 w-4" />
+              Show test orders
+            </label>
+          </div>
+
           <div id="orders-list" class="mt-6 grid gap-4">
             <div class="rounded-3xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/55">
               Enter your admin token to load orders.
@@ -100,8 +129,12 @@ import "../styles/global.css";
       const refreshButton = document.getElementById("refresh-button");
       const clearTokenButton = document.getElementById("clear-token-button");
       const loadMoreButton = document.getElementById("load-more-button");
+      const searchInput = document.getElementById("admin-order-search");
+      const statusFilter = document.getElementById("admin-status-filter");
+      const showTestOrdersInput = document.getElementById("admin-show-test-orders");
 
       let nextCursor = "";
+      let loadedOrders = [];
 
       function escapeHtml(value) {
         return String(value || "")
@@ -127,6 +160,46 @@ import "../styles/global.css";
         return sessionStorage.getItem("rnAdminOrderToken") || "";
       }
 
+      function isTestOrder(order) {
+        return String(order.order_reference || "").startsWith("RN-TEST-") || String(order.source || "").includes("test");
+      }
+
+      function getVisibleOrders() {
+        const query = String(searchInput?.value || "").trim().toLowerCase();
+        const status = String(statusFilter?.value || "").trim();
+        const showTests = Boolean(showTestOrdersInput?.checked);
+
+        return loadedOrders.filter((order) => {
+          if (!showTests && isTestOrder(order)) return false;
+          if (status && order.status !== status) return false;
+
+          if (!query) return true;
+
+          const haystack = [
+            order.order_reference,
+            order.customer_name,
+            order.customer_email,
+            order.business_name,
+            order.order_type,
+            order.fulfillment_method,
+            order.tracking_number,
+            order.carrier,
+            order.status_label,
+          ]
+            .join(" ")
+            .toLowerCase();
+
+          return haystack.includes(query);
+        });
+      }
+
+      function refreshVisibleOrders() {
+        renderOrders(getVisibleOrders(), false);
+        const total = loadedOrders.length;
+        const visible = getVisibleOrders().length;
+        ordersCount.textContent = `${visible} shown / ${total} loaded${nextCursor ? " — more available" : ""}`;
+      }
+
       function statusBadgeClass(status) {
         if (status === "shipped") return "bg-blue-50 text-blue-700 border-blue-100";
         if (status === "ready_for_pickup") return "bg-emerald-50 text-emerald-700 border-emerald-100";
@@ -143,7 +216,7 @@ import "../styles/global.css";
         if (!orders.length && !append) {
           ordersList.innerHTML = `
             <div class="rounded-3xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/55">
-              No order records found yet.
+              No matching order records found. Adjust filters or enable “Show test orders.”
             </div>
           `;
           return;
@@ -211,10 +284,13 @@ import "../styles/global.css";
             throw new Error(data.error || "Unable to load orders.");
           }
 
-          renderOrders(data.orders || [], append);
+          loadedOrders = append
+            ? loadedOrders.concat(data.orders || [])
+            : data.orders || [];
+
           nextCursor = data.cursor || "";
           loadMoreButton.classList.toggle("hidden", !nextCursor);
-          ordersCount.textContent = `${data.count || 0} loaded${data.truncated ? " — more available" : ""}`;
+          refreshVisibleOrders();
           showMessage("Orders loaded.", false);
         } catch (error) {
           ordersList.innerHTML = `
@@ -243,6 +319,9 @@ import "../styles/global.css";
 
       refreshButton.addEventListener("click", () => loadOrders(false));
       loadMoreButton.addEventListener("click", () => loadOrders(true));
+      searchInput?.addEventListener("input", refreshVisibleOrders);
+      statusFilter?.addEventListener("change", refreshVisibleOrders);
+      showTestOrdersInput?.addEventListener("change", refreshVisibleOrders);
 
       clearTokenButton.addEventListener("click", () => {
         sessionStorage.removeItem("rnAdminOrderToken");
@@ -251,6 +330,7 @@ import "../styles/global.css";
             Admin session cleared. Refresh the page to re-check Cloudflare Access.
           </div>
         `;
+        loadedOrders = [];
         ordersCount.textContent = "Not loaded";
         showMessage("Admin session cleared.", false);
       });

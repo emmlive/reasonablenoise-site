@@ -13,7 +13,7 @@ import "../styles/global.css";
 
   <body class="min-h-screen bg-[#050608] text-white antialiased">
     <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <header class="flex items-center justify-between gap-4">
+      <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <a href="/" class="flex items-center gap-3">
           <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-black p-2 shadow-lg shadow-black/30 ring-1 ring-white/10">
             <img src="/assets/rn-logo.png" alt="ReasonableNoise logo" class="h-full w-full object-contain" />
@@ -22,6 +22,10 @@ import "../styles/global.css";
             <p class="font-semibold">ReasonableNoise Admin</p>
             <p class="text-xs text-white/50">Cloudflare Access protected order status update</p>
           </div>
+        </a>
+
+        <a href="/admin-orders" class="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white">
+          ← Back to Orders
         </a>
       </header>
 
