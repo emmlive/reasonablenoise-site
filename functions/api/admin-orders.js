@@ -15,10 +15,61 @@ function getAdminToken(env) {
   return clean(env.ADMIN_ORDER_TOKEN || env.ADMIN_DOWNLOAD_TOKEN || "", 500);
 }
 
-function isAuthorized(request, env) {
+function decodeAccessJwtEmail(jwt) {
+  try {
+    const parts = String(jwt || "").split(".");
+    if (parts.length < 2) return "";
+
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const payload = JSON.parse(atob(padded));
+
+    return clean(payload.email || payload.common_name || "", 300).toLowerCase();
+  } catch (error) {
+    return "";
+  }
+}
+
+function getCloudflareAccessEmail(request) {
+  const directEmail = clean(
+    request.headers.get("cf-access-authenticated-user-email") ||
+      request.headers.get("Cf-Access-Authenticated-User-Email") ||
+      "",
+    300
+  ).toLowerCase();
+
+  if (directEmail) return directEmail;
+
+  return decodeAccessJwtEmail(
+    request.headers.get("cf-access-jwt-assertion") ||
+      request.headers.get("Cf-Access-Jwt-Assertion") ||
+      ""
+  );
+}
+
+function getAllowedAdminEmails(env) {
+  return String(env.ADMIN_ACCESS_EMAIL || "reasonablenoise@gmail.com")
+    .split(",")
+    .map((email) => clean(email, 300).toLowerCase())
+    .filter(Boolean);
+}
+
+function isCloudflareAccessAuthorized(request, env) {
+  const email = getCloudflareAccessEmail(request);
+  const allowedEmails = getAllowedAdminEmails(env);
+
+  return Boolean(email && allowedEmails.includes(email));
+}
+
+function isAuthorized(request, env, body = {}) {
+  if (isCloudflareAccessAuthorized(request, env)) {
+    return true;
+  }
+
   const url = new URL(request.url);
   const token = clean(
     url.searchParams.get("token") ||
+      body.token ||
       request.headers.get("x-admin-order-token") ||
       "",
     500

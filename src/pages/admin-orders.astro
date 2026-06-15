@@ -39,28 +39,22 @@ import "../styles/global.css";
           <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Cloudflare Access + Token</p>
           <h1 class="mt-4 text-4xl font-semibold tracking-[-0.04em]">Manage orders without terminal.</h1>
           <p class="mt-4 text-sm leading-6 text-white/60">
-            Cloudflare Access protects this admin area first. Enter your admin token as a second security layer to view recent orders and open secure status updates.
+            Cloudflare Access protects this admin area. Once your email login is approved, orders load automatically without pasting an admin token.
           </p>
 
-          <form id="token-form" class="mt-6">
-            <label class="block text-sm font-semibold text-white" for="admin-token">Admin token</label>
-            <input
-              id="admin-token"
-              type="password"
-              placeholder="Paste ADMIN_ORDER_TOKEN"
-              class="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none"
-            />
-            <button class="mt-4 w-full rounded-full bg-white px-5 py-3 text-sm font-bold text-black" type="submit">
-              Save Token & Load Orders
-            </button>
-          </form>
+          <div class="mt-6 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-sm text-emerald-100">
+            <p class="font-bold text-white">Access verified</p>
+            <p class="mt-2 leading-6">
+              You are inside the Cloudflare-protected admin area. Use Refresh Orders to reload recent order records.
+            </p>
+          </div>
 
           <p id="admin-message" class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm"></p>
 
           <div class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/60">
             <p class="font-bold text-white">Security note</p>
             <p class="mt-2 leading-6">
-              Protected by Cloudflare Access plus ADMIN_ORDER_TOKEN. Use Clear Admin Session when finished on a shared computer. Rotate the token if it is ever exposed.
+              Protected by Cloudflare Access email login. Use Clear Admin Session or close the browser when finished on a shared computer. ADMIN_ORDER_TOKEN remains only as an emergency backend fallback.
             </p>
           </div>
         </aside>
@@ -193,11 +187,6 @@ import "../styles/global.css";
       async function loadOrders(append = false) {
         const token = getToken();
 
-        if (!token) {
-          showMessage("Enter your admin token to load orders.", true);
-          return;
-        }
-
         if (!append) {
           nextCursor = "";
           ordersList.innerHTML = `
@@ -209,9 +198,11 @@ import "../styles/global.css";
 
         try {
           const response = await fetch(`/api/admin-orders?limit=50${nextCursor ? `&cursor=${encodeURIComponent(nextCursor)}` : ""}`, {
-            headers: {
-              "x-admin-order-token": token,
-            },
+            headers: token
+              ? {
+                  "x-admin-order-token": token,
+                }
+              : {},
           });
 
           const data = await response.json();
@@ -235,10 +226,10 @@ import "../styles/global.css";
         }
       }
 
-      tokenForm.addEventListener("submit", (event) => {
+      tokenForm?.addEventListener("submit", (event) => {
         event.preventDefault();
 
-        const token = tokenInput.value.trim();
+        const token = tokenInput?.value?.trim() || "";
 
         if (!token) {
           showMessage("Paste your admin token first.", true);
@@ -257,16 +248,14 @@ import "../styles/global.css";
         sessionStorage.removeItem("rnAdminOrderToken");
         ordersList.innerHTML = `
           <div class="rounded-3xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/55">
-            Admin session cleared. Enter token again to load orders.
+            Admin session cleared. Refresh the page to re-check Cloudflare Access.
           </div>
         `;
         ordersCount.textContent = "Not loaded";
         showMessage("Admin session cleared.", false);
       });
 
-      if (getToken()) {
-        loadOrders(false);
-      }
+      loadOrders(false);
     </script>
   </body>
 </html>

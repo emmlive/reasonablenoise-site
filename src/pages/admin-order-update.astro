@@ -164,14 +164,18 @@ import "../styles/global.css";
       async function loadOrder() {
         orderInput.value = orderReference;
 
-        if (!orderReference || !token) {
-          summary.textContent = "Missing order reference or secure token.";
-          showMessage("Missing order reference or secure token.", true);
+        if (!orderReference) {
+          summary.innerHTML = '<a href="/admin-orders" style="color:#ffffff;font-weight:800;text-decoration:underline;">Go to Admin Orders</a>';
+          showMessage("Missing order reference. Open an order from Admin Orders.", true);
           return;
         }
 
         try {
-          const response = await fetch(`/api/order-status?order_ref=${encodeURIComponent(orderReference)}&token=${encodeURIComponent(token)}`);
+          const statusUrl = token
+            ? `/api/order-status?order_ref=${encodeURIComponent(orderReference)}&token=${encodeURIComponent(token)}`
+            : `/api/order-status?order_ref=${encodeURIComponent(orderReference)}`;
+
+          const response = await fetch(statusUrl);
           const data = await response.json();
 
           if (!response.ok || !data.success) {
