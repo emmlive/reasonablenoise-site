@@ -20,7 +20,7 @@ import "../styles/global.css";
           </div>
           <div>
             <p class="font-semibold">ReasonableNoise Admin</p>
-            <p class="text-xs text-white/50">Secure order status update</p>
+            <p class="text-xs text-white/50">Cloudflare Access protected order status update</p>
           </div>
         </a>
       </header>
@@ -30,7 +30,7 @@ import "../styles/global.css";
           <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Order</p>
           <h1 class="mt-4 text-4xl font-semibold tracking-[-0.04em]">Update customer order status.</h1>
           <p class="mt-4 text-sm leading-6 text-white/60">
-            This page updates the private order record only. Customer notification email will be added in RN-2Q-C.
+            This page updates the private order record. Ready for pickup and shipped updates can notify the customer automatically.
           </p>
 
           <div id="order-summary" class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/70">
@@ -219,7 +219,7 @@ import "../styles/global.css";
           showMessage(
             data.customer_email_sent
               ? `Status updated to ${data.status_label}. Customer email was sent.`
-              : `Status updated to ${data.status_label}. Customer email was not sent.`
+              : `Status updated to ${data.status_label}. Customer email was not sent for this status or recipient.`
           );
         } catch (error) {
           showMessage(error.message || "Unable to update order.", true);

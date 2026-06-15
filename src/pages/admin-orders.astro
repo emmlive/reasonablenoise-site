@@ -36,10 +36,10 @@ import "../styles/global.css";
 
       <section class="mt-10 grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
         <aside class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
-          <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Admin access</p>
+          <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Cloudflare Access + Token</p>
           <h1 class="mt-4 text-4xl font-semibold tracking-[-0.04em]">Manage orders without terminal.</h1>
           <p class="mt-4 text-sm leading-6 text-white/60">
-            Enter your admin token once. It stays in this browser session and lets you view recent orders and open the secure update page.
+            Cloudflare Access protects this admin area first. Enter your admin token as a second security layer to view recent orders and open secure status updates.
           </p>
 
           <form id="token-form" class="mt-6">
@@ -60,7 +60,7 @@ import "../styles/global.css";
           <div class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/60">
             <p class="font-bold text-white">Security note</p>
             <p class="mt-2 leading-6">
-              This page is noindex. For the final premium version, protect it with Cloudflare Access and your email login.
+              Protected by Cloudflare Access plus ADMIN_ORDER_TOKEN. Use Clear Admin Session when finished on a shared computer. Rotate the token if it is ever exposed.
             </p>
           </div>
         </aside>
