@@ -127,7 +127,18 @@ function orderDetailsFromSession(session) {
     paymentStatus: session.payment_status || "",
     orderReference: metadata.order_reference || session.client_reference_id || session.id || "",
     amountTotal: formatUsd(session.amount_total, session.currency),
+    amountTotalCents: Number(session.amount_total || 0),
+    amountSubtotalCents: Number(session.amount_subtotal || 0),
     currency: String(session.currency || "usd").toUpperCase(),
+    paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : "",
+
+    checkoutPriceLabel: metadata.checkout_price_label || "",
+    checkoutPriceCents: metadata.checkout_price_cents || "",
+    checkoutPriceSource: metadata.checkout_price_source || "",
+    shippingPriceLabel: metadata.shipping_price_label || "",
+    shippingPriceCents: metadata.shipping_price_cents || "",
+    shippingPriceSource: metadata.shipping_price_source || "",
+    shippingPriceNote: metadata.shipping_price_note || "",
 
     customerName:
       metadata.customer_name ||
@@ -168,6 +179,126 @@ function orderDetailsFromSession(session) {
   };
 }
 
+
+function getOrderRecordKey(orderReference) {
+  const safeReference = String(orderReference || "unknown-order")
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .slice(0, 120);
+
+  return `orders/status/${safeReference || "unknown-order"}.json`;
+}
+
+function buildInitialOrderRecord(order, event) {
+  const now = new Date().toISOString();
+
+  return {
+    order_reference: order.orderReference || "",
+    status: "order_received",
+    status_label: "Order received",
+    created_at: now,
+    updated_at: now,
+    source: "stripe_webhook",
+    stripe: {
+      event_id: event?.id || "",
+      session_id: order.sessionId || "",
+      payment_intent_id: order.paymentIntentId || "",
+      payment_status: order.paymentStatus || "",
+      amount_total: order.amountTotal || "",
+      amount_total_cents: Number(order.amountTotalCents || 0),
+      amount_subtotal_cents: Number(order.amountSubtotalCents || 0),
+      currency: order.currency || "USD",
+      checkout_price_label: order.checkoutPriceLabel || "",
+      checkout_price_cents: order.checkoutPriceCents || "",
+      checkout_price_source: order.checkoutPriceSource || "",
+      shipping_price_label: order.shippingPriceLabel || "",
+      shipping_price_cents: order.shippingPriceCents || "",
+      shipping_price_source: order.shippingPriceSource || "",
+      shipping_price_note: order.shippingPriceNote || "",
+    },
+    customer: {
+      name: order.customerName || "",
+      business_name: order.businessName || "",
+      email: order.email || "",
+      phone: order.phone || "",
+    },
+    order: {
+      sticker_type: order.stickerType || "",
+      fulfillment_method: order.fulfillmentMethod || "",
+      usdot_number: order.usdotNumber || "",
+      decal_display_name: order.decalDisplayName || "",
+      size: order.size || "",
+      quantity: order.quantity || "",
+      color_preference: order.colorPreference || "",
+      material: order.material || "",
+      notes: order.notes || "",
+    },
+    artwork: {
+      object_key: order.artworkObjectKey || "",
+      filename: order.artworkFilename || "",
+      size: order.artworkSize || "",
+      type: order.artworkType || "",
+      upload_id: order.uploadId || "",
+    },
+    fulfillment: {
+      shipping_name: order.shippingName || "",
+      shipping_address: order.shippingAddress || "",
+    },
+    timeline: [
+      {
+        status: "order_received",
+        label: "Order received",
+        at: now,
+        note: "Customer completed Stripe Checkout. Initial confirmation emails were sent or attempted.",
+      },
+    ],
+  };
+}
+
+async function storeInitialOrderRecord(env, order, event) {
+  const key = getOrderRecordKey(order?.orderReference);
+
+  if (!env.ARTWORK_BUCKET) {
+    return {
+      stored: false,
+      key,
+      skipped: true,
+      error: "ARTWORK_BUCKET is not configured.",
+    };
+  }
+
+  try {
+    const existing = await env.ARTWORK_BUCKET.get(key);
+
+    if (existing) {
+      return {
+        stored: false,
+        key,
+        existing: true,
+      };
+    }
+
+    const record = buildInitialOrderRecord(order, event);
+
+    await env.ARTWORK_BUCKET.put(key, JSON.stringify(record, null, 2), {
+      httpMetadata: {
+        contentType: "application/json; charset=utf-8",
+      },
+    });
+
+    return {
+      stored: true,
+      key,
+      existing: false,
+    };
+  } catch (error) {
+    return {
+      stored: false,
+      key,
+      error: String(error?.message || error),
+    };
+  }
+}
 
 function getAdminArtworkDownloadUrl(order, env) {
   if (!order || !order.artworkObjectKey || !env || !env.ADMIN_DOWNLOAD_TOKEN) {
@@ -586,12 +717,15 @@ export async function onRequestPost(context) {
     }
 
     const order = orderDetailsFromSession(session);
+    const orderRecordResult = await storeInitialOrderRecord(env, order, event);
     const emailResult = await sendOrderEmail(env, order);
     const customerEmailResult = await sendCustomerConfirmationEmail(env, order);
 
     await markStripeEventProcessed(env, event.id, {
       checkoutSessionId: session.id || "",
       orderReference: order.orderReference || "",
+      orderRecordKey: orderRecordResult?.key || "",
+      orderRecordStored: Boolean(orderRecordResult?.stored),
       emailId: emailResult?.id || null,
       customerEmailId: customerEmailResult?.id || null,
     });
@@ -603,6 +737,7 @@ export async function onRequestPost(context) {
       event_id: event.id,
       email_id: emailResult?.id || null,
       customer_email_result: customerEmailResult,
+      order_record: orderRecordResult,
     });
   } catch (error) {
     return json({
