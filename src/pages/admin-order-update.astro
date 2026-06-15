@@ -1,0 +1,222 @@
+﻿---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Update Order Status | ReasonableNoise Admin</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+  </head>
+
+  <body class="min-h-screen bg-[#050608] text-white antialiased">
+    <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <header class="flex items-center justify-between gap-4">
+        <a href="/" class="flex items-center gap-3">
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-black p-2 shadow-lg shadow-black/30 ring-1 ring-white/10">
+            <img src="/assets/rn-logo.png" alt="ReasonableNoise logo" class="h-full w-full object-contain" />
+          </div>
+          <div>
+            <p class="font-semibold">ReasonableNoise Admin</p>
+            <p class="text-xs text-white/50">Secure order status update</p>
+          </div>
+        </a>
+      </header>
+
+      <section class="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
+          <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Order</p>
+          <h1 class="mt-4 text-4xl font-semibold tracking-[-0.04em]">Update customer order status.</h1>
+          <p class="mt-4 text-sm leading-6 text-white/60">
+            This page updates the private order record only. Customer notification email will be added in RN-2Q-C.
+          </p>
+
+          <div id="order-summary" class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/70">
+            Loading order record...
+          </div>
+        </div>
+
+        <form id="status-form" class="rounded-[2rem] bg-white p-6 text-black shadow-2xl shadow-black/30">
+          <p class="text-sm font-bold uppercase tracking-[0.25em] text-black/40">Status</p>
+
+          <label class="mt-5 block text-sm font-semibold" for="order-reference">Order reference</label>
+          <input id="order-reference" name="orderReference" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none" readonly />
+
+          <label class="mt-5 block text-sm font-semibold" for="status">New status</label>
+          <select id="status" name="status" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none">
+            <option value="artwork_review_started">Artwork review started</option>
+            <option value="ready_for_pickup">Ready for pickup</option>
+            <option value="shipped">Shipped</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-sm font-semibold" for="carrier">Carrier</label>
+              <input id="carrier" name="carrier" placeholder="USPS, UPS, FedEx" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold" for="tracking-number">Tracking number</label>
+              <input id="tracking-number" name="trackingNumber" placeholder="Optional" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none" />
+            </div>
+          </div>
+
+          <label class="mt-5 block text-sm font-semibold" for="tracking-url">Tracking URL</label>
+          <input id="tracking-url" name="trackingUrl" placeholder="Optional tracking link" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none" />
+
+          <label class="mt-5 block text-sm font-semibold" for="note">Internal note</label>
+          <textarea id="note" name="note" rows="4" placeholder="Optional note for the order timeline" class="mt-2 w-full rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 outline-none"></textarea>
+
+          <button id="submit-button" type="submit" class="mt-6 w-full rounded-full bg-black px-5 py-4 text-sm font-bold text-white">
+            Update Status
+          </button>
+
+          <p id="form-message" class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm"></p>
+        </form>
+      </section>
+
+      <section class="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Timeline</p>
+        <div id="timeline" class="mt-5 grid gap-3 text-sm text-white/70">
+          No timeline loaded yet.
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token") || "";
+      const orderReference = params.get("order_ref") || params.get("orderReference") || "";
+
+      const form = document.getElementById("status-form");
+      const orderInput = document.getElementById("order-reference");
+      const summary = document.getElementById("order-summary");
+      const timeline = document.getElementById("timeline");
+      const message = document.getElementById("form-message");
+      const button = document.getElementById("submit-button");
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function showMessage(text, isError = false) {
+        message.textContent = text;
+        message.classList.remove("hidden");
+        message.classList.toggle("border-red-200", isError);
+        message.classList.toggle("bg-red-50", isError);
+        message.classList.toggle("text-red-700", isError);
+        message.classList.toggle("border-emerald-200", !isError);
+        message.classList.toggle("bg-emerald-50", !isError);
+        message.classList.toggle("text-emerald-700", !isError);
+      }
+
+      function renderRecord(record) {
+        const customer = record.customer || {};
+        const order = record.order || {};
+        const fulfillment = record.fulfillment || {};
+
+        summary.innerHTML = `
+          <div class="grid gap-2">
+            <p><strong class="text-white">Reference:</strong> ${escapeHtml(record.order_reference)}</p>
+            <p><strong class="text-white">Current status:</strong> ${escapeHtml(record.status_label || record.status)}</p>
+            <p><strong class="text-white">Customer:</strong> ${escapeHtml(customer.name)} — ${escapeHtml(customer.email)}</p>
+            <p><strong class="text-white">Order:</strong> ${escapeHtml(order.sticker_type)} / ${escapeHtml(order.fulfillment_method)}</p>
+            <p><strong class="text-white">Shipping:</strong> ${escapeHtml(fulfillment.shipping_name)}</p>
+            <p class="whitespace-pre-line">${escapeHtml(fulfillment.shipping_address)}</p>
+          </div>
+        `;
+
+        const items = Array.isArray(record.timeline) ? record.timeline.slice().reverse() : [];
+
+        timeline.innerHTML = items.length
+          ? items
+              .map((item) => {
+                return `
+                  <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p class="font-semibold text-white">${escapeHtml(item.label || item.status)}</p>
+                    <p class="text-white/45">${escapeHtml(item.at)}</p>
+                    ${item.note ? `<p class="mt-2">${escapeHtml(item.note)}</p>` : ""}
+                    ${item.tracking_number ? `<p class="mt-2">Tracking: ${escapeHtml(item.carrier)} ${escapeHtml(item.tracking_number)}</p>` : ""}
+                    ${item.tracking_url ? `<p class="mt-1 break-all">${escapeHtml(item.tracking_url)}</p>` : ""}
+                  </div>
+                `;
+              })
+              .join("")
+          : "No timeline events yet.";
+      }
+
+      async function loadOrder() {
+        orderInput.value = orderReference;
+
+        if (!orderReference || !token) {
+          summary.textContent = "Missing order reference or secure token.";
+          showMessage("Missing order reference or secure token.", true);
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/order-status?order_ref=${encodeURIComponent(orderReference)}&token=${encodeURIComponent(token)}`);
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || "Unable to load order.");
+          }
+
+          renderRecord(data.record);
+        } catch (error) {
+          summary.textContent = error.message || "Unable to load order.";
+          showMessage(error.message || "Unable to load order.", true);
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        button.disabled = true;
+        button.textContent = "Updating...";
+
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("/api/order-status", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              token,
+              orderReference,
+              status: formData.get("status"),
+              carrier: formData.get("carrier"),
+              trackingNumber: formData.get("trackingNumber"),
+              trackingUrl: formData.get("trackingUrl"),
+              note: formData.get("note"),
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || "Unable to update order.");
+          }
+
+          renderRecord(data.record);
+          showMessage(`Status updated to ${data.status_label}. Customer email is not sent yet.`);
+        } catch (error) {
+          showMessage(error.message || "Unable to update order.", true);
+        } finally {
+          button.disabled = false;
+          button.textContent = "Update Status";
+        }
+      });
+
+      loadOrder();
+    </script>
+  </body>
+</html>

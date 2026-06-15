@@ -300,6 +300,24 @@ async function storeInitialOrderRecord(env, order, event) {
   }
 }
 
+function getAdminOrderUpdateUrl(order, env) {
+  if (!order || !order.orderReference || !env) {
+    return "";
+  }
+
+  const token = env.ADMIN_ORDER_TOKEN || env.ADMIN_DOWNLOAD_TOKEN || "";
+
+  if (!token) {
+    return "";
+  }
+
+  const siteUrl = getSiteUrl(env);
+  const orderRef = encodeURIComponent(order.orderReference);
+  const safeToken = encodeURIComponent(token);
+
+  return `${siteUrl}/admin-order-update?order_ref=${orderRef}&token=${safeToken}`;
+}
+
 function getAdminArtworkDownloadUrl(order, env) {
   if (!order || !order.artworkObjectKey || !env || !env.ADMIN_DOWNLOAD_TOKEN) {
     return "";
@@ -368,6 +386,17 @@ function buildEmailHtml(order, env) {
         ` : ""}
       </div>
 
+      ${getAdminOrderUpdateUrl(order, env) ? `
+        <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px; margin-bottom: 20px;">
+          <h2 style="margin: 0 0 12px;">Order management</h2>
+          <p style="color:#4b5563;margin:0 0 14px;">Update the private order status record after reviewing artwork, preparing pickup, or adding shipping tracking.</p>
+          <a href="${escapeHtml(getAdminOrderUpdateUrl(order, env))}" style="display:inline-block;background:#0f766e;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:999px;font-weight:800;">
+            Update order status
+          </a>
+          <p style="font-size:12px;color:#6b7280;margin-top:12px;">Customer status emails are not sent from this button yet.</p>
+        </div>
+      ` : ""}
+
       <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 16px;">
         <h2 style="margin: 0 0 12px;">Shipping</h2>
         <p><strong>Shipping name:</strong> ${escapeHtml(order.shippingName)}</p>
@@ -411,6 +440,7 @@ Artwork type: ${order.artworkType || "Not uploaded"}
 R2 private key: ${order.artworkObjectKey || "Not uploaded"}
 Upload ID: ${order.uploadId || "Not uploaded"}
 Download artwork: ${getAdminArtworkDownloadUrl(order, env) || "Not available"}
+Update order status: ${getAdminOrderUpdateUrl(order, env) || "Not available"}
 
 Shipping
 Shipping name: ${order.shippingName}
