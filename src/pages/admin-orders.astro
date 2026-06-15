@@ -68,7 +68,7 @@ import "../styles/global.css";
             <p id="orders-count" class="text-sm text-black/50">Not loaded</p>
           </div>
 
-          <div class="mt-6 grid gap-3 rounded-3xl border border-black/10 bg-black/[0.03] p-4 md:grid-cols-[1fr_180px_auto] md:items-end">
+          <div class="mt-6 grid gap-3 rounded-3xl border border-black/10 bg-black/[0.03] p-4 md:grid-cols-[1fr_180px_auto_auto] md:items-end">
             <div>
               <label class="block text-xs font-bold uppercase tracking-[0.18em] text-black/40" for="admin-order-search">Search</label>
               <input
@@ -94,6 +94,11 @@ import "../styles/global.css";
             <label class="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/70">
               <input id="admin-show-test-orders" type="checkbox" class="h-4 w-4" />
               Show test orders
+            </label>
+
+            <label class="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/70">
+              <input id="admin-show-completed-orders" type="checkbox" class="h-4 w-4" />
+              Show completed
             </label>
           </div>
 
@@ -132,6 +137,7 @@ import "../styles/global.css";
       const searchInput = document.getElementById("admin-order-search");
       const statusFilter = document.getElementById("admin-status-filter");
       const showTestOrdersInput = document.getElementById("admin-show-test-orders");
+      const showCompletedOrdersInput = document.getElementById("admin-show-completed-orders");
 
       let nextCursor = "";
       let loadedOrders = [];
@@ -168,9 +174,11 @@ import "../styles/global.css";
         const query = String(searchInput?.value || "").trim().toLowerCase();
         const status = String(statusFilter?.value || "").trim();
         const showTests = Boolean(showTestOrdersInput?.checked);
+        const showCompleted = Boolean(showCompletedOrdersInput?.checked);
 
         return loadedOrders.filter((order) => {
           if (!showTests && isTestOrder(order)) return false;
+          if (!showCompleted && !status && order.status === "completed") return false;
           if (status && order.status !== status) return false;
 
           if (!query) return true;
@@ -216,7 +224,7 @@ import "../styles/global.css";
         if (!orders.length && !append) {
           ordersList.innerHTML = `
             <div class="rounded-3xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/55">
-              No matching order records found. Adjust filters or enable “Show test orders.”
+              No matching order records found. Adjust filters, enable “Show test orders,” or enable “Show completed.”
             </div>
           `;
           return;
@@ -322,6 +330,7 @@ import "../styles/global.css";
       searchInput?.addEventListener("input", refreshVisibleOrders);
       statusFilter?.addEventListener("change", refreshVisibleOrders);
       showTestOrdersInput?.addEventListener("change", refreshVisibleOrders);
+      showCompletedOrdersInput?.addEventListener("change", refreshVisibleOrders);
 
       clearTokenButton.addEventListener("click", () => {
         sessionStorage.removeItem("rnAdminOrderToken");
