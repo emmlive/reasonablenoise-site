@@ -165,6 +165,28 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         message.classList.toggle("text-emerald-700", !isError);
       }
 
+      function applyContactPrefill() {
+        const params = new URLSearchParams(window.location.search);
+        const topic = params.get("topic");
+
+        if (topic !== "dtf" || !form) return;
+
+        const contactType = form.elements.contactType;
+        const messageField = form.elements.message;
+
+        if (contactType) {
+          contactType.value = "DTF T-shirt coming soon quote";
+        }
+
+        if (messageField && !messageField.value) {
+          messageField.placeholder = "Tell us about your DTF shirt request: quantity, shirt color, print size, front/back print, artwork status, and deadline.";
+        }
+
+        showContactMessage("DTF quote request selected. Send your shirt details and we’ll follow up.", false);
+      }
+
+      applyContactPrefill();
+
       form?.addEventListener("submit", async (event) => {
         event.preventDefault();
 
