@@ -1,0 +1,169 @@
+---
+---
+
+<section id="quick-quote" class="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
+  <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white p-5 text-black shadow-2xl shadow-black/30 sm:p-8 md:grid-cols-[0.9fr_1.1fr] md:p-12">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/45">Quick Quote</p>
+      <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+        Not ready to checkout? Get a quote first.
+      </h2>
+      <p class="mt-5 leading-7 text-black/60">
+        Send your sticker, USDOT, decal, truck lettering, or fleet request. We’ll review the details and follow up before you pay.
+      </p>
+
+      <div class="mt-6 grid gap-3 text-sm text-black/60">
+        <p class="rounded-2xl border border-black/10 bg-black/[0.03] p-4">
+          Best for custom sizes, fleet orders, logo decals, truck lettering, or questions before checkout.
+        </p>
+        <p class="rounded-2xl border border-black/10 bg-black/[0.03] p-4">
+          Ready to order now? You can still use secure checkout and upload artwork.
+        </p>
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <a href="/upload-design" class="rounded-full bg-black px-6 py-3 text-center text-sm font-bold text-white">
+          Start Order
+        </a>
+        <a href="/contact" class="rounded-full border border-black/10 px-6 py-3 text-center text-sm font-bold text-black">
+          Full Contact Form
+        </a>
+      </div>
+    </div>
+
+    <form data-quick-quote-form class="rounded-[2rem] border border-black/10 bg-black/[0.03] p-5 sm:p-6">
+      <div class="grid gap-4">
+        <label class="grid gap-2">
+          <span class="text-sm font-semibold text-black/70">Name *</span>
+          <input name="name" required class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Your name" />
+        </label>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="grid gap-2">
+            <span class="text-sm font-semibold text-black/70">Email *</span>
+            <input name="email" type="email" required class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="you@email.com" />
+          </label>
+
+          <label class="grid gap-2">
+            <span class="text-sm font-semibold text-black/70">Phone</span>
+            <input name="phone" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Phone number" />
+          </label>
+        </div>
+
+        <label class="grid gap-2">
+          <span class="text-sm font-semibold text-black/70">Project type</span>
+          <select name="projectType" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30">
+            <option>USDOT stickers</option>
+            <option>Custom business decals</option>
+            <option>Truck door lettering</option>
+            <option>Fleet lettering</option>
+            <option>Logo stickers</option>
+            <option>DTF T-shirt quote</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <label class="grid gap-2">
+          <span class="text-sm font-semibold text-black/70">What do you need? *</span>
+          <textarea name="message" required class="min-h-28 rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Example: I need two USDOT sticker sets for a truck. Black letters, white background, shipped to me."></textarea>
+        </label>
+      </div>
+
+      <button type="submit" class="mt-5 w-full rounded-full bg-black px-6 py-4 text-sm font-bold text-white shadow-xl shadow-black/20">
+        Request Quick Quote
+      </button>
+
+      <p data-quick-quote-message class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm font-semibold"></p>
+    </form>
+  </div>
+</section>
+
+<div class="fixed bottom-20 left-4 right-4 z-40 grid grid-cols-2 gap-3 md:hidden">
+  <a href="#quick-quote" class="rounded-full bg-white px-4 py-3 text-center text-sm font-black text-black shadow-2xl shadow-black/30">
+    Get Quote
+  </a>
+  <a href="/upload-design" class="rounded-full bg-cyan-300 px-4 py-3 text-center text-sm font-black text-black shadow-2xl shadow-cyan-300/20">
+    Start Order
+  </a>
+</div>
+
+<script>
+  document.querySelectorAll("[data-quick-quote-form]").forEach((form) => {
+    if (form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
+
+    const messageBox = form.querySelector("[data-quick-quote-message]");
+    const button = form.querySelector("button[type='submit']");
+
+    function showMessage(text, isError = false) {
+      if (!messageBox) return;
+
+      messageBox.textContent = text;
+      messageBox.classList.remove("hidden");
+      messageBox.classList.toggle("border-red-200", isError);
+      messageBox.classList.toggle("bg-red-50", isError);
+      messageBox.classList.toggle("text-red-700", isError);
+      messageBox.classList.toggle("border-emerald-200", !isError);
+      messageBox.classList.toggle("bg-emerald-50", !isError);
+      messageBox.classList.toggle("text-emerald-700", !isError);
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const projectType = String(formData.get("projectType") || "Quote request");
+      const details = String(formData.get("message") || "");
+      const pagePath = window.location.pathname;
+
+      const payload = {
+        name: String(formData.get("name") || ""),
+        email: String(formData.get("email") || ""),
+        phone: String(formData.get("phone") || ""),
+        contactType: projectType,
+        message: [
+          "Quick quote request",
+          "",
+          "Project type: " + projectType,
+          "Page: " + pagePath,
+          "",
+          details,
+        ].join("\n"),
+      };
+
+      button.disabled = true;
+      const originalText = button.textContent;
+      button.textContent = "Sending quote request...";
+
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Unable to send quote request.");
+        }
+
+        window.rnTrack?.("quick_quote_submit", {
+          label: "Quick quote submitted",
+          metadata: {
+            projectType,
+            pagePath,
+          },
+        });
+
+        form.reset();
+        showMessage("Quote request sent. We’ll follow up soon.", false);
+      } catch (error) {
+        showMessage(error.message || "Unable to send quote request.", true);
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+  });
+</script>

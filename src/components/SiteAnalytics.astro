@@ -50,6 +50,7 @@
         if (href.includes("wa.me")) eventName = "whatsapp_click";
         else if (href.includes("/contact?topic=dtf")) eventName = "dtf_quote_click";
         else if (href.includes("/dtf-shirts")) eventName = "dtf_details_click";
+        else if (href.includes("#quick-quote")) eventName = "quick_quote_click";
         else if (href.includes("/upload-design")) eventName = "start_order_click";
         else if (href.includes("/contact")) eventName = "contact_click";
         else if (id === "checkout-button") eventName = "checkout_button_click";
