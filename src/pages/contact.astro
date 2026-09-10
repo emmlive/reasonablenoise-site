@@ -121,6 +121,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
                 <option>Artwork / design help</option>
                 <option>Pickup or shipping question</option>
                 <option>DTF T-shirt order quote</option>
+                <option>DTF - I will bring my own shirts</option>
                 <option>Other</option>
               </select>
             </label>
@@ -180,7 +181,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         }
 
         if (messageField && !messageField.value) {
-          messageField.placeholder = "Tell us about your DTF shirt request: quantity, shirt color, print size, front/back print, artwork status, and deadline.";
+          messageField.placeholder = "Tell us about your DTF shirt request: quantity, shirt color, whether you are bringing your own shirts, print size, front/back print, artwork status, and deadline.";
         }
 
         showContactMessage("DTF order quote selected. Send your shirt details and we’ll follow up.", false);
