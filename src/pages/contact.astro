@@ -126,6 +126,51 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
               </select>
             </label>
 
+            <div data-rn-dtf-detail-panel data-rn-dtf-detail-panel-contact class="hidden rounded-3xl border border-cyan-200/70 bg-cyan-50 p-4 md:col-span-2">
+              <div class="mb-4">
+                <p class="text-sm font-black uppercase tracking-[0.2em] text-cyan-800">DTF order details</p>
+                <p class="mt-2 text-sm leading-6 text-black/60">Add the shirt details so we can quote the order accurately.</p>
+              </div>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <label class="grid gap-2">
+                  <span class="text-sm font-semibold text-black/70">Shirt source</span>
+                  <select name="dtfShirtSource" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30">
+                    <option>ReasonableNoise supplies shirts</option>
+                    <option>Customer brings shirts</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm font-semibold text-black/70">Quantity</span>
+                  <input name="dtfQuantity" type="number" min="1" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Example: 12" />
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm font-semibold text-black/70">Shirt color</span>
+                  <input name="dtfShirtColor" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Black, white, assorted..." />
+                </label>
+
+                <label class="grid gap-2">
+                  <span class="text-sm font-semibold text-black/70">Print placement</span>
+                  <select name="dtfPrintPlacement" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30">
+                    <option>Front</option>
+                    <option>Back</option>
+                    <option>Front + Back</option>
+                    <option>Sleeve / custom placement</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </label>
+
+                <label class="grid gap-2 md:col-span-2">
+                  <span class="text-sm font-semibold text-black/70">Deadline</span>
+                  <input name="dtfDeadline" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Needed by date or flexible" />
+                </label>
+              </div>
+            </div>
+
+
             <label class="grid gap-2 md:col-span-2">
               <span class="text-sm font-semibold text-black/70">Message *</span>
               <textarea name="message" required class="min-h-40 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 outline-none focus:border-black/30" placeholder="Tell us what you need."></textarea>
@@ -158,6 +203,30 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       const form = document.getElementById("contact-form");
       const button = document.getElementById("contact-button");
       const message = document.getElementById("contact-message");
+      const dtfPanel = form?.querySelector("[data-rn-dtf-detail-panel]");
+
+      function isDtfContact(value) {
+        return String(value || "").toLowerCase().includes("dtf");
+      }
+
+      function updateDtfPanel() {
+        const contactType = form?.elements.contactType;
+        if (!dtfPanel || !contactType) return;
+        dtfPanel.classList.toggle("hidden", !isDtfContact(contactType.value));
+      }
+
+      function getDtfDetails(formData, contactType) {
+        if (!isDtfContact(contactType)) return [];
+
+        return [
+          "Shirt source: " + String(formData.get("dtfShirtSource") || ""),
+          "Quantity: " + String(formData.get("dtfQuantity") || ""),
+          "Shirt color: " + String(formData.get("dtfShirtColor") || ""),
+          "Print placement: " + String(formData.get("dtfPrintPlacement") || ""),
+          "Deadline: " + String(formData.get("dtfDeadline") || ""),
+        ].filter((line) => !line.endsWith(": "));
+      }
+
 
       function showContactMessage(text, isError = false) {
         if (!message) return;
@@ -187,7 +256,13 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         showContactMessage("DTF order quote selected. Send your shirt details and we’ll follow up.", false);
       }
 
+      form?.elements.contactType?.addEventListener("change", updateDtfPanel);
+
+
       applyContactPrefill();
+
+
+      updateDtfPanel();
 
       form?.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -196,7 +271,38 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         button.textContent = "Sending message...";
         showContactMessage("Sending your message...");
 
-        const payload = Object.fromEntries(new FormData(form).entries());
+        const formData = new FormData(form);
+
+
+        const payload = Object.fromEntries(formData.entries());
+
+
+        const dtfDetails = getDtfDetails(formData, payload.contactType || "");
+
+
+
+        if (dtfDetails.length) {
+
+
+          payload.message = [
+
+
+            payload.message || "",
+
+
+            "",
+
+
+            "DTF order details",
+
+
+            ...dtfDetails,
+
+
+          ].join("\n").trim();
+
+
+        }
 
         try {
           const response = await fetch("/api/contact", {
@@ -233,3 +339,4 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       <SiteAnalytics />
   </body>
 </html>
+
