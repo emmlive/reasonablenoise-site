@@ -65,7 +65,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
             Need help with a sticker order?
           </h1>
           <p class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
-            Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt quote requests.
+            Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt order quote requests.
           </p>
 
           <div class="mt-10 grid gap-4">
@@ -120,7 +120,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
                 <option>Custom decal quote</option>
                 <option>Artwork / design help</option>
                 <option>Pickup or shipping question</option>
-                <option>DTF T-shirt coming soon quote</option>
+                <option>DTF T-shirt order quote</option>
                 <option>Other</option>
               </select>
             </label>
@@ -176,14 +176,14 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         const messageField = form.elements.message;
 
         if (contactType) {
-          contactType.value = "DTF T-shirt coming soon quote";
+          contactType.value = "DTF T-shirt order quote";
         }
 
         if (messageField && !messageField.value) {
           messageField.placeholder = "Tell us about your DTF shirt request: quantity, shirt color, print size, front/back print, artwork status, and deadline.";
         }
 
-        showContactMessage("DTF quote request selected. Send your shirt details and we’ll follow up.", false);
+        showContactMessage("DTF order quote selected. Send your shirt details and we’ll follow up.", false);
       }
 
       applyContactPrefill();
