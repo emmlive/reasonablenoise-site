@@ -16,8 +16,8 @@ const orderTypes = [
 ];
 
 const uploadOrderSteps = [
-  "Submit your sticker details and artwork if available.",
-  "Choose local pickup or shipping during checkout.",
+  "Submit your sticker, decal, or DTF shirt details and artwork if available.",
+  "Choose local pickup or shipping for checkout orders. DTF shirt requests are confirmed by quote first.",
   "Pay the secure order deposit through Stripe.",
   "Receive an order reference so we can prepare production.",
 ];
@@ -25,7 +25,7 @@ const uploadOrderSteps = [
 const uploadPageFaqs = [
   {
     q: "Can I upload artwork before checkout?",
-    a: "Yes. You can upload your logo, artwork file, reference image, or design file before Stripe Checkout. Upload is optional, but it helps ReasonableNoise prepare your sticker order faster.",
+    a: "Yes. You can upload your logo, artwork file, reference image, or design file before checkout or quote review. Upload is optional, but it helps ReasonableNoise prepare sticker, decal, and DTF shirt requests faster.",
   },
   {
     q: "Can I order USDOT stickers from this page?",
@@ -94,8 +94,8 @@ const pricingGuideItems = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Upload Artwork &amp; Start Custom Sticker Order | ReasonableNoise</title>
-    <meta name="description" content="Upload artwork for USDOT stickers, custom decals, vehicle lettering, and fleet decals. Choose pickup or shipping and pay a secure Stripe order deposit." />
+    <title>Upload Artwork for Stickers, Decals &amp; DTF Shirts | ReasonableNoise</title>
+    <meta name="description" content="Upload artwork for USDOT stickers, custom decals, vehicle lettering, fleet decals, and DTF shirt order requests. Sticker and decal orders can checkout securely; DTF shirts are quote-reviewed first." />
     <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
     <link rel="shortcut icon" type="image/png" href="/assets/rn-logo.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -106,18 +106,18 @@ const pricingGuideItems = [
     <link rel="canonical" href="https://reasonablenoise.com/upload-design/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ReasonableNoise" />
-    <meta property="og:title" content="Upload Artwork &amp; Start Custom Sticker Order | ReasonableNoise" />
-    <meta property="og:description" content="Start a secure ReasonableNoise sticker order, upload artwork, choose local pickup or shipping, and pay your order deposit through Stripe." />
+    <meta property="og:title" content="Upload Artwork for Stickers, Decals &amp; DTF Shirts | ReasonableNoise" />
+    <meta property="og:description" content="Start a secure ReasonableNoise request, upload artwork, choose sticker/decal checkout, or request a DTF shirt quote before payment." />
     <meta property="og:url" content="https://reasonablenoise.com/upload-design/" />
     <meta property="og:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Upload Design &amp; Start Sticker Order | ReasonableNoise" />
-    <meta name="twitter:description" content="Start a secure ReasonableNoise sticker order, upload artwork, choose local pickup or shipping, and pay your order deposit through Stripe." />
+    <meta name="twitter:title" content="Upload Design for Stickers, Decals &amp; DTF Shirts | ReasonableNoise" />
+    <meta name="twitter:description" content="Start a secure ReasonableNoise request, upload artwork, choose sticker/decal checkout, or request a DTF shirt quote before payment." />
     <meta name="twitter:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Service",
-      name: "Custom sticker order and artwork upload",
+      name: "Sticker, decal, and DTF shirt artwork upload",
       provider: {
         "@type": "Organization",
         name: "ReasonableNoise",
@@ -181,15 +181,15 @@ const pricingGuideItems = [
       <section class="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-8 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-12 md:pb-28 md:pt-24">
         <div>
           <div class="mb-6 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur">
-            Secure artwork upload • USDOT stickers • custom decals
+            Secure artwork upload • stickers • decals • DTF shirts
           </div>
 
           <h1 class="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-7xl">
-            Upload artwork and start your sticker order.
+            Upload artwork for stickers, decals, or DTF shirts.
           </h1>
 
           <p class="mt-7 max-w-xl text-lg leading-8 text-white/65">
-            Start a secure order for USDOT stickers, custom business decals, truck lettering, fleet decals, or logo sticker printing. Upload artwork now or send it later, then choose local pickup or shipping before paying the order deposit.
+            Start a secure request for USDOT stickers, custom business decals, truck lettering, fleet decals, logo stickers, or DTF shirt printing. Sticker and decal orders can continue to checkout; DTF shirt orders are quote-reviewed before payment.
           </p>
 
           <div class="mt-10 grid gap-4">
@@ -210,7 +210,7 @@ const pricingGuideItems = [
             <div class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
               <p class="font-semibold">Artwork upload</p>
               <p class="mt-2 text-sm leading-6 text-white/55">
-                Upload is optional, but recommended. Your file is stored privately before checkout so we can prepare your order faster.
+                Upload is optional, but recommended. Your file is stored privately so we can prepare sticker, decal, or DTF shirt requests faster.
               </p>
             </div>
           </div>
@@ -233,10 +233,21 @@ const pricingGuideItems = [
         <form id="order-form" class="rounded-[2rem] border border-white/10 bg-white p-5 text-black shadow-2xl shadow-black/40 sm:rounded-[2.5rem] sm:p-6 md:p-8">
           <div class="mb-8">
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/40">Order Request</p>
-            <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Pay order deposit.</h2>
+            <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Start your order request.</h2>
             <p class="mt-3 text-sm leading-6 text-black/55">
-              Select a file now or send it later. If you choose a file, we securely upload it before Stripe Checkout.
+              Upload artwork now or send it later. Sticker and decal orders continue to secure checkout. DTF shirt orders are reviewed first so pricing, shirt source, quantity, and timing can be confirmed before payment.
             </p>
+
+            <div data-rn-dtf-upload-notice class="mt-6 rounded-3xl border border-cyan-300/30 bg-cyan-50 p-5">
+              <p class="text-sm font-bold uppercase tracking-[0.25em] text-cyan-800">DTF shirts now accepted</p>
+              <p class="mt-3 text-sm leading-6 text-black/60">
+                Upload your shirt artwork here, then use the DTF quote form so we can confirm quantity, shirt source, print placement, deadline, and final price before payment.
+              </p>
+              <a href="/contact?topic=dtf" class="mt-4 inline-flex rounded-full bg-black px-5 py-3 text-sm font-bold text-white">
+                Request DTF Order Quote
+              </a>
+            </div>
+
             <p id="checkout-message" class="mt-4 hidden rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 text-sm font-semibold"></p>
           </div>
 
