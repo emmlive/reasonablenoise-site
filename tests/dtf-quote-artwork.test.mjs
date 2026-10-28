@@ -234,3 +234,16 @@ test("source contract keeps DTF artwork in contact form, separate from Stripe ch
   assert.match(upload, /This form is for sticker and decal checkout/);
   assert.match(upload, /Request DTF Order Quote/);
 });
+
+test("DTF topic updates the contact hero, next-step action and context hints", () => {
+  const contact = readFileSync(new URL("../src/pages/contact.astro", import.meta.url), "utf8");
+  assert.match(contact, /id="contact-hero-title"/);
+  assert.match(contact, /id="contact-hero-description"/);
+  assert.match(contact, /id="contact-next-step-link"/);
+  assert.match(contact, /id="contact-fast-tip"/);
+  assert.match(contact, /Need custom T-shirts printed\?/);
+  assert.match(contact, /No payment is required to request a quote/);
+  assert.match(contact, /nextStepLink\.href = dtfSelected \? "#contact-form" : "\/upload-design"/);
+  assert.match(contact, /form\?\.elements\.contactType\?\.addEventListener\("change", updateDtfPanel\)/);
+  assert.match(contact, /applyContactPrefill\(\);\s*updateDtfPanel\(\)/);
+});
