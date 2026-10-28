@@ -204,6 +204,29 @@ test("also rejects expanded virtumotive customer metadata", async () => {
   assertNoSideEffects(outcome);
 });
 
+test("processes a paid ReasonableNoise session with a verified, non-Virtumotive Stripe customer", async () => {
+  const session = ownSession({ customer: "cus_reasonablenoisetest" });
+  const result = await deliver(eventOf("checkout.session.completed", session), {
+    customerMetadata: { source: "reasonablenoise" },
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.result.success, true);
+  assert.equal(result.result.duplicate, false);
+  assert.equal(result.calls.filter((url) => url.includes("api.stripe.com/v1/customers/")).length, 1);
+  assert.equal(result.calls.filter((url) => url === "https://api.resend.com/emails").length, 2);
+  assert.ok(result.bucket.writes.some((key) => key.startsWith("orders/status/")));
+});
+
+test("fails closed without a customer lookup credential", async () => {
+  const session = ownSession({ customer: "cus_missingcredential" });
+  const result = await deliver(eventOf("checkout.session.completed", session), {
+    noStripeKey: true,
+  });
+  assert.equal(result.status, 503);
+  assert.deepEqual(result.calls, []);
+  assertNoSideEffects(result);
+});
+
 test("fails closed when customer provenance cannot be checked", async () => {
   const session = ownSession({ customer: "cus_testtemporary" });
   const outcome = await deliver(eventOf("checkout.session.completed", session), {
