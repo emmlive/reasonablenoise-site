@@ -61,10 +61,10 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       <section class="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-24">
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Contact</p>
-          <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
+          <h1 id="contact-hero-title" class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
             Need help with a sticker order?
           </h1>
-          <p class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
+          <p id="contact-hero-description" class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
             Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt order quote requests.
           </p>
 
@@ -74,14 +74,14 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
               <p class="mt-2 text-sm leading-6 text-white/55">info@reasonablenoise.com</p>
             </a>
 
-            <a href="/upload-design" class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur transition hover:bg-white/[0.09]">
-              <p class="font-semibold text-white">Ready to order?</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">Start a secure sticker order and upload artwork.</p>
+            <a id="contact-next-step-link" href="/upload-design" class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur transition hover:bg-white/[0.09]">
+              <p id="contact-next-step-title" class="font-semibold text-white">Ready to order?</p>
+              <p id="contact-next-step-description" class="mt-2 text-sm leading-6 text-white/55">Start a secure sticker order and upload artwork.</p>
             </a>
 
             <div class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
               <p class="font-semibold text-white">Fast response tip</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">Include sticker type, size, quantity, color, and whether you want pickup or shipping.</p>
+              <p id="contact-fast-tip" class="mt-2 text-sm leading-6 text-white/55">Include sticker type, size, quantity, color, and whether you want pickup or shipping.</p>
             </div>
           </div>
         </div>
@@ -209,6 +209,12 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       const button = document.getElementById("contact-button");
       const message = document.getElementById("contact-message");
       const dtfPanel = form?.querySelector("[data-rn-dtf-detail-panel]");
+      const heroTitle = document.getElementById("contact-hero-title");
+      const heroDescription = document.getElementById("contact-hero-description");
+      const nextStepLink = document.getElementById("contact-next-step-link");
+      const nextStepTitle = document.getElementById("contact-next-step-title");
+      const nextStepDescription = document.getElementById("contact-next-step-description");
+      const fastTip = document.getElementById("contact-fast-tip");
 
       function isDtfContact(value) {
         return String(value || "").toLowerCase().includes("dtf");
@@ -217,7 +223,35 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       function updateDtfPanel() {
         const contactType = form?.elements.contactType;
         if (!dtfPanel || !contactType) return;
-        dtfPanel.classList.toggle("hidden", !isDtfContact(contactType.value));
+        const dtfSelected = isDtfContact(contactType.value);
+        dtfPanel.classList.toggle("hidden", !dtfSelected);
+
+        if (heroTitle) {
+          heroTitle.textContent = dtfSelected
+            ? "Need custom T-shirts printed?"
+            : "Need help with a sticker order?";
+        }
+        if (heroDescription) {
+          heroDescription.textContent = dtfSelected
+            ? "Request a DTF shirt quote and attach your artwork below. We confirm shirt source, quantity, print placement, timing, and pricing before payment."
+            : "Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt order quote requests.";
+        }
+        if (nextStepLink) {
+          nextStepLink.href = dtfSelected ? "#contact-form" : "/upload-design";
+        }
+        if (nextStepTitle) {
+          nextStepTitle.textContent = dtfSelected ? "Request a DTF quote" : "Ready to order?";
+        }
+        if (nextStepDescription) {
+          nextStepDescription.textContent = dtfSelected
+            ? "Send your shirt details and artwork on this page. No payment is required to request a quote."
+            : "Start a secure sticker order and upload artwork.";
+        }
+        if (fastTip) {
+          fastTip.textContent = dtfSelected
+            ? "Include quantity, shirt source, color, print placement, deadline, and artwork if available."
+            : "Include sticker type, size, quantity, color, and whether you want pickup or shipping.";
+        }
       }
 
       function getDtfDetails(formData, contactType) {
