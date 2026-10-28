@@ -117,6 +117,78 @@ function formatAddress(address) {
   return lines.length ? lines.join("\n") : "No shipping address";
 }
 
+// Only our server-created, paid sticker-order Checkout Sessions may reach fulfillment.
+function isExcludedSource(metadata) {
+  return String(metadata?.source || "").trim().toLowerCase() === "virtumotive";
+}
+
+function isReasonableNoiseStickerSession(session) {
+  const metadata = session?.metadata;
+  const orderReference = metadata?.order_reference;
+
+  return (
+    session?.object === "checkout.session" &&
+    session?.mode === "payment" &&
+    metadata?.source === "reasonablenoise" &&
+    metadata?.order_type === "sticker_order" &&
+    typeof orderReference === "string" &&
+    /^RN-\d{8}-[A-F0-9]{8}$/.test(orderReference) &&
+    session.client_reference_id === orderReference &&
+    typeof metadata.sticker_type === "string" &&
+    metadata.sticker_type.trim().length > 0 &&
+    ["local_pickup", "shipping"].includes(metadata.fulfillment_method) &&
+    /^\d+$/.test(String(metadata.checkout_price_cents || "")) &&
+    Number(metadata.checkout_price_cents) > 0
+  );
+}
+
+// Customer metadata is not ordinarily embedded in a Checkout Session event.
+// Fail closed if the customer exists but its provenance cannot be checked.
+async function checkStripeCustomerSource(session, env) {
+  const customerRef = session.customer;
+  if (customerRef == null) return { allowed: true };
+
+  if (typeof customerRef === "object") {
+    if (customerRef.deleted) return { allowed: false, unavailable: true };
+    if (customerRef.metadata && typeof customerRef.metadata === "object") {
+      return { allowed: !isExcludedSource(customerRef.metadata), excluded: isExcludedSource(customerRef.metadata) };
+    }
+  }
+
+  const customerId =
+    typeof customerRef === "string" ? customerRef : customerRef?.id;
+  if (
+    typeof customerId !== "string" ||
+    !/^cus_[a-zA-Z0-9]+$/.test(customerId) ||
+    !env.STRIPE_SECRET_KEY
+  ) {
+    return { allowed: false, unavailable: true };
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.stripe.com/v1/customers/${encodeURIComponent(customerId)}`,
+      { headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` } }
+    );
+
+    if (!response.ok) return { allowed: false, unavailable: true };
+    const customer = await response.json();
+    if (
+      customer?.object !== "customer" ||
+      customer.deleted ||
+      !customer.metadata ||
+      typeof customer.metadata !== "object"
+    ) {
+      return { allowed: false, unavailable: true };
+    }
+
+    const excluded = isExcludedSource(customer.metadata);
+    return { allowed: !excluded, excluded };
+  } catch {
+    return { allowed: false, unavailable: true };
+  }
+}
+
 function orderDetailsFromSession(session) {
   const metadata = session.metadata || {};
   const customerDetails = session.customer_details || {};
@@ -732,6 +804,27 @@ export async function onRequestPost(context) {
 
     if (!session) {
       return json({ success: false, error: "Missing checkout session." }, 400);
+    }
+
+    if (isExcludedSource(session.metadata)) {
+      return json({ success: true, received: true, ignored: "excluded_source", skipped_emails: true });
+    }
+
+    if (!isReasonableNoiseStickerSession(session)) {
+      return json({ success: true, received: true, ignored: "unrecognized_checkout", skipped_emails: true });
+    }
+
+    if (session.payment_status !== "paid") {
+      return json({ success: true, received: true, ignored: "unpaid_checkout", skipped_emails: true });
+    }
+
+    const customerSource = await checkStripeCustomerSource(session, env);
+    if (!customerSource.allowed) {
+      if (customerSource.unavailable) {
+        // A retry is safer than misclassifying a customer we could not check.
+        return json({ success: false, error: "Customer provenance verification unavailable." }, 503);
+      }
+      return json({ success: true, received: true, ignored: "excluded_customer_source", skipped_emails: true });
     }
 
     const alreadyProcessed = await hasProcessedStripeEvent(env, event.id);
