@@ -168,6 +168,11 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
                   <input name="dtfDeadline" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Needed by date or flexible" />
                 </label>
               </div>
+              <label class="mt-5 grid gap-2">
+                <span class="text-sm font-semibold text-black/70">DTF artwork or reference (optional)</span>
+                <input name="artwork" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.svg,.ai,.eps,.psd" class="w-full rounded-2xl border border-dashed border-cyan-300/70 bg-white p-4 text-sm text-black/70" />
+                <span class="text-xs leading-5 text-black/55">One file, maximum 15 MB. PNG, JPG, WEBP, PDF, SVG, AI, EPS or PSD. Stored privately and sent with your quote request, not through sticker checkout.</span>
+              </label>
             </div>
 
 
@@ -305,11 +310,27 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         }
 
         try {
-          const response = await fetch("/api/contact", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+          const isDtf = isDtfContact(payload.contactType || "");
+          const artwork = isDtf ? formData.get("artwork") : null;
+          if (artwork && typeof artwork !== "string" && artwork.name && artwork.size > 15 * 1024 * 1024) {
+            throw new Error("Artwork must be 15 MB or less.");
+          }
+
+          let requestOptions;
+          if (isDtf) {
+            // Send artwork and quote details in one multipart submission.
+            formData.set("message", payload.message);
+            requestOptions = { method: "POST", body: formData };
+          } else {
+            delete payload.artwork;
+            requestOptions = {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(payload),
+            };
+          }
+
+          const response = await fetch("/api/contact", requestOptions);
 
           const data = await response.json();
 
@@ -325,7 +346,9 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           });
 
           form.reset();
-          showContactMessage("Message sent. We’ll follow up soon.");
+          updateDtfPanel();
+          const quoteLabel = data.quoteReference ? `DTF quote ${data.quoteReference} received. ` : "";
+          showContactMessage(quoteLabel + "Message sent. We’ll follow up before any DTF payment.");
           button.textContent = "Message Sent";
         } catch (error) {
           showContactMessage(error.message || "Unable to send message.", true);
