@@ -380,6 +380,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           });
 
           form.reset();
+          applyContactPrefill();
           updateDtfPanel();
           const quoteLabel = data.quoteReference ? `DTF quote ${data.quoteReference} received. ` : "";
           showContactMessage(quoteLabel + "Message sent. We’ll follow up before any DTF payment.");
