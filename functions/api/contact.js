@@ -31,6 +31,8 @@ function safeArtworkFilename(name) {
   return String(name || "artwork-file")
     .replace(/[^a-zA-Z0-9._-]/g, "-")
     .replace(/-+/g, "-")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^\.+/, "")
     .slice(0, 120);
 }
 
