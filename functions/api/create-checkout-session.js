@@ -233,6 +233,9 @@ export async function onRequestPost(context) {
       params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "7");
     }
 
+    // Fixed server-owned markers: never accept these values from the request body.
+    params.set("metadata[source]", "reasonablenoise");
+    params.set("metadata[order_type]", "sticker_order");
     params.set("metadata[order_reference]", orderReference);
     params.set("metadata[customer_name]", customerName);
     params.set("metadata[business_name]", businessName);
