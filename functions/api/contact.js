@@ -51,6 +51,42 @@ function getPrivateArtworkLink(env, objectKey) {
   return `${siteUrl}/api/download-artwork?key=${encodeURIComponent(objectKey)}&token=${encodeURIComponent(env.ADMIN_DOWNLOAD_TOKEN)}`;
 }
 
+// Turnstile validation must happen before creating an R2 object or sending mail.
+async function validateDtfArtworkChallenge(token, request, env) {
+  const secret = String(env.DTF_TURNSTILE_SECRET || "");
+  if (!secret) return { ok: false, status: 503, error: "Secure artwork verification is not configured. Send your quote without artwork." };
+  if (typeof token !== "string" || !token || token.length > 2048) {
+    return { ok: false, status: 400, error: "Please complete the artwork security check." };
+  }
+
+  try {
+    const payload = new URLSearchParams({ secret, response: token });
+    const remoteIp = request.headers.get("CF-Connecting-IP");
+    if (remoteIp) payload.set("remoteip", remoteIp);
+
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: payload,
+    });
+    if (!response.ok) return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
+
+    const verification = await response.json();
+    const expectedHostname = new URL(request.url).hostname.toLowerCase();
+    if (
+      verification?.success !== true ||
+      verification.action !== "dtf_artwork" ||
+      typeof verification.hostname !== "string" ||
+      verification.hostname.toLowerCase() !== expectedHostname
+    ) {
+      return { ok: false, status: 400, error: "Artwork security verification failed or expired. Please retry." };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
+  }
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   let uploadedArtworkKey = "";
@@ -108,6 +144,13 @@ export async function onRequestPost(context) {
       if (!env.ARTWORK_BUCKET || !env.ADMIN_DOWNLOAD_TOKEN) {
         return json({ success: false, error: "Secure artwork submission is unavailable. Please submit the quote without the file and we will follow up." }, 503);
       }
+
+      const challenge = await validateDtfArtworkChallenge(
+        multipart ? submitted.get("cf-turnstile-response") : null,
+        request,
+        env
+      );
+      if (!challenge.ok) return json({ success: false, error: challenge.error }, challenge.status);
 
       const yyyy = String(now.getUTCFullYear());
       const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
