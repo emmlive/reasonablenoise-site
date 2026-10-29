@@ -53,7 +53,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           <a class="text-white" href="/contact">Contact</a>
         </nav>
 
-        <a href="/upload-design" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
+        <a id="contact-header-cta" href="/upload-design" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
           Start Order
         </a>
       </header>
@@ -89,8 +89,8 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         <form id="contact-form" class="rounded-[2.5rem] border border-white/10 bg-white p-5 text-black shadow-2xl shadow-black/40 sm:p-8">
           <div class="mb-8">
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/40">Message</p>
-            <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Send a contact request.</h2>
-            <p class="mt-3 text-sm leading-6 text-black/55">
+            <h2 id="contact-form-title" class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Send a contact request.</h2>
+            <p id="contact-form-intro" class="mt-3 text-sm leading-6 text-black/55">
               We’ll receive your message by email and follow up as soon as possible.
             </p>
             <p id="contact-message" class="mt-4 hidden rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 text-sm font-semibold"></p>
@@ -215,6 +215,9 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       const nextStepTitle = document.getElementById("contact-next-step-title");
       const nextStepDescription = document.getElementById("contact-next-step-description");
       const fastTip = document.getElementById("contact-fast-tip");
+      const headerCta = document.getElementById("contact-header-cta");
+      const formTitle = document.getElementById("contact-form-title");
+      const formIntro = document.getElementById("contact-form-intro");
 
       function isDtfContact(value) {
         return String(value || "").toLowerCase().includes("dtf");
@@ -251,6 +254,21 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           fastTip.textContent = dtfSelected
             ? "Include quantity, shirt source, color, print placement, deadline, and artwork if available."
             : "Include sticker type, size, quantity, color, and whether you want pickup or shipping.";
+        }
+        if (headerCta) {
+          headerCta.href = dtfSelected ? "#contact-form" : "/upload-design";
+          headerCta.textContent = dtfSelected ? "Request DTF Quote" : "Start Order";
+        }
+        if (formTitle) {
+          formTitle.textContent = dtfSelected ? "Request a DTF printing quote." : "Send a contact request.";
+        }
+        if (formIntro) {
+          formIntro.textContent = dtfSelected
+            ? "Send your shirt details and optional artwork for review. We'll confirm pricing before requesting payment."
+            : "We’ll receive your message by email and follow up as soon as possible.";
+        }
+        if (button && !button.disabled && button.textContent !== "Message Sent" && button.textContent !== "Quote Submitted") {
+          button.textContent = dtfSelected ? "Request DTF Quote" : "Send Message";
         }
       }
 
@@ -307,7 +325,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         event.preventDefault();
 
         button.disabled = true;
-        button.textContent = "Sending message...";
+        button.textContent = isDtfContact(form?.elements.contactType?.value) ? "Submitting DTF quote..." : "Sending message...";
         showContactMessage("Sending your message...");
 
         const formData = new FormData(form);
@@ -384,11 +402,11 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           updateDtfPanel();
           const quoteLabel = data.quoteReference ? `DTF quote ${data.quoteReference} received. ` : "";
           showContactMessage(quoteLabel + "Message sent. We’ll follow up before any DTF payment.");
-          button.textContent = "Message Sent";
+          button.textContent = data.quoteReference ? "Quote Submitted" : "Message Sent";
         } catch (error) {
           showContactMessage(error.message || "Unable to send message.", true);
           button.disabled = false;
-          button.textContent = "Send Message";
+          button.textContent = isDtfContact(form?.elements.contactType?.value) ? "Request DTF Quote" : "Send Message";
         }
       });
     </script>
