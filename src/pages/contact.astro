@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
+const dtfTurnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
 ---
 
 <html lang="en">
@@ -14,6 +15,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
     <link rel="shortcut icon" type="image/png" href="/assets/rn-logo.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <script is:inline id="rn-turnstile-script" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://reasonablenoise.com/contact/" />
@@ -53,7 +55,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           <a class="text-white" href="/contact">Contact</a>
         </nav>
 
-        <a href="/upload-design" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
+        <a id="contact-header-cta" href="/upload-design" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">
           Start Order
         </a>
       </header>
@@ -61,10 +63,10 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       <section class="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-24">
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Contact</p>
-          <h1 class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
+          <h1 id="contact-hero-title" class="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
             Need help with a sticker order?
           </h1>
-          <p class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
+          <p id="contact-hero-description" class="mt-6 max-w-2xl text-lg leading-8 text-white/60">
             Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt order quote requests.
           </p>
 
@@ -74,14 +76,18 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
               <p class="mt-2 text-sm leading-6 text-white/55">info@reasonablenoise.com</p>
             </a>
 
-            <a href="/upload-design" class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur transition hover:bg-white/[0.09]">
-              <p class="font-semibold text-white">Ready to order?</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">Start a secure sticker order and upload artwork.</p>
+            <div class="md:hidden">
+              <WhatsAppChat inline />
+            </div>
+
+            <a id="contact-next-step-link" href="/upload-design" class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur transition hover:bg-white/[0.09]">
+              <p id="contact-next-step-title" class="font-semibold text-white">Ready to order?</p>
+              <p id="contact-next-step-description" class="mt-2 text-sm leading-6 text-white/55">Start a secure sticker order and upload artwork.</p>
             </a>
 
             <div class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
               <p class="font-semibold text-white">Fast response tip</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">Include sticker type, size, quantity, color, and whether you want pickup or shipping.</p>
+              <p id="contact-fast-tip" class="mt-2 text-sm leading-6 text-white/55">Include sticker type, size, quantity, color, and whether you want pickup or shipping.</p>
             </div>
           </div>
         </div>
@@ -89,8 +95,8 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         <form id="contact-form" class="rounded-[2.5rem] border border-white/10 bg-white p-5 text-black shadow-2xl shadow-black/40 sm:p-8">
           <div class="mb-8">
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/40">Message</p>
-            <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Send a contact request.</h2>
-            <p class="mt-3 text-sm leading-6 text-black/55">
+            <h2 id="contact-form-title" class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Send a contact request.</h2>
+            <p id="contact-form-intro" class="mt-3 text-sm leading-6 text-black/55">
               We’ll receive your message by email and follow up as soon as possible.
             </p>
             <p id="contact-message" class="mt-4 hidden rounded-2xl border border-black/10 bg-black/[0.04] px-4 py-3 text-sm font-semibold"></p>
@@ -168,6 +174,16 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
                   <input name="dtfDeadline" class="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/30" placeholder="Needed by date or flexible" />
                 </label>
               </div>
+              <label class="mt-5 grid gap-2">
+                <span class="text-sm font-semibold text-black/70">DTF artwork or reference (optional)</span>
+                <input name="artwork" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.svg,.ai,.eps,.psd" disabled={!dtfTurnstileSiteKey} class="w-full rounded-2xl border border-dashed border-cyan-300/70 bg-white p-4 text-sm text-black/70 disabled:cursor-not-allowed disabled:opacity-50" />
+                <span class="text-xs leading-5 text-black/55">One file, maximum 15 MB. PNG, JPG, WEBP, PDF, SVG, AI, EPS or PSD. Stored privately with your quote request, not through sticker checkout.</span>
+                {dtfTurnstileSiteKey ? (
+                  <div id="rn-dtf-turnstile" data-sitekey={dtfTurnstileSiteKey} class="mt-3 min-h-16"></div>
+                ) : (
+                  <span class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">Artwork uploads are temporarily unavailable while security verification is configured. You can still request a quote without artwork.</span>
+                )}
+              </label>
             </div>
 
 
@@ -204,15 +220,87 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       const button = document.getElementById("contact-button");
       const message = document.getElementById("contact-message");
       const dtfPanel = form?.querySelector("[data-rn-dtf-detail-panel]");
+      const heroTitle = document.getElementById("contact-hero-title");
+      const heroDescription = document.getElementById("contact-hero-description");
+      const nextStepLink = document.getElementById("contact-next-step-link");
+      const nextStepTitle = document.getElementById("contact-next-step-title");
+      const nextStepDescription = document.getElementById("contact-next-step-description");
+      const fastTip = document.getElementById("contact-fast-tip");
+      const headerCta = document.getElementById("contact-header-cta");
+      const formTitle = document.getElementById("contact-form-title");
+      const formIntro = document.getElementById("contact-form-intro");
 
       function isDtfContact(value) {
         return String(value || "").toLowerCase().includes("dtf");
       }
 
+      let dtfChallengeWidgetId = null;
+
+      function renderDtfChallenge() {
+        const container = document.getElementById("rn-dtf-turnstile");
+        if (
+          !container ||
+          dtfChallengeWidgetId !== null ||
+          !window.turnstile?.render ||
+          !isDtfContact(form?.elements.contactType?.value)
+        ) return;
+
+        dtfChallengeWidgetId = window.turnstile.render(container, {
+          sitekey: container.dataset.sitekey,
+          action: "dtf_artwork",
+          theme: "light",
+          size: "flexible",
+        });
+      }
+
       function updateDtfPanel() {
         const contactType = form?.elements.contactType;
         if (!dtfPanel || !contactType) return;
-        dtfPanel.classList.toggle("hidden", !isDtfContact(contactType.value));
+        const dtfSelected = isDtfContact(contactType.value);
+        dtfPanel.classList.toggle("hidden", !dtfSelected);
+        if (dtfSelected) renderDtfChallenge();
+
+        if (heroTitle) {
+          heroTitle.textContent = dtfSelected
+            ? "Need custom T-shirts printed?"
+            : "Need help with a sticker order?";
+        }
+        if (heroDescription) {
+          heroDescription.textContent = dtfSelected
+            ? "Request a DTF shirt quote and attach your artwork below. We confirm shirt source, quantity, print placement, timing, and pricing before payment."
+            : "Send a message about USDOT stickers, custom decals, vehicle lettering, artwork upload, pickup, shipping, or DTF T-shirt order quote requests.";
+        }
+        if (nextStepLink) {
+          nextStepLink.href = dtfSelected ? "#contact-form" : "/upload-design";
+        }
+        if (nextStepTitle) {
+          nextStepTitle.textContent = dtfSelected ? "Request a DTF quote" : "Ready to order?";
+        }
+        if (nextStepDescription) {
+          nextStepDescription.textContent = dtfSelected
+            ? "Send your shirt details and artwork on this page. No payment is required to request a quote."
+            : "Start a secure sticker order and upload artwork.";
+        }
+        if (fastTip) {
+          fastTip.textContent = dtfSelected
+            ? "Include quantity, shirt source, color, print placement, deadline, and artwork if available."
+            : "Include sticker type, size, quantity, color, and whether you want pickup or shipping.";
+        }
+        if (headerCta) {
+          headerCta.href = dtfSelected ? "#contact-form" : "/upload-design";
+          headerCta.textContent = dtfSelected ? "Request DTF Quote" : "Start Order";
+        }
+        if (formTitle) {
+          formTitle.textContent = dtfSelected ? "Request a DTF printing quote." : "Send a contact request.";
+        }
+        if (formIntro) {
+          formIntro.textContent = dtfSelected
+            ? "Send your shirt details and optional artwork for review. We'll confirm pricing before requesting payment."
+            : "We’ll receive your message by email and follow up as soon as possible.";
+        }
+        if (button && !button.disabled && button.textContent !== "Message Sent" && button.textContent !== "Quote Submitted") {
+          button.textContent = dtfSelected ? "Request DTF Quote" : "Send Message";
+        }
       }
 
       function getDtfDetails(formData, contactType) {
@@ -257,6 +345,8 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
       }
 
       form?.elements.contactType?.addEventListener("change", updateDtfPanel);
+      document.getElementById("rn-turnstile-script")?.addEventListener("load", renderDtfChallenge);
+      window.addEventListener("load", renderDtfChallenge);
 
 
       applyContactPrefill();
@@ -268,7 +358,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         event.preventDefault();
 
         button.disabled = true;
-        button.textContent = "Sending message...";
+        button.textContent = isDtfContact(form?.elements.contactType?.value) ? "Submitting DTF quote..." : "Sending message...";
         showContactMessage("Sending your message...");
 
         const formData = new FormData(form);
@@ -305,11 +395,33 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         }
 
         try {
-          const response = await fetch("/api/contact", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+          const isDtf = isDtfContact(payload.contactType || "");
+          const artwork = isDtf ? formData.get("artwork") : null;
+          if (artwork && typeof artwork !== "string" && artwork.name && artwork.size > 15 * 1024 * 1024) {
+            throw new Error("Artwork must be 15 MB or less.");
+          }
+          if (
+            artwork && typeof artwork !== "string" && artwork.name &&
+            !String(formData.get("cf-turnstile-response") || "")
+          ) {
+            throw new Error("Please complete the artwork security check before uploading.");
+          }
+
+          let requestOptions;
+          if (isDtf) {
+            // Send artwork and quote details in one multipart submission.
+            formData.set("message", payload.message);
+            requestOptions = { method: "POST", body: formData };
+          } else {
+            delete payload.artwork;
+            requestOptions = {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(payload),
+            };
+          }
+
+          const response = await fetch("/api/contact", requestOptions);
 
           const data = await response.json();
 
@@ -325,18 +437,24 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           });
 
           form.reset();
-          showContactMessage("Message sent. We’ll follow up soon.");
-          button.textContent = "Message Sent";
+          applyContactPrefill();
+          updateDtfPanel();
+          const quoteLabel = data.quoteReference ? `DTF quote ${data.quoteReference} received. ` : "";
+          showContactMessage(quoteLabel + "Message sent. We’ll follow up before any DTF payment.");
+          button.textContent = data.quoteReference ? "Quote Submitted" : "Message Sent";
         } catch (error) {
+          if (dtfChallengeWidgetId !== null) window.turnstile?.reset?.(dtfChallengeWidgetId);
           showContactMessage(error.message || "Unable to send message.", true);
           button.disabled = false;
-          button.textContent = "Send Message";
+          button.textContent = isDtfContact(form?.elements.contactType?.value) ? "Request DTF Quote" : "Send Message";
         }
       });
     </script>
 
-    <WhatsAppChat />
-      <SiteAnalytics />
+    <div class="hidden md:block">
+      <WhatsAppChat />
+    </div>
+    <SiteAnalytics />
   </body>
 </html>
 

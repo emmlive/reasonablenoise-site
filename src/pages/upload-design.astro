@@ -16,16 +16,16 @@ const orderTypes = [
 ];
 
 const uploadOrderSteps = [
-  "Submit your sticker, decal, or DTF shirt details and artwork if available.",
-  "Choose local pickup or shipping for checkout orders. DTF shirt requests are confirmed by quote first.",
-  "Pay the secure order deposit through Stripe.",
+  "Submit your sticker or decal details and artwork if available.",
+  "Choose local pickup or shipping for sticker and decal checkout.",
+  "Pay the secure sticker or decal order deposit through Stripe.",
   "Receive an order reference so we can prepare production.",
 ];
 
 const uploadPageFaqs = [
   {
     q: "Can I upload artwork before checkout?",
-    a: "Yes. You can upload your logo, artwork file, reference image, or design file before checkout or quote review. Upload is optional, but it helps ReasonableNoise prepare sticker, decal, and DTF shirt requests faster.",
+    a: "Sticker and decal artwork uploads when you submit the checkout form. For DTF shirts, attach artwork directly to the DTF quote form—no payment is required to request a quote.",
   },
   {
     q: "Can I order USDOT stickers from this page?",
@@ -185,7 +185,7 @@ const pricingGuideItems = [
           </div>
 
           <h1 class="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-7xl">
-            Upload artwork for stickers, decals, or DTF shirts.
+            Upload sticker artwork or request a DTF shirt quote.
           </h1>
 
           <p class="mt-7 max-w-xl text-lg leading-8 text-white/65">
@@ -210,7 +210,7 @@ const pricingGuideItems = [
             <div class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
               <p class="font-semibold">Artwork upload</p>
               <p class="mt-2 text-sm leading-6 text-white/55">
-                Upload is optional, but recommended. Your file is stored privately so we can prepare sticker, decal, or DTF shirt requests faster.
+                Sticker and decal artwork uploads securely when you continue to checkout. DTF artwork belongs in the separate quote form so it arrives with your shirt details.
               </p>
             </div>
           </div>
@@ -235,13 +235,13 @@ const pricingGuideItems = [
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/40">Order Request</p>
             <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Start your order request.</h2>
             <p class="mt-3 text-sm leading-6 text-black/55">
-              Upload artwork now or send it later. Sticker and decal orders continue to secure checkout. DTF shirt orders are reviewed first so pricing, shirt source, quantity, and timing can be confirmed before payment.
+              This form is for sticker and decal checkout. For DTF shirts, use the separate artwork-and-quote form below—no payment is required to request a DTF quote.
             </p>
 
             <div data-rn-dtf-upload-notice class="mt-6 rounded-3xl border border-cyan-300/30 bg-cyan-50 p-5">
               <p class="text-sm font-bold uppercase tracking-[0.25em] text-cyan-800">DTF shirts now accepted</p>
               <p class="mt-3 text-sm leading-6 text-black/60">
-                Upload your shirt artwork here, then use the DTF quote form so we can confirm quantity, shirt source, print placement, deadline, and final price before payment.
+                Use the DTF quote form to send your artwork and shirt details together. We confirm shirt source, quantity, placement, deadline, and price before requesting payment.
               </p>
               <a href="/contact?topic=dtf" class="mt-4 inline-flex rounded-full bg-black px-5 py-3 text-sm font-bold text-white">
                 Request DTF Order Quote

@@ -10,7 +10,8 @@
 function isSafeArtworkKey(key) {
   return (
     typeof key === "string" &&
-    key.startsWith("orders/") &&
+    (key.startsWith("orders/") ||
+      /^dtf-quotes\/\d{4}\/\d{2}\/\d{2}\/DTF-\d{8}-[A-F0-9]{8}\/[a-zA-Z0-9._-]{1,120}$/.test(key)) &&
     !key.includes("..") &&
     !key.startsWith("/") &&
     key.length <= 1024
