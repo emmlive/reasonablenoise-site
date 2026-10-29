@@ -1,5 +1,6 @@
 ﻿---
 import "../styles/global.css";
+const dtfSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
 ---
 
 <html lang="en">
@@ -9,6 +10,7 @@ import "../styles/global.css";
     <title>Admin Orders | ReasonableNoise</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+    <script is:inline id="rn-admin-turnstile-script" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   </head>
 
   <body class="min-h-screen bg-[#050608] text-white antialiased">
@@ -30,6 +32,9 @@ import "../styles/global.css";
           </button>
           <button id="turnstile-probe-button" type="button" class="rounded-full border border-cyan-300/40 px-5 py-3 text-sm font-bold text-cyan-200 hover:bg-white/10">
             Check Turnstile Connection
+          </button>
+          <button id="real-turnstile-button" type="button" disabled={!dtfSiteKey} class="rounded-full border border-emerald-300/40 px-5 py-3 text-sm font-bold text-emerald-200 hover:bg-white/10 disabled:opacity-40">
+            Verify Real Turnstile
           </button>
           <button id="clear-token-button" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-black">
             Reset Dashboard
@@ -54,6 +59,16 @@ import "../styles/global.css";
 
           <p id="admin-message" class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm"></p>
           <p id="turnstile-probe-result" role="status" aria-live="polite" class="mt-4 hidden rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm leading-6 text-cyan-50"></p>
+          <section class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4" aria-label="Real Turnstile verification check">
+            <p class="text-sm font-bold text-white">Real Turnstile validation</p>
+            <p class="mt-2 text-xs leading-5 text-white/60">Complete this check and use “Verify Real Turnstile” to validate a real token. No DTF quote, upload, email or payment is created.</p>
+            {dtfSiteKey ? (
+              <div id="rn-admin-real-turnstile" data-sitekey={dtfSiteKey} class="mt-4"></div>
+            ) : (
+              <p class="mt-3 text-xs text-amber-200">Public Turnstile key is unavailable for this deployment.</p>
+            )}
+            <p id="rn-admin-real-result" class="mt-3 hidden text-sm text-white/90" role="status" aria-live="polite"></p>
+          </section>
 
           <div class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/60">
             <p class="font-bold text-white">Security note</p>
@@ -138,6 +153,8 @@ import "../styles/global.css";
       const refreshButton = document.getElementById("refresh-button");
       const turnstileProbeButton = document.getElementById("turnstile-probe-button");
       const turnstileProbeResult = document.getElementById("turnstile-probe-result");
+      const realTurnstileButton = document.getElementById("real-turnstile-button");
+      const realTurnstileResult = document.getElementById("rn-admin-real-result");
       const clearTokenButton = document.getElementById("clear-token-button");
       const loadMoreButton = document.getElementById("load-more-button");
       const searchInput = document.getElementById("admin-order-search");
@@ -422,6 +439,66 @@ import "../styles/global.css";
         } finally {
           turnstileProbeButton.disabled = false;
           turnstileProbeButton.textContent = "Check Turnstile Connection";
+        }
+      });
+
+      let realTurnstileWidgetId = null;
+
+      function renderRealAdminTurnstile() {
+        const element = document.getElementById("rn-admin-real-turnstile");
+        if (!element || realTurnstileWidgetId !== null || !window.turnstile?.render) return;
+        realTurnstileWidgetId = window.turnstile.render(element, {
+          sitekey: element.dataset.sitekey,
+          action: "rn_admin_probe",
+          theme: "dark",
+          size: "flexible",
+        });
+      }
+
+      document.getElementById("rn-admin-turnstile-script")?.addEventListener("load", renderRealAdminTurnstile);
+      window.addEventListener("load", renderRealAdminTurnstile);
+      renderRealAdminTurnstile();
+
+      realTurnstileButton?.addEventListener("click", async () => {
+        realTurnstileResult.classList.remove("hidden");
+        if (realTurnstileWidgetId === null || !window.turnstile?.getResponse) {
+          realTurnstileResult.textContent = "Turnstile is not ready. Refresh the page if the challenge does not appear.";
+          return;
+        }
+        const token = window.turnstile.getResponse(realTurnstileWidgetId);
+        if (!token) {
+          realTurnstileResult.textContent = "Complete the Turnstile check before verifying.";
+          return;
+        }
+
+        realTurnstileButton.disabled = true;
+        realTurnstileResult.textContent = "Verifying fresh token with the production secret...";
+        try {
+          const adminToken = getToken();
+          const response = await fetch("/api/admin-orders?turnstile_real_verify=1", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              ...(adminToken ? { "x-admin-order-token": adminToken } : {}),
+            },
+            body: JSON.stringify({ token }),
+            cache: "no-store",
+          });
+          const data = await response.json();
+          if (!response.ok || data.success !== true) throw new Error(data.error || "Real Turnstile verification unavailable.");
+
+          const result = data.result || {};
+          const http = Number.isInteger(result.http_status) ? " HTTP " + result.http_status : "";
+          const errors = Array.isArray(result.error_codes) && result.error_codes.length
+            ? " / " + result.error_codes.join(",")
+            : "";
+          realTurnstileResult.textContent = "Production real-token test: " + (result.status || "unknown") + http + errors +
+            ". Verified: " + (result.verified === true ? "YES" : "NO") + ". No quote, artwork, email or payment created.";
+        } catch (error) {
+          realTurnstileResult.textContent = String(error?.message || "Verification failed.");
+        } finally {
+          window.turnstile?.reset?.(realTurnstileWidgetId);
+          realTurnstileButton.disabled = false;
         }
       });
 
