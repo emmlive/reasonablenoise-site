@@ -69,9 +69,19 @@ async function validateDtfArtworkChallenge(token, request, env) {
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: payload,
     });
-    if (!response.ok) return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
+    if (!response.ok) {
+      // Diagnostic logs must never contain the Turnstile token, secret, IP or customer data.
+      console.error("RN_DTF_SITEVERIFY_UPSTREAM_HTTP", response.status);
+      return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
+    }
 
-    const verification = await response.json();
+    let verification;
+    try {
+      verification = await response.json();
+    } catch {
+      console.error("RN_DTF_SITEVERIFY_INVALID_JSON");
+      return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
+    }
     const expectedHostname = new URL(request.url).hostname.toLowerCase();
     if (
       verification?.success !== true ||
@@ -83,6 +93,7 @@ async function validateDtfArtworkChallenge(token, request, env) {
     }
     return { ok: true };
   } catch {
+    console.error("RN_DTF_SITEVERIFY_FETCH_OR_RUNTIME_ERROR");
     return { ok: false, status: 503, error: "Security verification is temporarily unavailable." };
   }
 }
