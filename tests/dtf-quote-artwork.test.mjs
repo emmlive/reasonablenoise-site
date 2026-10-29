@@ -247,3 +247,15 @@ test("DTF topic updates the contact hero, next-step action and context hints", (
   assert.match(contact, /form\?\.elements\.contactType\?\.addEventListener\("change", updateDtfPanel\)/);
   assert.match(contact, /applyContactPrefill\(\);\s*updateDtfPanel\(\)/);
 });
+
+test("DTF contact header and submit CTA stay quote-first, while sticker CTA is unchanged", () => {
+  const contact = readFileSync(new URL("../src/pages/contact.astro", import.meta.url), "utf8");
+  assert.match(contact, /id="contact-header-cta" href="\/upload-design"/);
+  assert.match(contact, /id="contact-form-title"/);
+  assert.match(contact, /id="contact-form-intro"/);
+  assert.match(contact, /headerCta\.href = dtfSelected \? "#contact-form" : "\/upload-design"/);
+  assert.match(contact, /headerCta\.textContent = dtfSelected \? "Request DTF Quote" : "Start Order"/);
+  assert.match(contact, /formTitle\.textContent = dtfSelected \? "Request a DTF printing quote\." : "Send a contact request\."/);
+  assert.match(contact, /button\.textContent = dtfSelected \? "Request DTF Quote" : "Send Message"/);
+  assert.match(contact, /button\.textContent = data\.quoteReference \? "Quote Submitted" : "Message Sent"/);
+});
