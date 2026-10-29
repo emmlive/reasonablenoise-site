@@ -20,7 +20,9 @@ async function checkProbe(options = {}) {
 
     if (options.networkFailure) throw new Error("Synthetic fetch blocked");
     if (options.upstreamStatus) {
-      return new Response("Synthetic gateway error", { status: options.upstreamStatus });
+      return options.upstreamErrorCodes
+        ? Response.json({ success: false, "error-codes": options.upstreamErrorCodes }, { status: options.upstreamStatus })
+        : new Response("Synthetic gateway error", { status: options.upstreamStatus });
     }
     if (options.invalidJson) {
       return new Response("{ broken JSON", { status: 200 });
@@ -122,8 +124,8 @@ test("missing production secret is reported without a production Siteverify requ
 test("non-2xx Siteverify upstream responses yield safe diagnostic categories", async () => {
   const out = await checkProbe({ upstreamStatus: 503 });
   assert.equal(out.status, 200);
-  assert.deepEqual(out.data.test_pair, { result: "upstream_http_error", http_status: 503 });
-  assert.deepEqual(out.data.production_secret, { result: "upstream_http_error", http_status: 503 });
+  assert.deepEqual(out.data.test_pair, { result: "upstream_http_error", http_status: 503, error_codes: [] });
+  assert.deepEqual(out.data.production_secret, { result: "upstream_http_error", http_status: 503, error_codes: [] });
   assert.equal(out.calls.length, 2);
 });
 
@@ -151,4 +153,19 @@ test("admin dashboard exposes a deliberate one-click probe, not an automatic sub
   assert.match(backend, /if \(!isAuthorized\(request, env\)\)/);
   assert.match(backend, /url\.searchParams\.get\("turnstile_probe"\) === "1"/);
   assert.match(backend, /RN_TURNSTILE_DUMMY_TOKEN/);
+});
+
+test("HTTP 400 Siteverify body exposes only allowlisted validation codes", async () => {
+  const out = await checkProbe({
+    upstreamStatus: 400,
+    upstreamErrorCodes: ["invalid-input-secret", "unrecognized-unsafe-code"],
+  });
+  assert.equal(out.status, 200);
+  assert.deepEqual(out.data.test_pair, {
+    result: "upstream_http_error", http_status: 400, error_codes: ["invalid-input-secret"],
+  });
+  assert.deepEqual(out.data.production_secret, {
+    result: "upstream_http_error", http_status: 400, error_codes: ["invalid-input-secret"],
+  });
+  assert.ok(!JSON.stringify(out.data).includes("unrecognized-unsafe-code"));
 });
