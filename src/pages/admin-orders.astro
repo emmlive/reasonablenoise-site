@@ -28,6 +28,9 @@ import "../styles/global.css";
           <button id="refresh-button" class="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white">
             Refresh Orders
           </button>
+          <button id="turnstile-probe-button" type="button" class="rounded-full border border-cyan-300/40 px-5 py-3 text-sm font-bold text-cyan-200 hover:bg-white/10">
+            Check Turnstile Connection
+          </button>
           <button id="clear-token-button" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-black">
             Reset Dashboard
           </button>
@@ -50,6 +53,7 @@ import "../styles/global.css";
           </div>
 
           <p id="admin-message" class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm"></p>
+          <p id="turnstile-probe-result" role="status" aria-live="polite" class="mt-4 hidden rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm leading-6 text-cyan-50"></p>
 
           <div class="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/60">
             <p class="font-bold text-white">Security note</p>
@@ -132,6 +136,8 @@ import "../styles/global.css";
       const ordersList = document.getElementById("orders-list");
       const ordersCount = document.getElementById("orders-count");
       const refreshButton = document.getElementById("refresh-button");
+      const turnstileProbeButton = document.getElementById("turnstile-probe-button");
+      const turnstileProbeResult = document.getElementById("turnstile-probe-result");
       const clearTokenButton = document.getElementById("clear-token-button");
       const loadMoreButton = document.getElementById("load-more-button");
       const searchInput = document.getElementById("admin-order-search");
@@ -382,6 +388,41 @@ import "../styles/global.css";
         }
 
         deleteTestOrder(button.dataset.orderReference || "");
+      });
+
+      turnstileProbeButton?.addEventListener("click", async () => {
+        const token = getToken();
+        turnstileProbeButton.disabled = true;
+        turnstileProbeButton.textContent = "Checking connection...";
+        turnstileProbeResult.classList.remove("hidden");
+        turnstileProbeResult.textContent = "Checking Cloudflare Siteverify using test tokens only. No orders, artwork or emails will be created.";
+
+        try {
+          const response = await fetch("/api/admin-orders?turnstile_probe=1", {
+            headers: token ? { "x-admin-order-token": token } : {},
+            cache: "no-store",
+          });
+          const data = await response.json();
+          if (!response.ok || data.success !== true) throw new Error(data.error || "Turnstile connection check unavailable.");
+
+          const summarize = (item) => {
+            const code = item?.result || "unknown";
+            const http = item?.http_status ? " HTTP " + item.http_status : "";
+            const success = typeof item?.success === "boolean" ? " validation=" + item.success : "";
+            const errors = item?.error_codes?.length ? " codes=" + item.error_codes.join(",") : "";
+            return code + http + success + errors;
+          };
+          turnstileProbeResult.textContent =
+            "Test-key connection: " + summarize(data.test_pair) +
+            " | Production-secret connectivity: " + summarize(data.production_secret) +
+            (data.production_uses_test_secret ? " | Warning: production uses Cloudflare's public test secret." : "") +
+            " | A production secret should reject the dummy token. No customer quote was submitted.";
+        } catch (error) {
+          turnstileProbeResult.textContent = String(error?.message || "Connection diagnostic failed.");
+        } finally {
+          turnstileProbeButton.disabled = false;
+          turnstileProbeButton.textContent = "Check Turnstile Connection";
+        }
       });
 
       refreshButton.addEventListener("click", () => loadOrders(false));
