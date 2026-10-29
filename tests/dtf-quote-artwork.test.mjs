@@ -328,3 +328,17 @@ test("DTF widget requires public sitekey, issues matching action and keeps quote
   assert.match(contact, /cf-turnstile-response/);
   assert.match(contact, /window\.turnstile\?\.reset\?\./);
 });
+
+test("mobile contact WhatsApp is inline and never overlays DTF form controls", () => {
+  const contact = readFileSync(new URL("../src/pages/contact.astro", import.meta.url), "utf8");
+  const chat = readFileSync(new URL("../src/components/WhatsAppChat.astro", import.meta.url), "utf8");
+
+  assert.match(contact, /class="md:hidden">\s*<WhatsAppChat inline \/>/);
+  assert.match(contact, /class="hidden md:block">\s*<WhatsAppChat \/>/);
+  assert.match(chat, /const \{ inline = false \} = Astro\.props/);
+  assert.match(chat, /const phoneNumber = "12406013875"/);
+  assert.match(chat, /https:\/\/wa\.me\/\$\{phoneNumber\}/);
+  assert.match(chat, /inline\s*\? "flex w-full items-center justify-center/);
+  assert.match(chat, /: "fixed bottom-5 right-5 z-50/);
+  assert.match(chat, /<span class="hidden sm:inline">Chat on WhatsApp<\/span>/);
+});
