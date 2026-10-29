@@ -76,6 +76,10 @@ const dtfTurnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
               <p class="mt-2 text-sm leading-6 text-white/55">info@reasonablenoise.com</p>
             </a>
 
+            <div class="md:hidden">
+              <WhatsAppChat inline />
+            </div>
+
             <a id="contact-next-step-link" href="/upload-design" class="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur transition hover:bg-white/[0.09]">
               <p id="contact-next-step-title" class="font-semibold text-white">Ready to order?</p>
               <p id="contact-next-step-description" class="mt-2 text-sm leading-6 text-white/55">Start a secure sticker order and upload artwork.</p>
@@ -447,8 +451,10 @@ const dtfTurnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
       });
     </script>
 
-    <WhatsAppChat />
-      <SiteAnalytics />
+    <div class="hidden md:block">
+      <WhatsAppChat />
+    </div>
+    <SiteAnalytics />
   </body>
 </html>
 
