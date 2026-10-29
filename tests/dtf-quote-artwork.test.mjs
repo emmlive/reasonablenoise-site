@@ -51,12 +51,18 @@ async function runContact(fields, options = {}) {
   const emails = [];
   const outgoingUrls = [];
   const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const diagnostics = [];
+  console.error = (...parts) => diagnostics.push(parts.map(String).join(" "));
   globalThis.fetch = async (url, init) => {
     outgoingUrls.push(String(url));
     if (String(url) === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
       if (options.challengeThrows) throw new Error("Synthetic Turnstile network error");
       if (options.challengeUnavailable) {
         return new Response(JSON.stringify({ success: false }), { status: 503 });
+      }
+      if (options.challengeInvalidJson) {
+        return new Response("not valid JSON", { status: 200 });
       }
       const params = new URLSearchParams(init.body);
       assert.equal(params.get("secret"), "synthetic-turnstile-secret");
@@ -110,10 +116,12 @@ async function runContact(fields, options = {}) {
       bucket,
       emails,
       outgoingUrls,
+      diagnostics,
       env,
     };
   } finally {
     globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
   }
 }
 
@@ -341,4 +349,27 @@ test("mobile contact WhatsApp is inline and never overlays DTF form controls", (
   assert.match(chat, /inline\s*\? "flex w-full items-center justify-center/);
   assert.match(chat, /: "fixed bottom-5 right-5 z-50/);
   assert.match(chat, /<span class="hidden sm:inline">Chat on WhatsApp<\/span>/);
+});
+
+test("upstream Siteverify HTTP failure logs only status and does not store or email", async () => {
+  const out = await runContact({ ...baseFields(), artwork: newFile() }, { challengeUnavailable: true });
+  assert.equal(out.status, 503);
+  assertNoEmailsOrStorage(out);
+  assert.deepEqual(out.diagnostics, ["RN_DTF_SITEVERIFY_UPSTREAM_HTTP 503"]);
+  assert.ok(!JSON.stringify(out.diagnostics).includes("synthetic-turnstile-secret"));
+  assert.ok(!JSON.stringify(out.diagnostics).includes("synthetic-valid-challenge-token"));
+});
+
+test("invalid Siteverify JSON logs a safe category and fails closed", async () => {
+  const out = await runContact({ ...baseFields(), artwork: newFile() }, { challengeInvalidJson: true });
+  assert.equal(out.status, 503);
+  assertNoEmailsOrStorage(out);
+  assert.deepEqual(out.diagnostics, ["RN_DTF_SITEVERIFY_INVALID_JSON"]);
+});
+
+test("Siteverify network failure logs a safe category and fails closed", async () => {
+  const out = await runContact({ ...baseFields(), artwork: newFile() }, { challengeThrows: true });
+  assert.equal(out.status, 503);
+  assertNoEmailsOrStorage(out);
+  assert.deepEqual(out.diagnostics, ["RN_DTF_SITEVERIFY_FETCH_OR_RUNTIME_ERROR"]);
 });
