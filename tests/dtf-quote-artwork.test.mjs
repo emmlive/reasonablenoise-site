@@ -53,6 +53,20 @@ async function runContact(fields, options = {}) {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
     outgoingUrls.push(String(url));
+    if (String(url) === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+      if (options.challengeThrows) throw new Error("Synthetic Turnstile network error");
+      if (options.challengeUnavailable) {
+        return new Response(JSON.stringify({ success: false }), { status: 503 });
+      }
+      const params = new URLSearchParams(init.body);
+      assert.equal(params.get("secret"), "synthetic-turnstile-secret");
+      assert.equal(params.get("response"), "synthetic-valid-challenge-token");
+      return new Response(JSON.stringify({
+        success: !options.challengeRejected,
+        action: options.challengeWrongAction ? "different_action" : "dtf_artwork",
+        hostname: options.challengeWrongHostname ? "unrelated.example" : "reasonablenoise.test",
+      }), { status: 200 });
+    }
     if (String(url) !== "https://api.resend.com/emails") {
       throw new Error("Unexpected provider request: " + String(url));
     }
@@ -75,11 +89,15 @@ async function runContact(fields, options = {}) {
     } else {
       const body = new FormData();
       for (const [key, value] of Object.entries(fields)) body.append(key, value);
+      if (fields.artwork && !options.noToken) {
+        body.set("cf-turnstile-response", "synthetic-valid-challenge-token");
+      }
       request = new Request("https://reasonablenoise.test/api/contact", { method: "POST", body });
     }
     const env = {
       ARTWORK_BUCKET: options.noBucket ? undefined : bucket,
       ADMIN_DOWNLOAD_TOKEN: options.noDownloadToken ? "" : "test-only-admin-token",
+      DTF_TURNSTILE_SECRET: options.noChallengeSecret ? "" : "synthetic-turnstile-secret",
       RESEND_API_KEY: "re_test_not_real",
       CONTACT_NOTIFY_EMAIL: "internal@example.test",
       ORDER_FROM_EMAIL: "ReasonableNoise <orders@example.test>",
@@ -137,7 +155,10 @@ test("DTF quote with artwork saves one private file and emails a protected downl
   assert.match(out.emails[0].html, /Download DTF artwork securely/);
   assert.equal(out.result.artworkObjectKey, undefined);
   assert.ok(!JSON.stringify(out.result).includes("test-only-admin-token"));
-  assert.deepEqual(out.outgoingUrls, ["https://api.resend.com/emails"]);
+  assert.deepEqual(out.outgoingUrls, [
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    "https://api.resend.com/emails",
+  ]);
 });
 
 test("DTF filename sanitization keeps downloads accessible", async () => {
@@ -258,4 +279,52 @@ test("DTF contact header and submit CTA stay quote-first, while sticker CTA is u
   assert.match(contact, /formTitle\.textContent = dtfSelected \? "Request a DTF printing quote\." : "Send a contact request\."/);
   assert.match(contact, /button\.textContent = dtfSelected \? "Request DTF Quote" : "Send Message"/);
   assert.match(contact, /button\.textContent = data\.quoteReference \? "Quote Submitted" : "Message Sent"/);
+});
+
+test("missing challenge token blocks DTF artwork before R2 or email", async () => {
+  const out = await runContact({ ...baseFields(), artwork: newFile() }, { noToken: true });
+  assert.equal(out.status, 400);
+  assertNoEmailsOrStorage(out);
+  assert.deepEqual(out.outgoingUrls, []);
+});
+
+test("missing Turnstile server secret fails closed for artwork", async () => {
+  const out = await runContact({ ...baseFields(), artwork: newFile() }, { noChallengeSecret: true });
+  assert.equal(out.status, 503);
+  assertNoEmailsOrStorage(out);
+  assert.deepEqual(out.outgoingUrls, []);
+});
+
+test("a failed, expired, or mismatched Turnstile response cannot store artwork", async () => {
+  for (const settings of [
+    { challengeRejected: true },
+    { challengeWrongAction: true },
+    { challengeWrongHostname: true },
+  ]) {
+    const out = await runContact({ ...baseFields(), artwork: newFile() }, settings);
+    assert.equal(out.status, 400);
+    assertNoEmailsOrStorage(out);
+    assert.deepEqual(out.outgoingUrls, ["https://challenges.cloudflare.com/turnstile/v0/siteverify"]);
+  }
+});
+
+test("Turnstile outage fails closed and never writes artwork", async () => {
+  for (const settings of [
+    { challengeUnavailable: true },
+    { challengeThrows: true },
+  ]) {
+    const out = await runContact({ ...baseFields(), artwork: newFile() }, settings);
+    assert.equal(out.status, 503);
+    assertNoEmailsOrStorage(out);
+  }
+});
+
+test("DTF widget requires public sitekey, issues matching action and keeps quote-only pathway", () => {
+  const contact = readFileSync(new URL("../src/pages/contact.astro", import.meta.url), "utf8");
+  assert.match(contact, /PUBLIC_DTF_TURNSTILE_SITE_KEY/);
+  assert.match(contact, /rn-dtf-turnstile/);
+  assert.match(contact, /action: "dtf_artwork"/);
+  assert.match(contact, /disabled=\{!dtfTurnstileSiteKey\}/);
+  assert.match(contact, /cf-turnstile-response/);
+  assert.match(contact, /window\.turnstile\?\.reset\?\./);
 });
