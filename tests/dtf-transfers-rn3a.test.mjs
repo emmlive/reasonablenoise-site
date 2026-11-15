@@ -152,14 +152,20 @@ test("color and placement appear in quote summary while transfer-only Stripe iso
   assert.match(page, /quote-first/i);
 });
 
-test("polished layout keeps quote steps in reading order and summary in a separate desktop sidebar", () => {
+test("centered ordering flow keeps three clear steps, inline review and one final submit", () => {
   const sizeIndex = page.indexOf("1. Pick a print size");
   const uploadIndex = page.indexOf("2. Upload your design");
   const contactIndex = page.indexOf("3. Where should we send your quote?");
   const summaryIndex = page.indexOf("Your transfer summary");
-  assert.ok(sizeIndex >= 0 && sizeIndex < uploadIndex && uploadIndex < contactIndex && contactIndex < summaryIndex);
-  assert.match(page, /grid items-start gap-6 lg:grid-cols-\[minmax\(0,1\.1fr\)_minmax\(0,0\.9fr\)\]/);
-  assert.match(page, /<aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Live transfer request summary">/);
+  const buttonIndex = page.indexOf('id="rn-transfer-submit"');
+  assert.ok(sizeIndex >= 0 && sizeIndex < uploadIndex && uploadIndex < contactIndex && contactIndex < summaryIndex && summaryIndex < buttonIndex);
+  assert.match(page, /<form id="rn-transfer-form" class="space-y-5">/);
+  assert.match(page, /mx-auto max-w-5xl px-4 sm:px-6/);
+  assert.match(page, /<aside class="min-w-0" aria-label="Live transfer request summary">/);
+  assert.doesNotMatch(page, /lg:sticky/);
+  assert.match(page, /md:grid-cols-4/);
+  assert.match(page, /mt-5 grid items-start gap-5 md:grid-cols-2/);
+  assert.match(page, /mt-5 grid items-start gap-6 lg:grid-cols-\[minmax\(0,1fr\)_minmax\(0,0\.82fr\)\]/);
   assert.match(page, /id="rn-transfer-summary-size"/);
   assert.match(page, /id="rn-transfer-summary-quantity"/);
   assert.match(page, /id="rn-transfer-summary-visual"/);
