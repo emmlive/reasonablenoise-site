@@ -103,18 +103,18 @@ const transferSizes = [
       </section>
 
       <section id="transfer-quote" class="scroll-mt-6 border-y border-white/10 bg-[#0b1016] py-10 md:py-14">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6">
           <div class="mb-7"><p class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Start here</p><h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tell us what you want printed.</h2><p class="mt-3 max-w-2xl text-sm leading-7 text-white/60">No account, no confusing builder, and no transfer payment during the quote stage.</p></div>
-          <form id="rn-transfer-form" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-8">
+          <form id="rn-transfer-form" class="space-y-5">
             <div class="min-w-0 space-y-5">
               <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
                 <div class="flex items-center justify-between gap-2"><h3 class="text-xl font-bold"><span class="mr-1 text-cyan-600" aria-hidden="true">▤</span> 1. Pick a print size</h3><span class="text-xs text-black/45">Inches</span></div>
-                <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
                   {transferSizes.map((item, i) => (
                     <label class="cursor-pointer rounded-2xl border border-black/10 p-3 transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
                       <span class="flex items-start justify-between gap-1">
                         <input type="radio" name="sizePreset" value={`${item.width}x${item.height}`} checked={i === 2} class="mt-1 accent-cyan-700" />
-                        <TransferShirtIcon placement={i === 0 ? "left-chest" : i === 3 ? "full-back" : "full-front"} size={56} />
+                        <TransferShirtIcon placement={i === 0 ? "left-chest" : i === 3 ? "full-back" : "full-front"} size={48} />
                       </span>
                       <span class="mt-2 block text-sm font-bold">{item.width}″ × {item.height}″</span>
                       <span class="mt-1 block text-xs text-black/55">{item.label}</span>
@@ -178,38 +178,41 @@ const transferSizes = [
               <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
                 <h3 class="flex items-center gap-2 text-xl font-bold"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700" aria-hidden="true">↑</span> 2. Upload your design</h3>
                 <p class="mt-2 text-sm leading-6 text-black/55">Upload a ready-to-print design or reference file, up to 15 MB. Artwork is private and securely submitted only after you send the quote.</p>
-                <label for="rn-transfer-artwork" class="mt-5 block cursor-pointer rounded-2xl border-2 border-dashed border-cyan-300 bg-cyan-50/60 px-4 py-8 text-center transition hover:bg-cyan-50">
+                <div class="mt-5 grid items-start gap-5 md:grid-cols-2">
+                  <div class="min-w-0">
+                <label for="rn-transfer-artwork" class="block cursor-pointer rounded-2xl border-2 border-dashed border-cyan-300 bg-cyan-50/60 px-4 py-8 text-center transition hover:bg-cyan-50">
                   <span aria-hidden="true" class="mb-2 block text-2xl font-bold text-cyan-600">↑</span><span class="block text-base font-semibold text-black">Choose your artwork</span>
                   <span class="mt-2 block text-xs text-black/55">PNG, JPG, WEBP, PDF, SVG, AI, EPS or PSD</span>
                 </label>
                 <input id="rn-transfer-artwork" name="artwork" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.svg,.ai,.eps,.psd" disabled={!turnstileSiteKey} class="sr-only" />
                 <p id="rn-transfer-file-note" role="status" class="mt-3 text-xs text-black/60">No file selected. You can request a quote without artwork.</p>
-                <div class="mt-4 overflow-hidden rounded-2xl border border-black/10 bg-[linear-gradient(45deg,#edf1f4_25%,transparent_25%,transparent_75%,#edf1f4_75%),linear-gradient(45deg,#edf1f4_25%,#fff_25%,#fff_75%,#edf1f4_75%)] bg-[length:24px_24px] bg-[position:0_0,12px_12px]">
+                  </div>
+                  <div class="min-w-0">
+                <div class="overflow-hidden rounded-2xl border border-black/10 bg-[linear-gradient(45deg,#edf1f4_25%,transparent_25%,transparent_75%,#edf1f4_75%),linear-gradient(45deg,#edf1f4_25%,#fff_25%,#fff_75%,#edf1f4_75%)] bg-[length:24px_24px] bg-[position:0_0,12px_12px]">
                   <div id="rn-transfer-preview-empty" class="flex min-h-48 items-center justify-center p-8 text-center text-sm text-black/45">Your artwork preview appears here for supported images.</div>
                   <img id="rn-transfer-preview-image" alt="Preview of your selected artwork, before upload" class="hidden max-h-72 w-full object-contain p-4" />
                 </div>
                 <p id="rn-transfer-quality-note" class="mt-3 text-xs leading-5 text-black/55">For sharper results, use a transparent file and artwork sized for the final print. We'll check the file before production.</p>
+                  </div>
+                </div>
                 {!turnstileSiteKey && <p class="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs font-semibold text-amber-900">Secure artwork uploads are temporarily unavailable. You can still request a quote without attaching a file.</p>}
               </section>
 
-              <section class="rounded-[1.75rem] bg-white p-5 text-black sm:p-7">
+              <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
                 <h3 class="text-xl font-bold">3. Where should we send your quote?</h3>
                 <p class="mt-2 text-sm text-black/55">A few details and you're done.</p>
-                <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                <div class="mt-5 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.82fr)]">
+                  <div class="min-w-0">
+                <div class="grid gap-4 sm:grid-cols-2">
                   <label class="grid gap-1 text-sm font-semibold">Name *<input name="name" autocomplete="name" required maxlength="120" placeholder="Full name" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
                   <label class="grid gap-1 text-sm font-semibold">Email *<input name="email" autocomplete="email" required type="email" maxlength="180" placeholder="you@email.com" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
                 </div>
                 <label class="mt-4 grid gap-1 text-sm font-semibold">Phone (optional)<input name="phone" autocomplete="tel" type="tel" maxlength="40" placeholder="Phone number" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
                 <label class="mt-4 grid gap-1 text-sm font-semibold">Project notes<input name="notes" maxlength="450" placeholder="Colors, gang-sheet questions, deadline..." class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
                 <input type="hidden" name="contactType" value="DTF transfer quote" />
-                {turnstileSiteKey && <div class="mt-4 rounded-xl border border-black/10 p-3"><p class="mb-3 text-xs text-black/55">Secure upload verification</p><div id="rn-transfer-turnstile" data-sitekey={turnstileSiteKey} class="min-h-16"></div></div>}
-                <p id="rn-transfer-result" role="status" aria-live="polite" class="mt-4 hidden rounded-xl border px-4 py-3 text-sm font-semibold"></p>
-                <button id="rn-transfer-submit" type="submit" class="mt-5 w-full rounded-full bg-black px-6 py-4 text-base font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Request my DTF transfer quote →</button>
-                <p class="mt-3 text-center text-xs leading-5 text-black/50">No payment required. We'll confirm pricing before production.</p>
-              </section>
-            </div>
 
-            <aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Live transfer request summary">
+                  </div>
+            <aside class="min-w-0" aria-label="Live transfer request summary">
               <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 shadow-xl shadow-black/20 sm:p-6">
                 <div class="flex items-center justify-between gap-3"><h3 class="text-xl font-semibold">Your transfer summary</h3><span class="rounded-full bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">Live preview</span></div>
                 <div class="mt-5 grid grid-cols-2 gap-3">
@@ -224,6 +227,14 @@ const transferSizes = [
                 <div class="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.15em] text-cyan-200">Price</p><p class="mt-2 text-2xl font-semibold">Confirmed after review</p><p class="mt-2 text-xs leading-5 text-white/60">Pricing and timing are confirmed after artwork review. No payment at this stage.</p></div>
               </section>
             </aside>
+                </div>
+                {turnstileSiteKey && <div class="mt-4 rounded-xl border border-black/10 p-3"><p class="mb-3 text-xs text-black/55">Secure upload verification</p><div id="rn-transfer-turnstile" data-sitekey={turnstileSiteKey} class="min-h-16"></div></div>}
+                <p id="rn-transfer-result" role="status" aria-live="polite" class="mt-4 hidden rounded-xl border px-4 py-3 text-sm font-semibold"></p>
+                <button id="rn-transfer-submit" type="submit" class="mt-5 w-full rounded-full bg-black px-6 py-4 text-base font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Request my DTF transfer quote →</button>
+                <p class="mt-3 text-center text-xs leading-5 text-black/50">No payment required. We'll confirm pricing before production.</p>
+              </section>
+            </div>
+
           </form>
         </div>
       </section>
