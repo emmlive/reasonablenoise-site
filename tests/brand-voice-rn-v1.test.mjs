@@ -73,3 +73,15 @@ test("copy-only branch does not introduce transfer checkout or new fulfillment c
     assert.doesNotMatch(s, /Guaranteed DOT compliant|Perfect quality every time|Best prices anywhere/i);
   }
 });
+
+test("homepage avoids cramped desktop layout at tablet widths", () => {
+  const home = read("src/pages/index.astro");
+  const chat = read("src/components/WhatsAppChat.astro");
+  assert.match(home, /lg:grid-cols-2 lg:gap-14/);
+  assert.match(home, /sm:text-5xl lg:text-6xl xl:text-7xl/);
+  assert.match(home, /hidden items-center gap-8 text-sm text-white\/70 lg:flex/);
+  assert.match(home, /flex flex-col flex-wrap gap-4 sm:flex-row/);
+  assert.match(chat, /lg:inline/);
+  assert.match(chat, /lg:bottom-5 lg:right-5/);
+  assert.match(chat, /aria-label="Chat with ReasonableNoise on WhatsApp"/);
+});
