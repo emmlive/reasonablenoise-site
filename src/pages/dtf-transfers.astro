@@ -72,7 +72,7 @@ const transferSizes = [
         <a href="#transfer-quote" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-black transition hover:bg-cyan-100">Start my quote</a>
       </header>
 
-      <section class="mx-auto grid max-w-7xl gap-8 px-4 pb-12 pt-12 sm:px-6 md:grid-cols-[0.98fr_1.02fr] md:items-center md:pb-20 md:pt-20">
+      <section class="mx-auto grid max-w-7xl gap-8 px-4 pb-10 pt-8 sm:px-6 md:grid-cols-[0.98fr_1.02fr] md:items-center md:pb-14 md:pt-14">
         <div>
           <p class="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-200"><span class="h-2 w-2 rounded-full bg-cyan-300"></span> New • DTF Transfer Quotes</p>
           <h1 class="mt-6 max-w-2xl text-5xl font-semibold leading-[1.02] tracking-[-0.06em] sm:text-6xl lg:text-7xl">DTF transfers.<br /><span class="text-cyan-300">Less clicking.</span><br />More creating.</h1>
@@ -86,7 +86,7 @@ const transferSizes = [
         </div>
         <div class="relative rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30 sm:p-8">
           <div class="flex items-center justify-between gap-2"><span class="text-xs font-bold uppercase tracking-[0.25em] text-white/50">How it works</span><span class="rounded-full border border-cyan-300/25 px-3 py-1.5 text-xs text-cyan-200">Quote-first</span></div>
-          <div class="mt-8 grid gap-4">
+          <div class="mt-6 grid gap-3">
             {[
               ["01", "Choose your transfer", "Pick a common size or enter custom dimensions."],
               ["02", "Preview & upload", "Review your art locally before securely sending it."],
@@ -102,11 +102,11 @@ const transferSizes = [
         </div>
       </section>
 
-      <section id="transfer-quote" class="scroll-mt-6 border-y border-white/10 bg-[#0b1016] py-12 md:py-20">
+      <section id="transfer-quote" class="scroll-mt-6 border-y border-white/10 bg-[#0b1016] py-10 md:py-14">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="mb-8"><p class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Start here</p><h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tell us what you want printed.</h2><p class="mt-3 max-w-2xl text-sm leading-7 text-white/60">No account, no confusing builder, and no transfer payment during the quote stage.</p></div>
-          <form id="rn-transfer-form" class="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
-            <div class="space-y-6">
+          <div class="mb-7"><p class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Start here</p><h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tell us what you want printed.</h2><p class="mt-3 max-w-2xl text-sm leading-7 text-white/60">No account, no confusing builder, and no transfer payment during the quote stage.</p></div>
+          <form id="rn-transfer-form" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-8">
+            <div class="min-w-0 space-y-5">
               <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
                 <div class="flex items-center justify-between gap-2"><h3 class="text-xl font-bold"><span class="mr-1 text-cyan-600" aria-hidden="true">▤</span> 1. Pick a print size</h3><span class="text-xs text-black/45">Inches</span></div>
                 <div class="mt-5 grid grid-cols-2 gap-3">
@@ -191,22 +191,6 @@ const transferSizes = [
                 <p id="rn-transfer-quality-note" class="mt-3 text-xs leading-5 text-black/55">For sharper results, use a transparent file and artwork sized for the final print. We'll check the file before production.</p>
                 {!turnstileSiteKey && <p class="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs font-semibold text-amber-900">Secure artwork uploads are temporarily unavailable. You can still request a quote without attaching a file.</p>}
               </section>
-            </div>
-
-            <div class="space-y-6">
-              <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 sm:p-7">
-                <div class="flex items-center justify-between gap-3"><h3 class="text-xl font-semibold">Your transfer request</h3><span class="rounded-full bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">Review</span></div>
-                <div class="mt-6 grid grid-cols-2 gap-3">
-                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Selected size</p><p id="rn-transfer-summary-size" class="mt-2 text-lg font-bold">10.5″ × 11″</p></div>
-                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Quantity</p><p id="rn-transfer-summary-quantity" class="mt-2 text-lg font-bold">1 transfer</p></div>
-                </div>
-                <div class="mt-4 rounded-xl border border-white/10 bg-black/25 p-4">
-                  <p class="text-xs text-white/45">Print placement / garment reference</p>
-                  <p id="rn-transfer-summary-visual" class="mt-2 text-sm font-semibold text-cyan-100">Full front • White shirt reference</p>
-                  <p class="mt-1 text-xs text-white/45">No shirt included in this transfer-only quote.</p>
-                </div>
-                <div class="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.15em] text-cyan-200">Price</p><p class="mt-2 text-2xl font-semibold">Confirmed after review</p><p class="mt-2 text-xs leading-5 text-white/60">We will not charge you or reserve production until pricing, equipment readiness, and timing are confirmed.</p></div>
-              </section>
 
               <section class="rounded-[1.75rem] bg-white p-5 text-black sm:p-7">
                 <h3 class="text-xl font-bold">3. Where should we send your quote?</h3>
@@ -224,6 +208,22 @@ const transferSizes = [
                 <p class="mt-3 text-center text-xs leading-5 text-black/50">No payment required. We'll confirm pricing before production.</p>
               </section>
             </div>
+
+            <aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Live transfer request summary">
+              <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 shadow-xl shadow-black/20 sm:p-6">
+                <div class="flex items-center justify-between gap-3"><h3 class="text-xl font-semibold">Your transfer summary</h3><span class="rounded-full bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">Live preview</span></div>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Selected size</p><p id="rn-transfer-summary-size" class="mt-2 text-lg font-bold">10.5″ × 11″</p></div>
+                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Quantity</p><p id="rn-transfer-summary-quantity" class="mt-2 text-lg font-bold">1 transfer</p></div>
+                </div>
+                <div class="mt-4 rounded-xl border border-white/10 bg-black/25 p-4">
+                  <p class="text-xs text-white/45">Print placement / garment reference</p>
+                  <p id="rn-transfer-summary-visual" class="mt-2 text-sm font-semibold text-cyan-100">Full front • White shirt reference</p>
+                  <p class="mt-1 text-xs text-white/45">No shirt included in this transfer-only quote.</p>
+                </div>
+                <div class="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.15em] text-cyan-200">Price</p><p class="mt-2 text-2xl font-semibold">Confirmed after review</p><p class="mt-2 text-xs leading-5 text-white/60">Pricing and timing are confirmed after artwork review. No payment at this stage.</p></div>
+              </section>
+            </aside>
           </form>
         </div>
       </section>
