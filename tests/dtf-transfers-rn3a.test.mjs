@@ -115,3 +115,39 @@ test("transfer quote without file sends email but never touches R2 or Siteverify
   assert.deepEqual(storage, []);
   assert.deepEqual(outgoing, ["https://api.resend.com/emails"]);
 });
+
+test("illustrated shirt size presets use accessible radio controls and reusable vector icons", () => {
+  const icon = readFileSync(new URL("../src/components/TransferShirtIcon.astro", import.meta.url), "utf8");
+  assert.match(page, /import TransferShirtIcon/);
+  assert.match(page, /<TransferShirtIcon placement=/);
+  assert.match(icon, /viewBox="0 0 100 100"/);
+  assert.match(icon, /aria-hidden="true"/);
+  assert.match(page, /name="sizePreset"/);
+});
+
+test("placement pictograms and garment swatches provide optional, visual-only quote details", () => {
+  assert.match(page, /name="printPlacement"/);
+  assert.match(page, /name="garmentColor"/);
+  for (const placement of ["left-chest", "full-front", "full-back", "sleeve", "custom"]) {
+    assert.ok(page.includes(placement), placement + " placement missing");
+  }
+  for (const color of ["White", "Black", "Gray", "Navy", "Red", "Royal blue"]) {
+    assert.ok(page.includes(color), color + " garment reference missing");
+  }
+  assert.match(page, /id="rn-transfer-shirt-fill"/);
+  assert.match(page, /id="rn-transfer-placement-marker"/);
+  assert.match(page, /updateShirtReference\(\)/);
+  assert.match(page, /name="garmentColor"/);
+  assert.match(page, /Garment color reference \(no shirt included\)/);
+  assert.match(page, /Print placement reference:/);
+  assert.match(page, /Not to scale\. Transfer sold separately\./);
+});
+
+test("color and placement appear in quote summary while transfer-only Stripe isolation stays intact", () => {
+  assert.match(page, /summaryVisual\.textContent/);
+  assert.match(page, /data\.get\("garmentColor"\)/);
+  assert.match(page, /data\.get\("printPlacement"\)/);
+  assert.match(page, /updateShirtReference\(\);\s*submitButton\.textContent = "Quote Submitted"/);
+  assert.doesNotMatch(page, /create-checkout-session|stripe\.com/);
+  assert.match(page, /quote-first/i);
+});
