@@ -151,3 +151,18 @@ test("color and placement appear in quote summary while transfer-only Stripe iso
   assert.doesNotMatch(page, /create-checkout-session|stripe\.com/);
   assert.match(page, /quote-first/i);
 });
+
+test("polished layout keeps quote steps in reading order and summary in a separate desktop sidebar", () => {
+  const sizeIndex = page.indexOf("1. Pick a print size");
+  const uploadIndex = page.indexOf("2. Upload your design");
+  const contactIndex = page.indexOf("3. Where should we send your quote?");
+  const summaryIndex = page.indexOf("Your transfer summary");
+  assert.ok(sizeIndex >= 0 && sizeIndex < uploadIndex && uploadIndex < contactIndex && contactIndex < summaryIndex);
+  assert.match(page, /grid items-start gap-6 lg:grid-cols-\[minmax\(0,1\.1fr\)_minmax\(0,0\.9fr\)\]/);
+  assert.match(page, /<aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Live transfer request summary">/);
+  assert.match(page, /id="rn-transfer-summary-size"/);
+  assert.match(page, /id="rn-transfer-summary-quantity"/);
+  assert.match(page, /id="rn-transfer-summary-visual"/);
+  assert.match(page, /id="rn-transfer-submit"/);
+  assert.match(page, /id="rn-transfer-artwork"/);
+});
