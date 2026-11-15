@@ -28,7 +28,7 @@ test("quote-first page uses existing protected DTF endpoint and makes no Stripe 
   assert.doesNotMatch(page, /fetch\("\/api\/create-checkout-session"/);
   assert.doesNotMatch(page, /data\.set\("source",/);
   assert.match(page, /No payment required/);
-  assert.match(page, /confirmed before payment/);
+  assert.match(page, /confirmed individually before payment/);
 });
 
 test("consumer navigation distinguishes transfers from printed shirts", () => {
