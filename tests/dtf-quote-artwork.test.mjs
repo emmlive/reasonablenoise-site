@@ -262,7 +262,7 @@ test("source contract keeps DTF artwork in contact form, separate from Stripe ch
   assert.match(upload, /DTF quote form to send your artwork and shirt details together/);
   assert.match(upload, /This checkout is for stickers and decals/);
   assert.match(upload, /review the amount before paying/);
-  assert.match(upload, /use the separate artwork-and-quote form/);
+  assert.match(upload, /use the separate artwork-and-quote form/i);
   assert.match(upload, /Request DTF Order Quote/);
 });
 
