@@ -2,7 +2,23 @@
 import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
+import TransferShirtIcon from "../components/TransferShirtIcon.astro";
 const turnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
+const placementOptions = [
+  { value: "left-chest", label: "Left chest" },
+  { value: "full-front", label: "Full front" },
+  { value: "full-back", label: "Full back" },
+  { value: "sleeve", label: "Sleeve" },
+  { value: "custom", label: "Custom" },
+];
+const garmentColors = [
+  { value: "White", hex: "#f8fafc" },
+  { value: "Black", hex: "#15171e" },
+  { value: "Gray", hex: "#94a3b8" },
+  { value: "Navy", hex: "#172554" },
+  { value: "Red", hex: "#dc2626" },
+  { value: "Royal blue", hex: "#2563eb" },
+];
 const transferSizes = [
   { label: "Pocket / small", width: 3, height: 3, note: "Small logos and accents" },
   { label: "Youth / medium", width: 8, height: 10, note: "Compact front prints" },
@@ -92,11 +108,14 @@ const transferSizes = [
           <form id="rn-transfer-form" class="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
             <div class="space-y-6">
               <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
-                <div class="flex items-center justify-between gap-2"><h3 class="text-xl font-bold">1. Pick a print size</h3><span class="text-xs text-black/45">Inches</span></div>
+                <div class="flex items-center justify-between gap-2"><h3 class="text-xl font-bold"><span class="mr-1 text-cyan-600" aria-hidden="true">▤</span> 1. Pick a print size</h3><span class="text-xs text-black/45">Inches</span></div>
                 <div class="mt-5 grid grid-cols-2 gap-3">
                   {transferSizes.map((item, i) => (
                     <label class="cursor-pointer rounded-2xl border border-black/10 p-3 transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
-                      <input type="radio" name="sizePreset" value={`${item.width}x${item.height}`} checked={i === 2} class="accent-cyan-700" />
+                      <span class="flex items-start justify-between gap-1">
+                        <input type="radio" name="sizePreset" value={`${item.width}x${item.height}`} checked={i === 2} class="mt-1 accent-cyan-700" />
+                        <TransferShirtIcon placement={i === 0 ? "left-chest" : i === 3 ? "full-back" : "full-front"} size={56} />
+                      </span>
                       <span class="mt-2 block text-sm font-bold">{item.width}″ × {item.height}″</span>
                       <span class="mt-1 block text-xs text-black/55">{item.label}</span>
                     </label>
@@ -112,16 +131,55 @@ const transferSizes = [
                 </div>
                 <div class="mt-4 grid grid-cols-2 gap-3">
                   <label class="grid gap-1 text-sm font-semibold text-black/70">Quantity<input name="quantity" type="number" min="1" max="10000" step="1" value="1" required class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400" /></label>
-                  <label class="grid gap-1 text-sm font-semibold text-black/70">Fulfillment<select name="fulfillment" class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"><option>Local pickup</option><option>Shipping</option><option>Not sure yet</option></select></label>
+                  <label class="grid gap-1 text-sm font-semibold text-black/70"><span><span aria-hidden="true">🚚</span> Pickup / shipping</span><select name="fulfillment" class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"><option>Local pickup</option><option>Shipping</option><option>Not sure yet</option></select></label>
                 </div>
-                <p class="mt-4 rounded-xl bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">Size choices are examples, not equipment limits or print guarantees. We'll confirm the best layout and exact price after reviewing your file.</p>
+                
+                <fieldset class="mt-6 border-t border-black/10 pt-5">
+                  <legend class="text-sm font-bold text-black">Print placement <span class="font-normal text-black/45">(visual reference)</span></legend>
+                  <p class="mt-1 text-xs leading-5 text-black/50">Choose where you plan to apply your transfer. Actual artwork placement is reviewed before printing.</p>
+                  <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                    {placementOptions.map((option, i) => (
+                      <label class="flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-black/10 p-2 text-center transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
+                        <input type="radio" name="printPlacement" value={option.value} checked={i === 1} class="self-start accent-cyan-700" />
+                        <TransferShirtIcon placement={option.value} size={52} />
+                        <span class="text-[11px] font-semibold leading-4">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <fieldset class="mt-6 border-t border-black/10 pt-5">
+                  <legend class="text-sm font-bold text-black">Garment color reference <span class="font-normal text-black/45">(optional)</span></legend>
+                  <p class="mt-1 text-xs leading-5 text-black/50">Preview against a shirt color. This does not add a shirt to your transfer-only order.</p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    {garmentColors.map((item, i) => (
+                      <label class="flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-semibold transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
+                        <input type="radio" name="garmentColor" value={item.value} checked={i === 0} class="sr-only" />
+                        <span class="h-5 w-5 rounded-full border border-black/15" style={`background-color: ${item.hex}`}></span>
+                        {item.value}
+                      </label>
+                    ))}
+                  </div>
+                  <div class="mt-4 flex items-center gap-4 rounded-2xl border border-black/10 bg-slate-50 p-3">
+                    <svg id="rn-transfer-shirt-preview" viewBox="0 0 100 100" width="88" height="88" aria-label="Illustrative shirt with selected color and print placement" role="img">
+                      <path id="rn-transfer-shirt-fill" d="M30 15 39 10 Q50 22 61 10 L70 15 92 30 79 55 69 49 69 90 31 90 31 49 21 55 8 30Z" fill="#f8fafc" stroke="#64748b" stroke-width="3" stroke-linejoin="round"></path>
+                      <path d="M39 10 Q50 29 61 10" fill="none" stroke="#94a3b8" stroke-width="2.5"></path>
+                      <rect id="rn-transfer-placement-marker" x="34" y="36" width="32" height="34" rx="2.5" fill="#06b6d4" fill-opacity=".75" stroke="#0e7490" stroke-width="1.5"></rect>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-bold">Visual reference only</p>
+                      <p id="rn-transfer-shirt-preview-label" class="mt-1 text-xs text-black/55">White shirt • Full front</p>
+                      <p class="mt-1 text-xs leading-5 text-black/45">Not to scale. Transfer sold separately.</p>
+                    </div>
+                  </div>
+                </fieldset>
+                <p class="mt-5 rounded-xl bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">Size choices and shirt diagrams are illustrative, not equipment limits or print guarantees. We'll confirm the best layout and exact price after reviewing your file.</p>
               </section>
 
               <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
-                <h3 class="text-xl font-bold">2. Upload your design</h3>
+                <h3 class="flex items-center gap-2 text-xl font-bold"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700" aria-hidden="true">↑</span> 2. Upload your design</h3>
                 <p class="mt-2 text-sm leading-6 text-black/55">Upload a ready-to-print design or reference file, up to 15 MB. Artwork is private and securely submitted only after you send the quote.</p>
                 <label for="rn-transfer-artwork" class="mt-5 block cursor-pointer rounded-2xl border-2 border-dashed border-cyan-300 bg-cyan-50/60 px-4 py-8 text-center transition hover:bg-cyan-50">
-                  <span class="block text-base font-semibold text-black">Choose your artwork</span>
+                  <span aria-hidden="true" class="mb-2 block text-2xl font-bold text-cyan-600">↑</span><span class="block text-base font-semibold text-black">Choose your artwork</span>
                   <span class="mt-2 block text-xs text-black/55">PNG, JPG, WEBP, PDF, SVG, AI, EPS or PSD</span>
                 </label>
                 <input id="rn-transfer-artwork" name="artwork" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.svg,.ai,.eps,.psd" disabled={!turnstileSiteKey} class="sr-only" />
@@ -141,6 +199,11 @@ const transferSizes = [
                 <div class="mt-6 grid grid-cols-2 gap-3">
                   <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Selected size</p><p id="rn-transfer-summary-size" class="mt-2 text-lg font-bold">10.5″ × 11″</p></div>
                   <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Quantity</p><p id="rn-transfer-summary-quantity" class="mt-2 text-lg font-bold">1 transfer</p></div>
+                </div>
+                <div class="mt-4 rounded-xl border border-white/10 bg-black/25 p-4">
+                  <p class="text-xs text-white/45">Print placement / garment reference</p>
+                  <p id="rn-transfer-summary-visual" class="mt-2 text-sm font-semibold text-cyan-100">Full front • White shirt reference</p>
+                  <p class="mt-1 text-xs text-white/45">No shirt included in this transfer-only quote.</p>
                 </div>
                 <div class="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.15em] text-cyan-200">Price</p><p class="mt-2 text-2xl font-semibold">Confirmed after review</p><p class="mt-2 text-xs leading-5 text-white/60">We will not charge you or reserve production until pricing, equipment readiness, and timing are confirmed.</p></div>
               </section>
@@ -188,6 +251,36 @@ const transferSizes = [
       const heightField = document.getElementById("rn-transfer-height");
       let previewUrl = "";
       let widgetId = null;
+      const previewFill = document.getElementById("rn-transfer-shirt-fill");
+      const placementMarker = document.getElementById("rn-transfer-placement-marker");
+      const shirtPreviewLabel = document.getElementById("rn-transfer-shirt-preview-label");
+      const summaryVisual = document.getElementById("rn-transfer-summary-visual");
+      const placements = {
+        "left-chest": { label: "Left chest", x: 39, y: 33, width: 11, height: 11 },
+        "full-front": { label: "Full front", x: 34, y: 36, width: 32, height: 34 },
+        "full-back": { label: "Full back", x: 32, y: 35, width: 35, height: 39 },
+        sleeve: { label: "Sleeve", x: 12, y: 39, width: 13, height: 13 },
+        custom: { label: "Custom", x: 40, y: 45, width: 20, height: 20 },
+      };
+      const shirtColorCodes = {
+        White: "#f8fafc", Black: "#15171e", Gray: "#94a3b8",
+        Navy: "#172554", Red: "#dc2626", "Royal blue": "#2563eb",
+      };
+      function updateShirtReference() {
+        const selectedPlacement = form?.querySelector('input[name="printPlacement"]:checked')?.value || "full-front";
+        const selectedColor = form?.querySelector('input[name="garmentColor"]:checked')?.value || "White";
+        const marker = placements[selectedPlacement] || placements["full-front"];
+        if (previewFill) previewFill.setAttribute("fill", shirtColorCodes[selectedColor] || shirtColorCodes.White);
+        if (placementMarker) {
+          for (const attribute of ["x", "y", "width", "height"]) placementMarker.setAttribute(attribute, String(marker[attribute]));
+        }
+        if (shirtPreviewLabel) shirtPreviewLabel.textContent = selectedColor + " shirt • " + marker.label;
+        if (summaryVisual) summaryVisual.textContent = marker.label + " • " + selectedColor + " shirt reference";
+      }
+      form?.querySelectorAll('input[name="printPlacement"], input[name="garmentColor"]').forEach(input => {
+        input.addEventListener("change", updateShirtReference);
+      });
+      updateShirtReference();
 
       function updateSummary() {
         const width = Number(widthField?.value || 0);
@@ -307,6 +400,8 @@ const transferSizes = [
           "Size: " + width + " x " + height + " inches",
           "Quantity: " + qty,
           "Fulfillment: " + String(data.get("fulfillment") || ""),
+          "Print placement reference: " + (placements[String(data.get("printPlacement"))]?.label || "Full front"),
+          "Garment color reference (no shirt included): " + String(data.get("garmentColor") || "White"),
           "Artwork: " + (file?.name || "Not attached"),
           "Notes: " + String(data.get("notes") || "None"),
           "Pricing: Pending review; no payment authorized",
@@ -331,6 +426,7 @@ const transferSizes = [
           widthField.value = "10.5";
           heightField.value = "11";
           updateSummary();
+          updateShirtReference();
           submitButton.textContent = "Quote Submitted";
         } catch (error) {
           showResult(error.message || "Unable to submit your quote.", true);
