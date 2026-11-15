@@ -23,8 +23,8 @@ test("all seven core customer pages share the clear, grounded service promise", 
   assert.match(assurance, /Clear expectations/);
   assert.match(assurance, /Care with every design/);
   assert.match(assurance, /Value without surprises/);
-  assert.match(assurance, /See checkout amounts before paying/);
-  assert.match(assurance, /Custom pricing is confirmed before payment/);
+  assert.match(assurance, /Know what you are paying today/);
+  assert.match(assurance, /remaining balance is confirmed after order review/);
 });
 test("homepage and service pages emphasize concrete choices instead of unverified guarantees", () => {
   const home=read("src/pages/index.astro");
