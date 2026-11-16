@@ -216,6 +216,7 @@ const dtfTurnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
     </main>
 
     <script>
+      import {parseQuotePrefill} from "../lib/dtf-quote-config-rn3b1c.js";
       const form = document.getElementById("contact-form");
       const button = document.getElementById("contact-button");
       const message = document.getElementById("contact-message");
@@ -339,6 +340,23 @@ const dtfTurnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
 
         if (messageField && !messageField.value) {
           messageField.placeholder = "Tell us about your DTF shirt request: quantity, shirt color, whether you are bringing your own shirts, print size, front/back print, artwork status, and deadline.";
+        }
+
+        const configured = parseQuotePrefill(params);
+        if (configured) {
+          const fields = form.elements;
+          if (fields.dtfShirtSource) fields.dtfShirtSource.value = configured.shirtSource;
+          if (fields.dtfQuantity) fields.dtfQuantity.value = String(configured.quantity);
+          if (fields.dtfShirtColor) fields.dtfShirtColor.value = configured.color;
+          if (fields.dtfPrintPlacement) fields.dtfPrintPlacement.value = configured.placement;
+          if (fields.dtfDeadline) fields.dtfDeadline.value = configured.deadline;
+          if (messageField && !messageField.value) {
+            messageField.value = [
+              configured.sizeBreakdown ? "Size breakdown: " + configured.sizeBreakdown : "",
+              configured.artwork ? "Artwork status: " + configured.artwork : "",
+              "Please confirm final DTF pricing and availability before payment."
+            ].filter(Boolean).join("\n");
+          }
         }
 
         showContactMessage("DTF order quote selected. Send your shirt details and we’ll follow up.", false);
