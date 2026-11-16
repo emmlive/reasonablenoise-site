@@ -64,7 +64,30 @@ async function runViewport(name,viewport,inputs){
   check("equal",(await page.locator("#dtf-quote-estimate").textContent()).trim(),inputs.estimate);
   check("test",await page.locator("#dtf-quote-error").isHidden());
   await page.getByRole("button",{name:"Continue to secure quote request"}).click();
-  await page.waitForURL(url=>new URL(url).pathname==="/contact/");
+  // Phase 16 intentionally hands off to /contact?topic=dtf (no trailing slash).
+  // Astro may preserve /contact or normalize to /contact/ depending on hosting.
+  // Accept both route spellings; do not relax the hostname or topic checks.
+  const contactPath = pathname => pathname==="/contact" || pathname==="/contact/";
+  const landed = new URL(page.url());
+  if (!contactPath(landed.pathname)) {
+   try {
+    await page.waitForURL(
+     url => url.origin===origin.origin && contactPath(url.pathname) && url.searchParams.get("topic")==="dtf",
+     {waitUntil:"domcontentloaded",timeout:12000}
+    );
+   } catch (error) {
+    const observed = new URL(page.url());
+    console.error("PHASE17_CONTACT_HANDOFF_DIAGNOSTIC",JSON.stringify({
+     path:observed.pathname,localhost:observed.origin===origin.origin,
+     hasDtfTopic:observed.searchParams.get("topic")==="dtf",
+     errorName:error?.name||"unknown"
+    }));
+    throw error;
+   }
+  }
+  const landedContact = new URL(page.url());
+  check("test",landedContact.origin===origin.origin && contactPath(landedContact.pathname));
+  check("equal",landedContact.searchParams.get("topic"),"dtf");
   const next=new URL(page.url());
   check("equal",next.searchParams.get("topic"),"dtf");
   check("equal",next.searchParams.has("checkout"),false);
