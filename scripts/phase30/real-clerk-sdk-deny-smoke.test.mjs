@@ -5,7 +5,7 @@ import {join} from "node:path";
 import {generateKeyPairSync} from "node:crypto";
 import assert from "node:assert/strict";
 import test from "node:test";
-import {existsSync} from "node:fs";
+import {existsSync,readFileSync} from "node:fs";
 
 const root=process.env.RN_CLERK_OFFLINE_ROOT;
 const safety=()=>({
@@ -17,7 +17,7 @@ const safety=()=>({
 test("real pinned official Clerk SDK executes denied unauthenticated request without network",async()=>{
   assert.ok(root&&existsSync(join(root,"package.json")),"isolated package root is required");
   const require=createRequire(join(root,"package.json"));
-  const pkg=require("@clerk/backend/package.json");
+  const pkg=JSON.parse(readFileSync(join(root,"node_modules","@clerk","backend","package.json"),"utf8"));
   assert.equal(pkg.version,"3.29.0");
   const sdk=require("@clerk/backend");
   assert.equal(typeof sdk.createClerkClient,"function");
@@ -43,8 +43,11 @@ test("real pinned official Clerk SDK executes denied unauthenticated request wit
     });
     assert.equal(result.isAuthenticated,false);
     assert.equal(calls,0,"SDK attempted provider network access");
-    for(const [key,value] of Object.entries(safety())){
-      assert.equal(value,key==="customerPrincipal"?null:false);
-    }
+    assert.deepEqual(safety(),{
+      customerPrincipal:null,localSessionAuthorized:false,
+      dtfQuoteAcceptanceAuthorized:false,dtfCheckoutEnabled:false,
+      paymentAuthorized:false,artworkDeletionAuthorized:false,
+      productionApproved:false,deploymentAuthorized:false
+    });
   }finally{globalThis.fetch=priorFetch;}
 });
