@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
+import BrandAssurance from "../components/BrandAssurance.astro";
 
 const orderTypes = [
   "USDOT Sticker Pair - $29",
@@ -185,11 +186,11 @@ const pricingGuideItems = [
           </div>
 
           <h1 class="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-7xl">
-            Upload sticker artwork or request a DTF shirt quote.
+            Your design matters. Let's get the details right.
           </h1>
 
           <p class="mt-7 max-w-xl text-lg leading-8 text-white/65">
-            Start a secure request for USDOT stickers, custom business decals, truck lettering, fleet decals, logo stickers, or DTF shirt printing. Sticker and decal orders can continue to checkout; DTF shirt orders are quote-reviewed before payment.
+            Tell us what you want made and share artwork when you're ready. Sticker and decal checkout shows the amount before payment. For DTF shirts, we review your request and confirm the price before asking you to pay.
           </p>
 
           <div class="mt-10 grid gap-4">
@@ -235,7 +236,7 @@ const pricingGuideItems = [
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/40">Order Request</p>
             <h2 class="mt-3 text-3xl font-semibold tracking-[-0.04em]">Start your order request.</h2>
             <p class="mt-3 text-sm leading-6 text-black/55">
-              This form is for sticker and decal checkout. For DTF shirts, use the separate artwork-and-quote form below—no payment is required to request a DTF quote.
+              This checkout is for stickers and decals. You can review the amount before paying. Ordering DTF shirts? Use the separate artwork-and-quote form; we'll confirm your options and price first.
             </p>
 
             <div data-rn-dtf-upload-notice class="mt-6 rounded-3xl border border-cyan-300/30 bg-cyan-50 p-5">
@@ -503,8 +504,10 @@ const pricingGuideItems = [
         </div>
       </section>
 
+      <BrandAssurance />
+
       <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
+        <p>© 2026 ReasonableNoise. Thoughtful printing. Clear expectations.</p>
         <div class="flex flex-wrap gap-5">
           <a href="/" class="hover:text-white">Home</a>
           <a href="/usdot-stickers" class="hover:text-white">USDOT Stickers</a>

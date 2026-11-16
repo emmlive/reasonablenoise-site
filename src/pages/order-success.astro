@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
+import BrandAssurance from "../components/BrandAssurance.astro";
 ---
 
 <html lang="en">
@@ -51,18 +52,18 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         </div>
 
         <h1 class="mt-6 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl">
-          Your sticker order has started.
+          Thank you for trusting us with your order.
         </h1>
 
         <p class="mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
-          Thank you. Your payment was received through Stripe. ReasonableNoise will review your order details, artwork, and fulfillment choice before preparing the next step.
+          Your Stripe payment has been received. Your sticker order details and artwork will be reviewed before the next production step. If we need anything clarified, we'll reach out using the contact information you provided.
         </p>
 
         <div id="order-reference-card" class="mt-8 hidden rounded-3xl border border-white/10 bg-black/30 p-5">
           <p class="text-xs font-bold uppercase tracking-[0.25em] text-white/45">Order reference</p>
           <p id="order-reference-value" class="mt-2 break-all text-2xl font-black tracking-[-0.03em] text-white"></p>
           <p class="mt-3 text-sm leading-6 text-white/50">
-            Keep this reference for your records. We also sent it to your email confirmation.
+            Keep this reference when contacting us about your order. Your confirmation email includes the reference as well.
           </p>
         </div>
 
@@ -70,7 +71,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-5">
             <p class="text-sm font-bold text-white">1. Check your email</p>
             <p class="mt-2 text-sm leading-6 text-white/50">
-              You’ll receive your payment confirmation and order reference.
+              Check for your payment confirmation and order reference. If you don't see the message, check your spam folder or contact us.
             </p>
           </div>
 
@@ -84,7 +85,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-5">
             <p class="text-sm font-bold text-white">3. Next step</p>
             <p class="mt-2 text-sm leading-6 text-white/50">
-              We’ll contact you if anything else is needed before printing.
+              If we need additional details before printing, we'll contact you rather than guessing about your order.
             </p>
           </div>
         </div>
@@ -98,6 +99,7 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
           </a>
         </div>
       </section>
+      <BrandAssurance compact />
     </main>
 
     <script>

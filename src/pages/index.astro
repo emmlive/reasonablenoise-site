@@ -3,6 +3,7 @@ import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
 import QuickQuote from "../components/QuickQuote.astro";
+import BrandAssurance from "../components/BrandAssurance.astro";
 
 const products = [
   {
@@ -126,7 +127,7 @@ const homeSeoFaqs = [
           </div>
         </a>
 
-        <nav class="hidden items-center gap-8 text-sm text-white/70 md:flex">
+        <nav class="hidden items-center gap-8 text-sm text-white/70 lg:flex">
           <a class="hover:text-white" href="/usdot-stickers">USDOT Stickers</a>
           <a class="hover:text-white" href="/faq">FAQ</a>
           <a class="hover:text-white" href="/upload-design">Upload Design</a>
@@ -136,7 +137,7 @@ const homeSeoFaqs = [
         <a
           data-rn-hero-quote-link
           href="#quick-quote"
-          class="rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white shadow-2xl shadow-white/10 transition hover:bg-white/10"
+          class="hidden rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white shadow-2xl shadow-white/10 transition hover:bg-white/10 sm:inline-flex"
         >
           Get Quote
         </a>
@@ -149,21 +150,21 @@ const homeSeoFaqs = [
       </div>
       </header>
 
-      <section class="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-24">
+      <section class="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:pb-28 lg:pt-24">
         <div>
           <div class="rn-reveal rn-delay-1 mb-5 inline-flex max-w-full rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs leading-5 text-white/70 backdrop-blur sm:text-sm">
             USDOT stickers • custom decals • fleet branding
           </div>
 
-          <h1 class="rn-reveal rn-delay-2 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl md:text-7xl">
-            Premium USDOT Stickers & Custom Decals.
+          <h1 class="rn-reveal rn-delay-2 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+            Custom printing made clear, from your idea to your order.
           </h1>
 
           <p class="rn-reveal rn-delay-3 mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
-            Built for working vehicles, business fleets, and brands that need sharp, durable stickers without the complicated ordering process.
+            From a single USDOT sticker set to branded decals for your business, we make it easier to share your details, understand your options, and know what happens next.
           </p>
 
-          <div class="rn-reveal rn-delay-4 mt-9 flex flex-col gap-4 sm:flex-row">
+          <div class="rn-reveal rn-delay-4 mt-9 flex flex-col flex-wrap gap-4 sm:flex-row">
             <a
               data-rn-primary-quote-cta
               href="#quick-quote"
@@ -253,7 +254,7 @@ const homeSeoFaqs = [
             </h2>
           </div>
           <p class="max-w-md text-white/60">
-            Start with USDOT stickers, send your design, or request a custom fleet package.
+            Choose a ready-to-order sticker option or tell us about a custom project. We'll explain the next step before you commit.
           </p>
         </div>
 
@@ -434,8 +435,10 @@ const homeSeoFaqs = [
 
       <QuickQuote />
 
+      <BrandAssurance />
+
       <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <p>© 2026 ReasonableNoise. Premium sticker printing.</p>
+        <p>© 2026 ReasonableNoise. Thoughtful printing. Clear expectations.</p>
         <div class="flex flex-wrap gap-5">
           <a href="/privacy" class="hover:text-white">Privacy</a>
           <a href="/terms" class="hover:text-white">Terms</a>

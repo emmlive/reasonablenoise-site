@@ -12,9 +12,10 @@ const href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
   aria-label="Chat with ReasonableNoise on WhatsApp"
   class={inline
     ? "flex w-full items-center justify-center gap-3 rounded-3xl border border-emerald-300/30 bg-emerald-500 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-500/15 transition hover:bg-emerald-400"
-    : "fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full border border-emerald-300/30 bg-emerald-500 px-5 py-3 text-sm font-bold text-white shadow-2xl shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-400"}
+    : "relative mx-4 my-5 flex items-center justify-center gap-2 sm:fixed sm:bottom-3 sm:right-3 sm:z-40 sm:mx-0 sm:my-0 lg:bottom-5 lg:right-5 lg:gap-3 rounded-full border border-emerald-300/30 bg-emerald-500 px-3 py-2.5 text-sm font-bold text-white shadow-2xl lg:px-5 lg:py-3 shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-400"}
 >
   <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg text-emerald-600" aria-hidden="true">☎</span>
-  {inline ? <span>Chat on WhatsApp</span> : <span class="hidden sm:inline">Chat on WhatsApp</span>}
-  {!inline && <span class="sm:hidden">WhatsApp</span>}
+  {inline ? <span>Chat on WhatsApp</span> : <span class="hidden lg:inline">Chat on WhatsApp</span>}
+  {!inline && <span class="sm:hidden">Chat on WhatsApp</span>}
+  {!inline && <span class="hidden sm:inline lg:hidden">WhatsApp</span>}
 </a>

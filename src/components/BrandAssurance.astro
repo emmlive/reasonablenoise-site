@@ -1,0 +1,33 @@
+---
+interface Props {
+  theme?: "dark" | "light";
+  compact?: boolean;
+}
+const { theme = "dark", compact = false } = Astro.props;
+const light = theme === "light";
+const items = [
+  { symbol: "✓", title: "Clear expectations", copy: "Know the next step, what is included, and when a custom quote needs review." },
+  { symbol: "♡", title: "Care with every design", copy: "Your instructions and artwork matter. We review the details available before production." },
+  { symbol: "$", title: "Value without surprises", copy: "Know what you are paying today. If a deposit is required, any remaining balance is confirmed after order review." },
+];
+---
+<section aria-label="Our approach to your order" class={`mx-auto w-full max-w-7xl px-4 sm:px-6 ${compact ? "py-5" : "py-10"}`}>
+  <div class={`rounded-[1.75rem] border p-5 sm:p-7 ${light ? "border-black/10 bg-black/[0.03] text-black" : "border-white/10 bg-white/[0.04] text-white"}`}>
+    <div class="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+      <div>
+        <p class={`text-xs font-bold uppercase tracking-[0.22em] ${light ? "text-cyan-800" : "text-cyan-300"}`}>The ReasonableNoise approach</p>
+        <h2 class="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">Good printing starts with peace of mind.</h2>
+      </div>
+      <p class={`max-w-sm text-sm leading-6 ${light ? "text-black/60" : "text-white/60"}`}>Thoughtful service, honest answers, and attention to the details you share.</p>
+    </div>
+    <div class="grid gap-3 md:grid-cols-3">
+      {items.map((item) => (
+        <div class={`rounded-2xl border p-4 ${light ? "border-black/10 bg-white" : "border-white/10 bg-black/20"}`}>
+          <span aria-hidden="true" class={`inline-flex h-9 w-9 items-center justify-center rounded-xl text-base font-bold ${light ? "bg-cyan-50 text-cyan-800" : "bg-cyan-300/15 text-cyan-200"}`}>{item.symbol}</span>
+          <h3 class="mt-3 text-sm font-bold">{item.title}</h3>
+          <p class={`mt-1 text-sm leading-6 ${light ? "text-black/60" : "text-white/60"}`}>{item.copy}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

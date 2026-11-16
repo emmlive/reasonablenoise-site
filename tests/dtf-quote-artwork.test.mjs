@@ -260,7 +260,9 @@ test("source contract keeps DTF artwork in contact form, separate from Stripe ch
   assert.match(contact, /formData\.set\("message", payload\.message\)/);
   assert.match(contact, /body: formData/);
   assert.match(upload, /DTF quote form to send your artwork and shirt details together/);
-  assert.match(upload, /This form is for sticker and decal checkout/);
+  assert.match(upload, /This checkout is for stickers and decals/);
+  assert.match(upload, /review the amount before paying/);
+  assert.match(upload, /use the separate artwork-and-quote form/i);
   assert.match(upload, /Request DTF Order Quote/);
 });
 
@@ -347,8 +349,12 @@ test("mobile contact WhatsApp is inline and never overlays DTF form controls", (
   assert.match(chat, /const phoneNumber = "12406013875"/);
   assert.match(chat, /https:\/\/wa\.me\/\$\{phoneNumber\}/);
   assert.match(chat, /inline\s*\? "flex w-full items-center justify-center/);
-  assert.match(chat, /: "fixed bottom-5 right-5 z-50/);
-  assert.match(chat, /<span class="hidden sm:inline">Chat on WhatsApp<\/span>/);
+  assert.match(chat, /: "relative mx-4 my-5 flex items-center justify-center/);
+  assert.match(chat, /sm:fixed sm:bottom-3 sm:right-3/);
+  assert.match(chat, /lg:bottom-5 lg:right-5/);
+  assert.match(chat, /\{inline \? <span>Chat on WhatsApp<\/span>/);
+  assert.match(chat, /\{!inline && <span class="sm:hidden">Chat on WhatsApp<\/span>\}/);
+  assert.match(chat, /\{!inline && <span class="hidden sm:inline lg:hidden">WhatsApp<\/span>\}/);
 });
 
 test("upstream Siteverify HTTP failure logs only status and does not store or email", async () => {
