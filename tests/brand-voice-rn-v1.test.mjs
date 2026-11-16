@@ -83,5 +83,8 @@ test("homepage avoids cramped desktop layout at tablet widths", () => {
   assert.match(home, /flex flex-col flex-wrap gap-4 sm:flex-row/);
   assert.match(chat, /lg:inline/);
   assert.match(chat, /lg:bottom-5 lg:right-5/);
+  assert.match(chat, /relative mx-4 my-5 flex items-center justify-center/);
+  assert.match(chat, /sm:fixed sm:bottom-3 sm:right-3/);
+  assert.match(chat, /sm:hidden">Chat on WhatsApp/);
   assert.match(chat, /aria-label="Chat with ReasonableNoise on WhatsApp"/);
 });
