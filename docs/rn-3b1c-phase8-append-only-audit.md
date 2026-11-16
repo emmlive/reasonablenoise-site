@@ -33,3 +33,10 @@ git status --short
 \`\`\`
 
 Target: **149 tests** (134 previously verified + 15 new), 11 Astro pages, clean Git. No merge or deploy.
+
+
+## R1 fixture correction after independent Windows run
+
+Windows full suite produced **135/149 PASS and 14 FAIL**, all 14 stopping at the same Phase 8 fixture assertion (expected \`manual_review\`, got \`hold\`). The test generated \`intentId\` with \`uuid.replaceAll("-")\`, unintentionally inserting \`undefined\` in place of each hyphen; the Phase 6 lifecycle planner correctly rejected this forged intent ID. Fix only the *test fixture* with \`uuid.replaceAll("-","")\`, plus assertions for the review reason and exact normalized intent ID. **Do not relax the Phase 6 fail-closed behavior.**
+
+Astro build was **PASS (11 pages)** and Git whitespace/status checks were clean in that run. The 15 Phase 8 audit tests must still be independently verified; the 14 downstream cases were not meaningfully exercised while their shared fixture setup failed. Re-run all 149 tests from branch \`fix/rn-3b1c-phase8-audit-fixture-intent-id-20261115\` and verify 11-page build and clean Git. No merge or deployment.
