@@ -50,9 +50,14 @@ async function local(t){
  // D1 exec rejects a comment-only segment when splitting SQL statements.
  // Remove only full-line comments; execute the unchanged CREATE statements.
  const executableMigration=migration.split(/\r?\n/).filter(line=>!/^\s*--/.test(line)).join("\n").trim();
- assert.match(executableMigration,/CREATE TABLE IF NOT EXISTS dtf_artwork_intents/);
- assert.match(executableMigration,/CREATE INDEX IF NOT EXISTS idx_dtf_intents_expiry/);
- await db.exec(executableMigration);
+ // D1's exec() in this local runtime splits on newlines, which breaks multiline
+ // CREATE TABLE. Parse the two known semicolon-terminated DDL statements and
+ // execute each complete statement with prepare().run() instead.
+ const statements=executableMigration.split(";").map(sql=>sql.trim()).filter(Boolean);
+ assert.equal(statements.length,2,"Unexpected migration statement count");
+ assert.match(statements[0],/^CREATE TABLE IF NOT EXISTS dtf_artwork_intents\s*\(/);
+ assert.match(statements[1],/^CREATE INDEX IF NOT EXISTS idx_dtf_intents_expiry\s+/);
+ for (const statement of statements) await db.prepare(statement).run();
  return {mf,db,bucket};
 }
 async function fixture(t){
