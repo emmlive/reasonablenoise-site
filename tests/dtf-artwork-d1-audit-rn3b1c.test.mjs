@@ -101,6 +101,34 @@ test("local D1 failed recovery audit forces UPDATE rollback",async t=>{
  assert.equal((await recoverStaleArtworkReview(recover(f))).ok,false);
  assert.equal((await f.record()).state,"claimed");assert.equal((await f.events()).results.length,1);
 });
+
+test("local D1 reports trigger-inclusive changes without losing duplicate fence",async t=>{
+ const f=await local(t), counts=[];
+ const db={prepare(sql){
+  const prepared=f.db.prepare(sql);
+  return {bind(...args){const bound=prepared.bind(...args);
+   return {run:async()=>{const result=await bound.run();counts.push(result?.meta?.changes);return result;}};
+  }};
+ }};
+ const first=await claimArtworkReview({...f.args,db});
+ const duplicate=await claimArtworkReview({...f.args,db});
+ assert.equal(first.ok,true,JSON.stringify({first,counts}));
+ assert.equal(duplicate.ok,false);
+ assert.deepEqual(counts,[2,0]);
+ assert.equal((await f.events()).results.length,1);
+});
+test("unexpected D1 change counts 0 or 3 fail closed without accepting claims",async t=>{
+ const f=await local(t);
+ for(const changes of [0,3]){
+  const db={prepare:()=>({bind:()=>({run:async()=>({success:true,meta:{changes}})})})};
+  const claim=await claimArtworkReview({...f.args,db});
+  assert.equal(claim.ok,false);
+  const recovery=await recoverStaleArtworkReview({...recover(f),db});
+  assert.equal(recovery.ok,false);
+ }
+ assert.equal((await f.events()).results.length,0);
+});
+
 test("no live endpoint, object cleanup or checkout behavior in Phase 9",()=>{
  assert.doesNotMatch(worker,/STRIPE|ARTWORK_BUCKET|ADMIN_ORDER_TOKEN|onScheduled|onRequestPost/);
  assert.match(migrations[1],/AUDIT_EVENTS_IMMUTABLE/);
