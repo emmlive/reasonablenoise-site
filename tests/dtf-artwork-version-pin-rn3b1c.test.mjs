@@ -39,7 +39,7 @@ async function fixture(t){
  const rows=()=>db.prepare("SELECT * FROM dtf_artwork_version_pins").all();
  return{db,bucket,store,args,rows,created};
 }
-const verify=f=>verifyDurableArtworkPin(({db,store,authorize,subjectId,orderId,intentId,pinId})=>({db,store,authorize,subjectId,orderId,intentId,pinId}))(f.args);
+const verify=f=>verifyDurableArtworkPin({db:f.db,store:f.store,authorize,subjectId,orderId,intentId,pinId});
 test("local D1 migration creates immutable version-pin schema and triggers",async t=>{
  const f=await fixture(t);
  const triggers=await f.db.prepare("SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='dtf_artwork_version_pins'").all();
