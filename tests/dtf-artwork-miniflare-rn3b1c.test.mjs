@@ -3,7 +3,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {deflateSync} from "node:zlib";
-import {Miniflare} from "miniflare";
+import {resolve} from "node:path";
+import {pathToFileURL} from "node:url";
+// Load an explicitly isolated local dependency tree; do not mutate Astro's packages.
+const isolatedRoot=process.env.RN_MINIFLARE_ROOT;
+if(!isolatedRoot) throw Error("RN_MINIFLARE_ROOT_REQUIRED: install Miniflare outside the repository");
+const miniflareModule=resolve(isolatedRoot,"node_modules","miniflare","dist","src","index.js");
+const {Miniflare}=await import(pathToFileURL(miniflareModule).href);
 import {createDurableArtworkIntent,consumeDurableArtworkIntent} from "../functions/lib/dtf-artwork-durable-rn3b1c.js";
 const migration=readFileSync(new URL("../migrations/rn-3b1c-phase3-artwork-intents.sql",import.meta.url),"utf8");
 const NOW=1800000000000,subjectId="subject_12345678",orderId="order_12345678";
@@ -35,7 +41,7 @@ const worker=[
  "}"
 ].join("\n");
 async function local(t){
- const mf=new Miniflare({modules:true,script:worker,compatibilityDate:"2026-09-01",
+ const mf=new Miniflare({modules:true,script:worker,compatibilityDate:"2026-08-01",
   d1Databases:{TEST_D1:"rn3b1c-phase5-disposable-db"},
   r2Buckets:{TEST_R2:"rn3b1c-phase5-disposable-bucket"}});
  t.after(async()=>{await mf.dispose();});
