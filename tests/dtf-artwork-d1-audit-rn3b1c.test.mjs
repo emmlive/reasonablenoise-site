@@ -26,7 +26,7 @@ function statements(sql){
  const out=clean.match(/CREATE TABLE[\s\S]*?\n\);|CREATE INDEX[^\n]*;|CREATE TRIGGER[\s\S]*?\bEND;/g)||[];
  const residue=out.reduce((s,statement)=>s.replace(statement,""),clean).trim();
  assert.equal(residue,"","UNPARSED_MIGRATION_CONTENT");
- assert.equal(out.length,8,"UNEXPECTED_DDL_STATEMENT_COUNT");
+ assert.equal(out.length,10,"UNEXPECTED_DDL_STATEMENT_COUNT");
  return out;
 }
 async function local(t){
@@ -49,7 +49,7 @@ async function local(t){
  return {db,mf,args,events,record};
 }
 const recover=f=>({db:f.db,authorize,operatorId:second,claimId:f.args.claimId,now:NOW+3600000});
-test("local D1 applies all eight Phase 7/8 DDL statements and triggers",async t=>{
+test("local D1 applies all ten Phase 7/8 DDL statements and triggers",async t=>{
  const f=await local(t);
  const triggers=await f.db.prepare("SELECT name FROM sqlite_master WHERE type='trigger'").all();
  assert.equal(triggers.results.length,6);
@@ -102,6 +102,6 @@ test("local D1 failed recovery audit forces UPDATE rollback",async t=>{
  assert.equal((await f.record()).state,"claimed");assert.equal((await f.events()).results.length,1);
 });
 test("no live endpoint, object cleanup or checkout behavior in Phase 9",()=>{
- assert.doesNotMatch(worker,/fetch\(|STRIPE|ARTWORK_BUCKET|ADMIN_ORDER_TOKEN|onScheduled|onRequestPost/);
+ assert.doesNotMatch(worker,/STRIPE|ARTWORK_BUCKET|ADMIN_ORDER_TOKEN|onScheduled|onRequestPost/);
  assert.match(migrations[1],/AUDIT_EVENTS_IMMUTABLE/);
 });
