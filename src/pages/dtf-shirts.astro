@@ -125,6 +125,54 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         </div>
       </section>
 
+      <section id="dtf-configurator" class="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div class="rounded-[2.5rem] border border-cyan-300/20 bg-white/[0.06] p-5 sm:p-8 md:p-12">
+          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Build your quote request</p>
+          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Configure your DTF shirts</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-white/60">Choose your shirt details. We'll transfer them to the existing secure quote form, where you can add contact information and optional artwork. No payment is collected.</p>
+          <form id="dtf-quote-config" class="mt-8 grid gap-5 md:grid-cols-2" novalidate>
+            <label class="grid gap-2 text-sm font-semibold">Quantity *
+              <input name="quantity" type="number" min="1" max="10000" step="1" value="1" required class="rounded-2xl border border-white/20 bg-black/40 px-4 py-3 text-white" />
+            </label>
+            <label class="grid gap-2 text-sm font-semibold">Shirt source *
+              <select name="shirtSource" class="rounded-2xl border border-white/20 bg-black/90 px-4 py-3 text-white">
+                <option>ReasonableNoise supplies shirts</option>
+                <option>Customer brings shirts</option>
+                <option>Not sure yet</option>
+              </select>
+            </label>
+            <label class="grid gap-2 text-sm font-semibold">Print placement *
+              <select name="placement" class="rounded-2xl border border-white/20 bg-black/90 px-4 py-3 text-white">
+                <option>Front</option><option>Back</option><option>Front + Back</option>
+                <option>Sleeve / custom placement</option><option>Not sure yet</option>
+              </select>
+            </label>
+            <label class="grid gap-2 text-sm font-semibold">Shirt color
+              <input name="color" maxlength="80" placeholder="Black, white, assorted…" class="rounded-2xl border border-white/20 bg-black/40 px-4 py-3 text-white" />
+            </label>
+            <label class="grid gap-2 text-sm font-semibold">Size breakdown
+              <input name="sizeBreakdown" maxlength="160" placeholder="e.g. S:2, M:4, L:6" class="rounded-2xl border border-white/20 bg-black/40 px-4 py-3 text-white" />
+            </label>
+            <label class="grid gap-2 text-sm font-semibold">Deadline
+              <input name="deadline" maxlength="80" placeholder="Needed by date or flexible" class="rounded-2xl border border-white/20 bg-black/40 px-4 py-3 text-white" />
+            </label>
+            <label class="grid gap-2 text-sm font-semibold md:col-span-2">Artwork status
+              <select name="artwork" class="rounded-2xl border border-white/20 bg-black/90 px-4 py-3 text-white">
+                <option value="">Not specified</option><option>Artwork ready to upload</option>
+                <option>Need artwork assistance</option><option>Will provide later</option>
+              </select>
+            </label>
+            <div class="rounded-3xl border border-white/10 bg-black/30 p-5 md:col-span-2" aria-live="polite">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">Indicative pricing</p>
+              <p id="dtf-quote-estimate" class="mt-2 text-2xl font-semibold">From $24/shirt</p>
+              <p class="mt-2 text-sm text-white/60">Existing advertised starting prices only. This is not a guaranteed total or payment amount. Taxes, delivery, artwork and other costs require review.</p>
+              <p id="dtf-quote-error" class="mt-2 hidden text-sm text-amber-200" role="alert"></p>
+            </div>
+            <button type="submit" class="rounded-full bg-white px-6 py-4 text-sm font-bold text-black md:col-span-2">Continue to secure quote request</button>
+          </form>
+        </div>
+      </section>
+
       <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
         <div class="rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:p-12">
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">What to include</p>
@@ -160,6 +208,33 @@ import WhatsAppChat from "../components/WhatsAppChat.astro";
         </div>
       </footer>
     </main>
+
+
+    <script>
+      import {configureDtfQuote,quoteToContactUrl} from "../lib/dtf-quote-config-rn3b1c.js";
+      const configForm=document.getElementById("dtf-quote-config");
+      const estimate=document.getElementById("dtf-quote-estimate");
+      const error=document.getElementById("dtf-quote-error");
+      function readConfig(){
+        return configureDtfQuote(Object.fromEntries(new FormData(configForm)));
+      }
+      function renderConfig(){
+        const result=readConfig();
+        if(estimate)estimate.textContent=result.ok?result.estimate.display:"Enter a valid quantity";
+        if(error){error.classList.toggle("hidden",result.ok);error.textContent=result.ok?"":"Choose a valid quantity (1–10,000) and shirt details.";}
+        return result;
+      }
+      configForm?.addEventListener("input",renderConfig);
+      configForm?.addEventListener("change",renderConfig);
+      configForm?.addEventListener("submit",event=>{
+        event.preventDefault();
+        const result=renderConfig();
+        if(!result.ok)return;
+        const path=quoteToContactUrl(result);
+        if(path)window.location.assign(path);
+      });
+      if(configForm)renderConfig();
+    </script>
 
     <WhatsAppChat />
       <SiteAnalytics />
