@@ -55,7 +55,7 @@ async function fixture(t){
  const change=async(fields)=>db.prepare("UPDATE dtf_test_order_authority SET "+fields[0]+"=? WHERE order_id=?").bind(fields[1],orderId).run();
  return{db,bucket,store,args,rows,change,sessions};
 }
-const verify=f=>verifyOwnedArtworkVersion(({reference,now,...rest})=>rest)(f.args);
+const verify=f=>verifyOwnedArtworkVersion({db:f.db,store:f.store,authenticate:f.args.authenticate,request:f.args.request,orderId,intentId,pinId});
 test("local synthetic order-authority schema and two immutable pin triggers apply",async t=>{
  const f=await fixture(t);
  const r=await f.db.prepare("SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='dtf_artwork_version_pins'").all();
@@ -105,11 +105,8 @@ test("missing or failing authenticator rejects without writing pin",async t=>{
  assert.equal((await f.rows()).results.length,0);
 });
 test("inactive, cancelled, paid, or non-DTF order cannot bind",async t=>{
- for(const [field,value] of [["is_active",0],["order_status","cancelled"],["order_status","paid"],["order_type","other"]]){
+ for(const [field,value] of [["is_active",0],["order_status","cancelled"],["order_status","paid"],["order_type","sticker"]]){
   const f=await fixture(t);
-  if(field==="order_type"){
-   await f.db.prepare("PRAGMA ignore_check_constraints=ON").run();
-  }
   await f.change([field,value]);
   const r=await bindOwnedArtworkVersion(f.args);
   assert.equal(r.ok,false);
