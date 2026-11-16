@@ -47,7 +47,12 @@ async function local(t){
  t.after(async()=>{await mf.dispose();});
  const db=await mf.getD1Database("TEST_D1");
  const bucket=await mf.getR2Bucket("TEST_R2");
- await db.exec(migration);
+ // D1 exec rejects a comment-only segment when splitting SQL statements.
+ // Remove only full-line comments; execute the unchanged CREATE statements.
+ const executableMigration=migration.split(/\r?\n/).filter(line=>!/^\s*--/.test(line)).join("\n").trim();
+ assert.match(executableMigration,/CREATE TABLE IF NOT EXISTS dtf_artwork_intents/);
+ assert.match(executableMigration,/CREATE INDEX IF NOT EXISTS idx_dtf_intents_expiry/);
+ await db.exec(executableMigration);
  return {mf,db,bucket};
 }
 async function fixture(t){
