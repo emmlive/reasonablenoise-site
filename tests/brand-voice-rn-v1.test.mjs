@@ -89,3 +89,14 @@ test("homepage avoids cramped desktop layout at tablet widths", () => {
   assert.match(chat, /\{!inline && <span class="sm:hidden">Chat on WhatsApp<\/span>\}\s*\{!inline && <span class="hidden sm:inline lg:hidden">WhatsApp<\/span>\}/);
   assert.match(chat, /aria-label="Chat with ReasonableNoise on WhatsApp"/);
 });
+
+test("mobile homepage quote actions remain accessible without fixed overlapping CTA bar", () => {
+  const quote = read("src/components/QuickQuote.astro");
+  const home = read("src/pages/index.astro");
+  assert.doesNotMatch(quote, /fixed bottom-20 left-4 right-4/);
+  assert.match(quote, /id="quick-quote"/);
+  assert.match(quote, /data-quick-quote-form/);
+  assert.match(quote, /href="\/upload-design"/);
+  assert.match(home, /data-rn-primary-quote-cta/);
+  assert.match(home, /Get Quote First/);
+});
