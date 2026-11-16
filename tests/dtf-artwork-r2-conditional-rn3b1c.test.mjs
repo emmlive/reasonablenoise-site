@@ -78,8 +78,22 @@ test("store bridge refuses non-atomic or non-R2-like dependencies",()=>{
  assert.equal(createLocalR2WriteOnceAdapter(null),null);
  assert.equal(createLocalR2WriteOnceAdapter({put:()=>{},head:()=>{}}),null);
 });
+test("R2 local adapter passes create-only POJO condition, never unconditional",async t=>{
+ const f=await local(t);
+ const seen=[];
+ const wrapping={
+  put:async(k,b,opts)=>{seen.push(opts?.onlyIf);return f.bucket.put(k,b,opts);},
+  head:k=>f.bucket.head(k),get:k=>f.bucket.get(k)
+ };
+ const store=createLocalR2WriteOnceAdapter(wrapping);
+ const first=await stageWriteOnceArtwork(args(store));
+ assert.equal(first.ok,true,JSON.stringify(first));
+ const duplicate=await stageWriteOnceArtwork(args(store));
+ assert.equal(duplicate.ok,false);
+ assert.deepEqual(seen,[{etagDoesNotMatch:"*"},{etagDoesNotMatch:"*"}]);
+});
 test("test bridge has no R2 delete, customer route or checkout activation",()=>{
  const source=readFileSync(new URL("../functions/lib/dtf-artwork-r2-conditional-rn3b1c.js",import.meta.url),"utf8");
- assert.match(source,/If-None-Match/);
+ assert.match(source,/etagDoesNotMatch/);
  assert.doesNotMatch(source,/bucket\.delete\s*\(|bucket\.list\s*\(|onRequestPost|onScheduled|checkout\.sessions|stripe\.com|ADMIN_ORDER_TOKEN/);
 });
