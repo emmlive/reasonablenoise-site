@@ -36,3 +36,39 @@ git status --short
 Expected: **10 new local R2 tests**, **184 full regression tests** (174 previously verified), **11 Astro pages**, clean Git. These are verification targets, not confirmed results.
 
 No merge, deployment or payment activation authorized. npm dependency vulnerabilities remain open.
+
+
+## R1: Independent diagnostic of Miniflare proxied Headers serialization
+
+Independent user Windows Phase 11 run: **3/10 PASS**, seven scenarios fail at initial conditional upload with \`WRITE_ONCE_STORAGE_FAILURE\`. Separate diagnostic D1 on draft PR #29 captured the exact root exception:
+
+\`CONDITIONAL_PUT_THROW: DevalueError: Cannot stringify arbitrary non-POJOs\`
+
+Cloudflare's Workers R2 API accepts either \`Headers\` or a plain \`R2Conditional\` object. The Miniflare proxied binding in the installed isolated dependency could not serialize Node's \`Headers\` instance. The R1 branch replaces \`onlyIf: new Headers({"If-None-Match":"*"})\` with \`onlyIf: {etagDoesNotMatch:"*"}\`, preserving the create-only condition with a serializable plain object. The repair is scoped to the test-only adapter and diagnostic. No production storage paths changed.
+
+Cloudflare R2 Workers API reference: https://developers.cloudflare.com/r2/api/workers/workers-api-reference/
+
+R1 adds an adapter test asserting both initial and duplicate puts use exactly the same \`etagDoesNotMatch:"*"\` condition. The diagnostic now exercises that shape through local R2 HEAD/GET and duplicate conditional PUT. This does NOT resolve any failure that might arise after the serialization boundary. Stop if the local R2 runtime returns an unexpected behavior.
+
+### R1 independent Windows validation
+\`\`\`powershell
+$ErrorActionPreference = "Stop"
+cd C:\Users\emmli\Documents\ReasonableNoise\reasonablenoise-site
+git fetch origin
+git switch --track origin/fix/rn-3b1c-phase11-r2-conditional-pojo-20261115
+$env:RN_MINIFLARE_ROOT=Join-Path $env:TEMP "rn-miniflare-phase5-isolated"
+if(!(Test-Path (Join-Path $env:RN_MINIFLARE_ROOT "node_modules\miniflare"))){throw "MINIFLARE_MISSING"}
+node --test .\tests\dtf-artwork-r2-condition-diagnostic-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "DIAGNOSTIC_FAILED"}
+node --test .\tests\dtf-artwork-r2-conditional-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "PHASE11_R1_FAILED"}
+node --test .\tests\*.test.mjs
+if($LASTEXITCODE -ne 0){throw "REGRESSION_FAILED"}
+npm run build
+if($LASTEXITCODE -ne 0){throw "BUILD_FAILED"}
+git diff --check origin/diagnostic/rn-3b1c-phase11-r2-write-failure-20261115...HEAD
+if($LASTEXITCODE -ne 0){throw "GIT_FAILED"}
+git status --short
+\`\`\`
+
+R1 targets: **1/1 diagnostic**, **11/11 Phase 11 tests**, **186/186 total** (174 previously verified + 11 Phase 11 + 1 diagnostic), **11 Astro pages**, clean Git. NOT YET VERIFIED. Keep draft, unmerged, undeployed.
