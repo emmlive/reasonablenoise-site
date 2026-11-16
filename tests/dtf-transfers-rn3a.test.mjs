@@ -187,3 +187,11 @@ test("RN-3B1B separates preliminary quality report from quote submission and pay
   assert.match(page, /No payment or production is authorized/);
   assert.doesNotMatch(page, /fetch\("\/api\/create-checkout-session"/);
 });
+
+test("dark transfer summary preserves readable text contrast", () => {
+  assert.match(page, /aria-label="Live transfer request summary"/);
+  assert.match(page, /bg-\[#101b25\] p-5 text-white shadow-xl/);
+  assert.match(page, /id="rn-transfer-summary-size"/);
+  assert.match(page, /id="rn-transfer-summary-quantity"/);
+  assert.match(page, /Confirmed after review/);
+});
