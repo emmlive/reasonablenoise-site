@@ -41,8 +41,8 @@ export async function recoverStaleArtworkReview({db,authorize,operatorId,claimId
    return reject("INVALID_RECOVERY_REQUEST");
  try{
    const result=await db.prepare(
-    "UPDATE dtf_artwork_review_claims SET state='needs_review',updated_at=?,attempts=attempts+1 WHERE claim_id=? AND state='claimed' AND updated_at<=? AND attempts<3"
-   ).bind(now,claimId,now-staleAfterMs).run();
+    "UPDATE dtf_artwork_review_claims SET state='needs_review',operator_id=?,updated_at=?,attempts=attempts+1 WHERE claim_id=? AND state='claimed' AND updated_at<=? AND attempts<3"
+   ).bind(operatorId,now,claimId,now-staleAfterMs).run();
    if(result?.success!==true||result?.meta?.changes!==1)return reject("NOT_STALE_OR_ALREADY_RECOVERED");
    return{ok:true,claimId,state:"needs_review",deletionAuthorized:false,checkoutEligible:false,productionApproved:false};
  }catch{return reject("RECOVERY_WRITE_FAILED");}
