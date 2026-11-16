@@ -44,4 +44,10 @@
     <loc>https://reasonablenoise.com/dtf-shirts/</loc>
     <lastmod>2026-06-15</lastmod>
   </url>
+  <url>
+    <loc>https://reasonablenoise.com/dtf-transfers/</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
