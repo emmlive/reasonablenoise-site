@@ -18,9 +18,9 @@ export function createLocalR2WriteOnceAdapter(bucket){
   async putIfAbsent(key,bytes,{sha256,byteLength,contentType}={}){
    if(!SHA.test(sha256||"")||!Number.isSafeInteger(byteLength)||byteLength!==bytes?.byteLength||
      contentType!=="image/png")return {created:false};
-   const headers=new Headers({"If-None-Match":"*"});
+   // Use the documented R2Conditional plain object; avoids cross-realm Headers\n   // serialization failure in proxied local Miniflare R2 bindings.\n   const condition={etagDoesNotMatch:"*"};
    const stored=await bucket.put(key,bytes,{
-    onlyIf:headers,
+    onlyIf:condition,
     httpMetadata:{contentType:"image/png"},
     customMetadata:{rnSha256:sha256,rnByteLength:String(byteLength)}
    });
