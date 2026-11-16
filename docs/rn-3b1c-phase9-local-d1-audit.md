@@ -4,7 +4,7 @@ Dependent on Phase 8 R1 PR #24. **Draft / unverified.** This adds one test-only 
 
 ## Scope
 - Runs the unchanged Phase 7 and Phase 8 SQL migrations in isolated Miniflare 4 / Workerd D1 (compatibility date 2026-08-01).
-- Test-only migration parser checks eight pinned DDL statements: one claim table, two indexes, one audit-event table, and six triggers. The parser rejects unmatched content and does not apply SQL remotely.
+- Test-only migration parser checks ten pinned DDL statements: one claim table, two indexes, one audit-event table, and six triggers. The parser rejects unmatched content and does not apply SQL remotely.
 - Calls the same Phase 7/8 claim and recovery module through local D1 bindings; validates concurrent idempotency, actor attribution, immutability guards, illegal state transitions, and atomic rollback when simulated audit insertion fails.
 - Does NOT demonstrate that privileged DB operators cannot drop triggers or rewrite tables. No independent tamper-evident archive.
 - No R2, Stripe, production D1, deployed routes, webhooks, external calls or customer data. Artwork deletion remains OFF.
