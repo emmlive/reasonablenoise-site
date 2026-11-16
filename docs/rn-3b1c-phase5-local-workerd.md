@@ -30,3 +30,9 @@ git status --short
 \`\`\`
 
 Expected 110 tests (102 previously verified plus 8 local integration tests), 11 built pages. The earlier run was **103 PASS / 7 FAIL** due to Workerd rejecting the configured future compatibility date; Astro also failed because the local dependency tree changed. Those failures have not yet been independently re-tested. Do not mark Phase 5 passed until the entire suite and build succeed. Do not use wrangler deploy, D1 remote, production R2, migrations apply or Stripe. No production changes.
+
+## Phase 5 R2 migration-loader correction
+
+Independent Windows run after R1: **103/110 PASS; 7 D1 setup failures**, all reporting `SQL code did not contain a statement` from a comment-only migration segment. R1's Workerd compatibility-date blocker was resolved. The PowerShell stop-on-error guard halted execution before a fresh Astro build or Git checks; do not claim those gates passed. This R2 branch strips only full-line SQL comments in the disposable Miniflare test harness before executing the same CREATE TABLE and INDEX statements. The migration file and production code are unchanged. Independent retest remains required.
+
+Use `git switch --track origin/fix/rn-3b1c-phase5-d1-migration-loader-20261115` instead of the previous branch when running the verification commands above. Keep Miniflare installed outside the repository via RN_MINIFLARE_ROOT.
