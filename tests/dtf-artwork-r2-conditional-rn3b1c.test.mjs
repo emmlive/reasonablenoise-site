@@ -92,6 +92,13 @@ test("R2 local adapter passes create-only POJO condition, never unconditional",a
  assert.equal(duplicate.ok,false);
  assert.deepEqual(seen,[{etagDoesNotMatch:"*"},{etagDoesNotMatch:"*"}]);
 });
+test("conditional R2 precondition is a live declaration, not escaped into a comment",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const source=readFileSync(new URL("../functions/lib/dtf-artwork-r2-conditional-rn3b1c.js",import.meta.url),"utf8");
+ assert.doesNotMatch(source,/\\n/,"Literal backslash-newline escapes forbidden in bridge source");
+ assert.match(source,/^\s*const condition=\{etagDoesNotMatch:"\*"\};\s*$/m);
+ assert.match(source,/onlyIf:condition/);
+});
 test("test bridge has no R2 delete, customer route or checkout activation",()=>{
  const source=readFileSync(new URL("../functions/lib/dtf-artwork-r2-conditional-rn3b1c.js",import.meta.url),"utf8");
  assert.match(source,/etagDoesNotMatch/);

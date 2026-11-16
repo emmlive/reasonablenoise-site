@@ -72,3 +72,34 @@ git status --short
 \`\`\`
 
 R1 targets: **1/1 diagnostic**, **11/11 Phase 11 tests**, **186/186 total** (174 previously verified + 11 Phase 11 + 1 diagnostic), **11 Astro pages**, clean Git. NOT YET VERIFIED. Keep draft, unmerged, undeployed.
+
+
+## D3 — confirmed commented-out condition declaration
+
+Independent D2 trace from user: \`D2_CALLS=["put:start","put:throw:ReferenceError: condition is not defined"]\`, \`D2_STAGE_CODE=WRITE_ONCE_STORAGE_FAILURE\`, \`D2_RAW_HEAD.found=false\`. Inspection of the exact PR #30 bridge source confirms the cause: a prior edit inserted literal \`\\n\` characters within a JavaScript \`//\` comment; the intended \`const condition={etagDoesNotMatch:"*"};\` appeared on that same physical comment line and was never executed.
+
+D3 replaces the literal escape text with actual newline characters so that \`condition\` is a live declaration. The \`onlyIf: condition\` call continues to enforce the same create-only precondition; no R2 semantics or production integrations are changed. A regression test asserts a standalone declaration and rejects literal escaped newlines in bridge source.
+
+### Windows D3 verification
+\`\`\`powershell
+$ErrorActionPreference = "Stop"
+cd C:\Users\emmli\Documents\ReasonableNoise\reasonablenoise-site
+git fetch origin
+git switch --track origin/fix/rn-3b1c-phase11-comment-newline-r2-d3-20261115
+$env:RN_MINIFLARE_ROOT=Join-Path $env:TEMP "rn-miniflare-phase5-isolated"
+if(!(Test-Path (Join-Path $env:RN_MINIFLARE_ROOT "node_modules\miniflare"))){throw "MINIFLARE_MISSING"}
+node --test .\tests\dtf-artwork-r2-stage-d2-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "D2_FAILED"}
+node --test .\tests\dtf-artwork-r2-condition-diagnostic-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "D1_FAILED"}
+node --test .\tests\dtf-artwork-r2-conditional-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "R2_INTEGRATION_FAILED"}
+node --test .\tests\*.test.mjs
+if($LASTEXITCODE -ne 0){throw "REGRESSION_FAILED"}
+npm run build
+if($LASTEXITCODE -ne 0){throw "BUILD_FAILED"}
+git diff --check origin/diagnostic/rn-3b1c-phase11-stage-boundary-d2-20261115...HEAD
+if($LASTEXITCODE -ne 0){throw "GIT_FAILED"}
+git status --short
+\`\`\`
+Targets: D2 1/1, D1 1/1, Phase 11 12/12 (includes source guard), complete test suite 188/188 (174 earlier + 12 Phase 11 + D1 + D2), Astro 11 pages, clean Git. **Tests pending independent execution.** Keep draft, unmerged, undeployed.
