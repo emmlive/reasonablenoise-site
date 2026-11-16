@@ -7,7 +7,7 @@ import {planArtworkLifecycle} from "../functions/lib/dtf-artwork-lifecycle-rn3b1
 const seven=readFileSync(new URL("../migrations/rn-3b1c-phase7-review-claims.sql",import.meta.url),"utf8");
 const eight=readFileSync(new URL("../migrations/rn-3b1c-phase8-append-only-review-events.sql",import.meta.url),"utf8");
 const NOW=1800000000000,uuid="12345678-1234-4234-8234-123456789abc",key="dtf-intents/"+uuid+"/artwork.png";
-const intentId="intent_"+uuid.replaceAll("-"),actor="operator_12345678",second="operator_87654321";
+const intentId="intent_"+uuid.replaceAll("-",""),actor="operator_12345678",second="operator_87654321";
 const auth=async id=>id===actor||id===second;
 function setup(t){
  const sqlite=new DatabaseSync(":memory:");
@@ -15,7 +15,9 @@ function setup(t){
  const db={prepare:q=>({bind:(...args)=>({run:async()=>{const r=sqlite.prepare(q).run(...args);return{success:true,meta:{changes:Number(r.changes)}};}})})};
  const row={version:1,intent_id:intentId,subject_id:"subject_12345678",order_id:"order_12345678",object_key:key,sha256:"a".repeat(64),byte_length:99,created_at:NOW-900000-86400001,expires_at:NOW-86400001,status:"issued",consumed_at:null};
  const plan=planArtworkLifecycle({rows:[row],objects:[{key,uploadedAt:NOW-86400001-900000,size:99}],protectedOrderIds:new Set(),inventoryComplete:true,now:NOW});
- assert.equal(plan.items[0].action,"manual_review");
+ assert.equal(plan.items[0].action,"manual_review",JSON.stringify(plan.items[0]));
+ assert.equal(plan.items[0].reason,"EXPIRED_UNCONSUMED_INTENT");
+ assert.equal(plan.items[0].intentId,intentId);
  const args={db,authorize:auth,operatorId:actor,claimId:"claim_12345678",finding:plan.items[0],plan,now:NOW};
  const events=()=>sqlite.prepare("SELECT * FROM dtf_artwork_review_events ORDER BY event_id").all();
  const claim=()=>sqlite.prepare("SELECT * FROM dtf_artwork_review_claims WHERE claim_id=?").get(args.claimId);
