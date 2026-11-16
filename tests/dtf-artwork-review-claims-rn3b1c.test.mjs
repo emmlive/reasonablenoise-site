@@ -1,0 +1,35 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {DatabaseSync} from "node:sqlite";
+import {planArtworkLifecycle} from "../functions/lib/dtf-artwork-lifecycle-rn3b1c.js";
+import {claimArtworkReview,recoverStaleArtworkReview} from "../functions/lib/dtf-artwork-review-claims-rn3b1c.js";
+const sql=readFileSync(new URL("../migrations/rn-3b1c-phase7-review-claims.sql",import.meta.url),"utf8");
+const now=1800000000000;
+const uuid="12345678-1234-4234-8234-123456789abc", key="dtf-intents/"+uuid+"/artwork.png";
+const intentId="intent_"+uuid.replaceAll("-","");
+const op="operator_12345678",auth=async x=>x===op;
+function harness(t){
+ const sqlite=new DatabaseSync(":memory:");sqlite.exec(sql);t.after(()=>sqlite.close());
+ const db={prepare:q=>({bind:(...a)=>({run:async()=>{const r=sqlite.prepare(q).run(...a);return{success:true,meta:{changes:Number(r.changes)}};}})})};
+ const rows=[{version:1,intent_id:intentId,subject_id:"subject_12345678",order_id:"order_12345678",object_key:key,sha256:"a".repeat(64),byte_length:99,created_at:now-900000-86400001,expires_at:now-86400001,status:"issued",consumed_at:null}];
+ const objects=[{key,uploadedAt:now-900000-86400001,size:99}];
+ const plan=planArtworkLifecycle({rows,objects,protectedOrderIds:new Set(),now,inventoryComplete:true});
+ assert.equal(plan.items[0].action,"manual_review");
+ const finding=plan.items[0];
+ const args={db,authorize:auth,operatorId:op,claimId:"claim_12345678",finding,plan,now};
+ const record=()=>sqlite.prepare("SELECT * FROM dtf_artwork_review_claims WHERE claim_id=?").get(args.claimId);
+ return{db,sqlite,plan,finding,args,record};
+}
+test("review claim is a durable record, never delete authorization",async t=>{const f=harness(t),r=await claimArtworkReview(f.args);assert.equal(r.ok,true);assert.equal(r.deletionAuthorized,false);assert.equal(f.record().state,"claimed");});
+test("parallel duplicate claims can persist exactly once",async t=>{const f=harness(t);const out=await Promise.all(Array.from({length:20},()=>claimArtworkReview(f.args)));assert.equal(out.filter(x=>x.ok).length,1);});
+test("different claim IDs cannot claim same object",async t=>{const f=harness(t);assert.equal((await claimArtworkReview(f.args)).ok,true);assert.equal((await claimArtworkReview({...f.args,claimId:"claim_87654321"})).ok,false);});
+test("operator denied or policy offline prevents storage write",async t=>{const f=harness(t);for(const authorize of [async()=>false,async()=>{throw Error("DOWN")},null]){assert.equal((await claimArtworkReview({...f.args,authorize})).ok,false);}assert.equal(f.record(),undefined);});
+test("active, consumed and protected candidates cannot enter claim ledger",async t=>{const f=harness(t);for(const plan of [{ok:true,productionApproved:false,deletionAuthorized:false,items:[{...f.finding,action:"hold"}]},{ok:false,items:[],deletionAuthorized:false},{...f.plan,items:[{...f.finding,reason:"PROTECTED_ORDER"}]}]){assert.equal((await claimArtworkReview({...f.args,plan})).ok,false);}assert.equal(f.record(),undefined);});
+test("untrusted inventory and fake orphan path fail closed",async t=>{const f=harness(t);for(const patch of [{plan:{...f.plan,productionApproved:true}},{finding:{...f.finding,key:"orders/other.png"}},{plan:{...f.plan,items:[f.finding,f.finding]}}]){assert.equal((await claimArtworkReview({...f.args,...patch})).ok,false);}assert.equal(f.record(),undefined);});
+test("not stale cannot recover, and state stays claimed",async t=>{const f=harness(t);await claimArtworkReview(f.args);const r=await recoverStaleArtworkReview({db:f.db,authorize:auth,operatorId:op,claimId:f.args.claimId,now:now+3599999});assert.equal(r.ok,false);assert.equal(f.record().state,"claimed");});
+test("stale crash recovery transitions to needs_review exactly once",async t=>{const f=harness(t);await claimArtworkReview(f.args);const args={db:f.db,authorize:auth,operatorId:op,claimId:f.args.claimId,now:now+3600000};const out=await Promise.all(Array.from({length:20},()=>recoverStaleArtworkReview(args)));assert.equal(out.filter(x=>x.ok).length,1);assert.equal(f.record().state,"needs_review");assert.equal(f.record().attempts,1);assert.equal(out.find(x=>x.ok).deletionAuthorized,false);});
+test("recovery denied for unknown claims, invalid time, unauthorized operator",async t=>{const f=harness(t);await claimArtworkReview(f.args);for(const patch of [{claimId:"claim_unknown1234"},{now:-1},{authorize:async()=>false}]){const r=await recoverStaleArtworkReview({db:f.db,authorize:auth,operatorId:op,claimId:f.args.claimId,now:now+3600000,...patch});assert.equal(r.ok,false);}assert.equal(f.record().state,"claimed");});
+test("database errors never return claim or recovery authority",async t=>{const f=harness(t);const broken={prepare:()=>({bind:()=>({run:async()=>{throw Error("SQL");}})})};assert.equal((await claimArtworkReview({...f.args,db:broken})).ok,false);await claimArtworkReview(f.args);assert.equal((await recoverStaleArtworkReview({db:broken,authorize:auth,operatorId:op,claimId:f.args.claimId,now:now+3600000})).ok,false);});
+test("schema enforces legal transitions, unique object keys and state constraints",t=>{const f=harness(t);assert.throws(()=>f.sqlite.prepare("INSERT INTO dtf_artwork_review_claims (claim_id,object_key,operator_id,reason,state,claimed_at,updated_at) VALUES ('bad','key','op','INVALID','deleted',0,0)").run());assert.equal(f.sqlite.prepare("PRAGMA integrity_check").get().integrity_check,"ok");});
+test("no R2 access, deletion, scheduled cleanup or payment integration exists",async()=>{const s=readFileSync(new URL("../functions/lib/dtf-artwork-review-claims-rn3b1c.js",import.meta.url),"utf8");assert.doesNotMatch(s,/bucket\.|R2\.delete|onScheduled|onRequestPost|checkout\.sessions|fetch\s*\(/);});
