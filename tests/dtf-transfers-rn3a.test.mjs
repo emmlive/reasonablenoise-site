@@ -172,3 +172,26 @@ test("centered ordering flow keeps three clear steps, inline review and one fina
   assert.match(page, /id="rn-transfer-submit"/);
   assert.match(page, /id="rn-transfer-artwork"/);
 });
+
+test("RN-3B1B separates preliminary quality report from quote submission and payment", () => {
+  assert.match(page, /id="rn-transfer-preflight-button" type="button"/);
+  assert.match(page, /id="rn-transfer-preflight-turnstile"/);
+  assert.match(page, /id="rn-transfer-preflight-report" aria-live="polite" role="status"/);
+  assert.match(page, /action: "dtf_preflight"/);
+  assert.match(page, /action: "dtf_artwork"/);
+  assert.match(page, /fetch\("\/api\/dtf-artwork-preflight", \{ method: "POST", body: data \}\)/);
+  assert.match(page, /data\.set\("widthInches", String\(width\)\)/);
+  assert.match(page, /data\.set\("heightInches", String\(height\)\)/);
+  assert.match(page, /fetch\("\/api\/contact", \{ method: "POST", body: data \}\)/);
+  assert.match(page, /A full image and print suitability review is still required/);
+  assert.match(page, /No payment or production is authorized/);
+  assert.doesNotMatch(page, /fetch\("\/api\/create-checkout-session"/);
+});
+
+test("dark transfer summary preserves readable text contrast", () => {
+  assert.match(page, /aria-label="Live transfer request summary"/);
+  assert.match(page, /bg-\[#101b25\] p-5 text-white shadow-xl/);
+  assert.match(page, /id="rn-transfer-summary-size"/);
+  assert.match(page, /id="rn-transfer-summary-quantity"/);
+  assert.match(page, /Confirmed after review/);
+});

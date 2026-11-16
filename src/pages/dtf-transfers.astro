@@ -195,6 +195,14 @@ const transferSizes = [
                 <p id="rn-transfer-quality-note" class="mt-3 text-xs leading-5 text-black/55">For sharper results, use a transparent file and artwork sized for the final print. We'll check the file before production.</p>
                   </div>
                 </div>
+                <div class="mt-5 rounded-2xl border border-cyan-200 bg-cyan-50/70 p-4 sm:p-5" aria-label="Preliminary artwork quality inspection">
+                  <h4 class="text-base font-bold">Check your artwork quality</h4>
+                  <p class="mt-1 text-sm leading-6 text-black/65">Check file dimensions and estimated print resolution at the size you selected. This is preliminary guidance, not print approval.</p>
+                  {turnstileSiteKey && <div class="mt-3 rounded-xl border border-cyan-200 bg-white p-3"><p class="mb-2 text-xs font-semibold">Separate inspection security check</p><div id="rn-transfer-preflight-turnstile" data-sitekey={turnstileSiteKey} class="min-h-16"></div></div>}
+                  <button id="rn-transfer-preflight-button" type="button" disabled={!turnstileSiteKey} class="mt-4 rounded-full bg-cyan-700 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-800 disabled:opacity-50">Inspect my artwork</button>
+                  <div id="rn-transfer-preflight-report" aria-live="polite" role="status" class="mt-3 hidden rounded-xl border border-cyan-200 bg-white p-4 text-sm leading-6"></div>
+                  <p class="mt-3 text-xs leading-5 text-black/55">Inspection does not store the file, charge you or start production. Sending the quote remains a separate step.</p>
+                </div>
                 {!turnstileSiteKey && <p class="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs font-semibold text-amber-900">Secure artwork uploads are temporarily unavailable. You can still request a quote without attaching a file.</p>}
               </section>
 
@@ -213,7 +221,7 @@ const transferSizes = [
 
                   </div>
             <aside class="min-w-0" aria-label="Live transfer request summary">
-              <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 shadow-xl shadow-black/20 sm:p-6">
+              <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 text-white shadow-xl shadow-black/20 sm:p-6">
                 <div class="flex items-center justify-between gap-3"><h3 class="text-xl font-semibold">Your transfer summary</h3><span class="rounded-full bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">Live preview</span></div>
                 <div class="mt-5 grid grid-cols-2 gap-3">
                   <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Selected size</p><p id="rn-transfer-summary-size" class="mt-2 text-lg font-bold">10.5″ × 11″</p></div>
@@ -262,6 +270,22 @@ const transferSizes = [
       const heightField = document.getElementById("rn-transfer-height");
       let previewUrl = "";
       let widgetId = null;
+      let preflightWidgetId = null;
+      let preflightGeneration = 0;
+      const preflightButton = document.getElementById("rn-transfer-preflight-button");
+      const preflightReport = document.getElementById("rn-transfer-preflight-report");
+      function showPreflight(text) {
+        if (!preflightReport) return;
+        preflightReport.textContent = text;
+        preflightReport.classList.remove("hidden");
+      }
+      function resetPreflight() {
+        preflightGeneration++;
+        if (preflightReport) { preflightReport.textContent = ""; preflightReport.classList.add("hidden"); }
+      }
+      fileInput?.addEventListener("change", resetPreflight);
+      widthField?.addEventListener("input", resetPreflight);
+      heightField?.addEventListener("input", resetPreflight);
       const previewFill = document.getElementById("rn-transfer-shirt-fill");
       const placementMarker = document.getElementById("rn-transfer-placement-marker");
       const shirtPreviewLabel = document.getElementById("rn-transfer-shirt-preview-label");
@@ -356,6 +380,16 @@ const transferSizes = [
         }
       });
 
+      function renderPreflightChallenge() {
+        const host = document.getElementById("rn-transfer-preflight-turnstile");
+        if (!host || preflightWidgetId !== null || !window.turnstile?.render) return;
+        preflightWidgetId = window.turnstile.render(host, {
+          sitekey: host.dataset.sitekey,
+          action: "dtf_preflight",
+          theme: "light",
+          size: "flexible",
+        });
+      }
       function renderChallenge() {
         const host = document.getElementById("rn-transfer-turnstile");
         if (!host || widgetId !== null || !window.turnstile?.render) return;
@@ -366,9 +400,52 @@ const transferSizes = [
           size: "flexible",
         });
       }
-      document.getElementById("rn-transfer-turnstile-api")?.addEventListener("load", renderChallenge);
-      window.addEventListener("load", renderChallenge);
-      renderChallenge();
+      function renderBothChallenges() { renderChallenge(); renderPreflightChallenge(); }
+      document.getElementById("rn-transfer-turnstile-api")?.addEventListener("load", renderBothChallenges);
+      window.addEventListener("load", renderBothChallenges);
+      renderBothChallenges();
+
+      preflightButton?.addEventListener("click", async () => {
+        const file = fileInput?.files?.[0];
+        if (!file) { showPreflight("Choose your artwork file first."); return; }
+        if (!file.size || file.size > 15 * 1024 * 1024) { showPreflight("Choose a file no larger than 15 MB."); return; }
+        const width = Number(widthField?.value), height = Number(heightField?.value);
+        if (!(width >= 0.5 && width <= 100 && height >= 0.5 && height <= 100)) {
+          showPreflight("Enter valid transfer dimensions first."); return;
+        }
+        const token = preflightWidgetId !== null ? window.turnstile?.getResponse?.(preflightWidgetId) : "";
+        if (!token) { showPreflight("Complete the separate inspection security check first."); return; }
+        const requestVersion = ++preflightGeneration;
+        preflightButton.disabled = true;
+        showPreflight("Inspecting your selected artwork...");
+        try {
+          const data = new FormData();
+          data.set("artwork", file);
+          data.set("widthInches", String(width));
+          data.set("heightInches", String(height));
+          data.set("cf-turnstile-response", token);
+          const response = await fetch("/api/dtf-artwork-preflight", { method: "POST", body: data });
+          const payload = await response.json();
+          if (requestVersion !== preflightGeneration) return;
+          if (!response.ok || payload.success !== true) throw new Error("Inspection unavailable");
+          const report = payload.report || {};
+          const pixels = report.imageDimensionsVerified
+            ? report.pixelWidth + " × " + report.pixelHeight + " pixels; estimated " + report.effectiveDpi + " PPI. "
+            : "";
+          const codes = Array.isArray(report.codes) ? report.codes : [];
+          const message = report.status === "technical_pass"
+            ? "Initial format and resolution checks passed. " + pixels + "A full image and print suitability review is still required."
+            : report.status === "review_recommended"
+              ? "Artwork review recommended. " + pixels + (codes.includes("LOW_RESOLUTION") ? "Low resolution at this print size." : codes.includes("BELOW_TARGET_RESOLUTION") ? "Below the 300 PPI target." : "Specialist file review required.")
+              : "We cannot confirm this artwork as submitted. Check the file type, integrity and dimensions.";
+          showPreflight(message + " No payment or production is authorized.");
+        } catch {
+          if (requestVersion === preflightGeneration) showPreflight("Automated inspection is unavailable. You can still request a manual quote.");
+        } finally {
+          if (preflightWidgetId !== null) window.turnstile?.reset?.(preflightWidgetId);
+          preflightButton.disabled = false;
+        }
+      });
 
       function showResult(text, isError) {
         result.textContent = text;
