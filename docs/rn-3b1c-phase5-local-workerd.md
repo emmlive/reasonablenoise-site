@@ -36,3 +36,10 @@ Expected 110 tests (102 previously verified plus 8 local integration tests), 11 
 Independent Windows run after R1: **103/110 PASS; 7 D1 setup failures**, all reporting `SQL code did not contain a statement` from a comment-only migration segment. R1's Workerd compatibility-date blocker was resolved. The PowerShell stop-on-error guard halted execution before a fresh Astro build or Git checks; do not claim those gates passed. This R2 branch strips only full-line SQL comments in the disposable Miniflare test harness before executing the same CREATE TABLE and INDEX statements. The migration file and production code are unchanged. Independent retest remains required.
 
 Use `git switch --track origin/fix/rn-3b1c-phase5-d1-migration-loader-20261115` instead of the previous branch when running the verification commands above. Keep Miniflare installed outside the repository via RN_MINIFLARE_ROOT.
+
+## Phase 5 R3 — complete DDL statement execution
+Independent Windows verification after R2 produced **103/110 PASS**, with all seven remaining failures at D1 schema setup: `D1_EXEC_ERROR: incomplete input` for multiline `CREATE TABLE`. Astro built 11 pages successfully, and Git checks were clean.
+
+The local Miniflare harness now parses the known Phase 3 migration into **exactly two** semicolon-terminated statements, checks the expected `CREATE TABLE` and `CREATE INDEX` prefixes, and executes each complete statement through `db.prepare(statement).run()`. This bypasses the emulator's newline-splitting behavior in `db.exec`. The real migration and customer/checkout routes are unchanged.
+
+**R3 remains unverified until the user runs the standalone 8-test Miniflare suite, the complete 110-test regression, Astro build and Git checks.** Use branch `fix/rn-3b1c-phase5-d1-statement-execution-20261115`, preserve the existing external `RN_MINIFLARE_ROOT`, and do not use any remote Cloudflare bindings or commands.
