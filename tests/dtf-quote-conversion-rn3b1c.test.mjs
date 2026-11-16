@@ -26,7 +26,7 @@ async function fixture(t,extra={}){
  const db=await mf.getD1Database("TEST_D1");
  for(const sql of statements())await db.prepare(sql.replace(/;\s*$/,"")).run();
  const {quoteId,quoteRef,owner,workspace,reviewer}=ids;
- await db.prepare("INSERT INTO dtf_test_approved_quotes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(
+ await db.prepare("INSERT INTO dtf_test_approved_quotes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(
   quoteId,quoteRef,workspace,owner,12,"provided","front",'{"M":4,"L":8}',
   "Navy",21600,"usd",1,1,1,"approved",reviewer,NOW-10000,NOW+90000
  ).run();
