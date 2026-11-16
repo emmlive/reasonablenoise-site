@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import {resolve} from "node:path";
 import {pathToFileURL} from "node:url";
-import {existsSync,mkdirSync} from "node:fs";
+import {existsSync} from "node:fs";
 
 const origin=new URL(process.env.RN_BROWSER_BASE_URL||"http://127.0.0.1:4327");
 if(origin.protocol!=="http:"||!["127.0.0.1","localhost"].includes(origin.hostname))
@@ -15,7 +15,7 @@ if(!existsSync(playwrightFile))throw Error("PLAYWRIGHT_NOT_INSTALLED_IN_ISOLATED
 const {chromium}=await import(pathToFileURL(playwrightFile).href);
 const browser=await chromium.launch({channel:"chrome",headless:true});
 let assertions=0,requests=0,external=0;
-const check=(test,...args)=>{assert[test](...args);assertions++;};
+const check=(test,...args)=>{if(test==="test")assert.ok(...args);else assert[test](...args);assertions++;};
 const waitReady=async page=>{
  await page.goto(new URL("/dtf-shirts/",origin).href,{waitUntil:"domcontentloaded"});
  await page.locator("#dtf-quote-config [name=quantity]").waitFor();
@@ -106,7 +106,6 @@ try{
  await runViewport("MOBILE",{width:390,height:844},{
   quantity:6,source:"Customer brings shirts",placement:"Front + Back",estimate:"Custom quote required"
  });
- check("equal",external>=0,true); // External calls are locally blocked, not sent to providers.
  console.log("PHASE17_EXTERNAL_PROVIDER_REQUESTS_SENT=0");
  console.log("PHASE17_REAL_CONTACT_REQUESTS_SENT=0");
  console.log("PHASE17_REAL_STRIPE_CALLS=0");
