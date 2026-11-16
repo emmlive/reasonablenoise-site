@@ -1,6 +1,6 @@
 // RN-3B1C Phase 11: test-only bridge from local R2 Worker binding to
 // Phase 10 write-once contract. Not a deployed production storage adapter.
-// Cloudflare R2 documentation supports onlyIf: Headers("If-None-Match: *").
+// Cloudflare R2 supports onlyIf: R2Conditional {etagDoesNotMatch:"*"}.
 // Its conditional put returns null if object exists; R2Object.version identifies upload.
 const TOKEN=/^[A-Za-z0-9:_-]{8,256}$/;
 const SHA=/^[a-f0-9]{64}$/;
@@ -18,7 +18,9 @@ export function createLocalR2WriteOnceAdapter(bucket){
   async putIfAbsent(key,bytes,{sha256,byteLength,contentType}={}){
    if(!SHA.test(sha256||"")||!Number.isSafeInteger(byteLength)||byteLength!==bytes?.byteLength||
      contentType!=="image/png")return {created:false};
-   // Use the documented R2Conditional plain object; avoids cross-realm Headers\n   // serialization failure in proxied local Miniflare R2 bindings.\n   const condition={etagDoesNotMatch:"*"};
+   // Use the documented R2Conditional plain object; avoids cross-realm Headers
+   // serialization failure in proxied local Miniflare R2 bindings.
+   const condition={etagDoesNotMatch:"*"};
    const stored=await bucket.put(key,bytes,{
     onlyIf:condition,
     httpMetadata:{contentType:"image/png"},
