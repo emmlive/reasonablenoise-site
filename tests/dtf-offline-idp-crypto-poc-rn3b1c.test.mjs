@@ -79,20 +79,20 @@ test("wrong issuer and wrong audience reject cryptographically signed claims",as
 });
 test("unknown key ID and unpinned signing key reject",async()=>{
  const f=(await setup()).clerk;
- assert.equal((await verify(args(f,await signed(f,{}, {kid:"other_key_12345678"}))).verified,false);
+ assert.equal((await verify(args(f,await signed(f,{}, {kid:"other_key_12345678"})))).verified,false);
  assert.equal((await verify({...args(f,await signed(f)),keyring:{}})).verified,false);
 });
 test("none and algorithm confusion rejected despite signature material",async()=>{
  const f=(await setup()).clerk;
  for(const alg of ["none","HS256","ES256"]){
-  assert.equal((await verify(args(f,await signed(f,{}, {alg}))).verified,false);
+  assert.equal((await verify(args(f,await signed(f,{}, {alg})))).verified,false);
  }
 });
 test("dangerous JOSE key reference and crit headers are denied",async()=>{
  const f=(await setup()).clerk;
  for(const p of [{jku:"https://evil.example.invalid"},{crit:["exp"]},
   {jwk:{kty:"RSA",n:"foo",e:"AQAB"}}]){
-  assert.equal((await verify(args(f,await signed(f,{},p))).verified,false);
+  assert.equal((await verify(args(f,await signed(f,{},p)))).verified,false);
  }
 });
 test("expired, not-yet-valid, future-issued and excessive lifetime tokens denied",async()=>{
