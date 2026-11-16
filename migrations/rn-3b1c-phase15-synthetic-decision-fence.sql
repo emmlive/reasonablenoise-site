@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS dtf_test_auth_decisions (
  replay_id TEXT NOT NULL UNIQUE,
  session_id TEXT NOT NULL,
  order_id TEXT NOT NULL,
- pin_id TEXT NOT NULL,
+ pin_id TEXT NOT NULL UNIQUE,
  subject_id TEXT NOT NULL,
  workspace_id TEXT NOT NULL,
  session_epoch INTEGER NOT NULL,
