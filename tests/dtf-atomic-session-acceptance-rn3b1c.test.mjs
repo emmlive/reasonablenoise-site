@@ -177,3 +177,26 @@ test("Phase21 is non-routed, no Stripe, Cloudflare live R2 or email side effects
  assert.match(source,/s\.session_epoch=\?/);
  assert.match(source,/checkoutEligible:false/);
 });
+
+test("20 already-verified requests blocked when revocation commits during verifier barrier",async t=>{
+ const f=await fixture(t);
+ let release;
+ const gate=new Promise(resolve=>{release=resolve;});
+ let seen=0;
+ let allReady;
+ const ready=new Promise(resolve=>{allReady=resolve;});
+ const attempts=Array.from({length:20},(_,i)=>f.accept({
+  acceptanceId:"accept_12345678_"+i,
+  verifyCustomerSession:async()=>{
+   if(++seen===20)allReady();
+   await gate;
+   return f.principal;
+  }
+ }));
+ await ready;
+ await f.db.prepare("UPDATE dtf_test_customer_sessions_v20 SET revoked=1").run();
+ release();
+ const results=await Promise.all(attempts);
+ assert.equal(results.filter(r=>r.ok).length,0);
+ assert.equal((await f.rows()).length,0);
+});
