@@ -92,9 +92,30 @@ export async function verifyPngRasterIntegrity(bytes) {
     raw = await decodeBounded(new Blob([joined]).stream().pipeThrough(new DecompressionStream("deflate")), header.expected);
   } catch { return fail("INVALID_OR_OVERSIZED_RASTER_STREAM"); }
   if(raw.length!==header.expected) return fail("DECODED_SIZE_MISMATCH");
+  // Reconstruct PNG scanlines, not merely inflate the zlib stream.
+  const channels={0:1,2:3,3:1,4:2,6:4}[header.color];
+  const pixelStride=Math.max(1,Math.ceil(channels*header.depth/8));
+  let previous=new Uint8Array(header.rowBytes);
   for(let row=0;row<header.height;row++){
-    const filter=raw[row*(header.rowBytes+1)];
+    const start=row*(header.rowBytes+1), filter=raw[start];
     if(filter>4) return fail("INVALID_SCANLINE_FILTER");
+    const decoded=new Uint8Array(header.rowBytes);
+    for(let column=0;column<header.rowBytes;column++){
+      const left=column>=pixelStride?decoded[column-pixelStride]:0;
+      const up=previous[column];
+      const upperLeft=column>=pixelStride?previous[column-pixelStride]:0;
+      let predictor=0;
+      if(filter===1) predictor=left;
+      if(filter===2) predictor=up;
+      if(filter===3) predictor=Math.floor((left+up)/2);
+      if(filter===4) {
+        const p=left+up-upperLeft;
+        const a=Math.abs(p-left),b=Math.abs(p-up),c=Math.abs(p-upperLeft);
+        predictor=a<=b&&a<=c?left:b<=c?up:upperLeft;
+      }
+      decoded[column]=(raw[start+1+column]+predictor)&255;
+    }
+    previous=decoded;
   }
   const digest=await crypto.subtle.digest("SHA-256",bytes);
   const sha256=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
