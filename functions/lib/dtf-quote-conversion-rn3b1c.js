@@ -11,11 +11,11 @@ const SQL=`INSERT INTO dtf_test_conversion_orders(
  q.quantity,q.shirt_source,q.print_placement,q.sizes_json,q.color,
  q.approved_total_cents,q.currency,?,'awaiting_customer_acceptance',0
  FROM dtf_test_approved_quotes q
- WHERE q.quote_id=? AND q.workspace_id=? AND q.owner_subject_id=?
+ WHERE q.quote_id=? AND q.workspace_id=? AND q.approved_by=?
  AND q.quote_status='approved' AND q.approved_at>0
  AND q.approved_at<=? AND q.expires_at>?
  AND q.artwork_reviewed=1 AND q.pricing_reviewed=1 AND q.fulfillment_reviewed=1
- AND q.approved_by<>''
+ AND q.owner_subject_id<>''
  ON CONFLICT DO NOTHING`;
 export async function convertApprovedQuoteForReview({
  db,authorizeOperator,request,quoteId,orderId,now,
