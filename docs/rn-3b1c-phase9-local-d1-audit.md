@@ -28,3 +28,30 @@ if ($LASTEXITCODE -ne 0) {throw "GIT_FAILED"}
 git status --short
 \`\`\`
 Expected: **9 new local D1 tests**, **158 total tests**, **11 Astro pages**, clean Git. These results are targets, not verified outcomes. Phase 8 audit integrity was previously verified against native disposable SQLite, not production D1. Dependency audit vulnerabilities remain open.
+
+
+## R1 — local D1 trigger-inclusive change-count correction
+
+Independent Windows Phase 9 result: **6/9 PASS, 3 FAIL**. Migration DDL and immutability/rollback guard tests passed. All three failed when the Phase 7 review-claim adapter required \`meta.changes === 1\` although Phase 8 introduced one audit-event trigger on claim INSERT and stale UPDATE. Cloudflare's D1 metadata describes \`changes\` as an approximate/total SQLite change count; it can include trigger side effects.
+
+This R1 correction narrowly accepts **one** native SQLite direct-row change or **two** D1 changes (claim row + its audit event) only when \`success === true\`; zero, three, missing or failed results remain rejected. The SQL uniqueness/CAS predicates remain intact. Two new tests assert that local D1 reports \`[2,0]\` for first claim and duplicate, and mock unexpected 0/3 counts fail closed. **Expected Phase 9 suite: 11 tests; full regression: 160 tests.**
+
+This is a review-only adapter, NOT checkout or artwork-intent consumption. A stronger future contract should validate direct-row identity with \`RETURNING\`, in addition to auditing the actual immutable event. No production activation.
+
+### R1 verification
+\`\`\`powershell
+$ErrorActionPreference = "Stop"
+cd C:\Users\emmli\Documents\ReasonableNoise\reasonablenoise-site
+git fetch origin
+git switch --track origin/fix/rn-3b1c-phase9-trigger-change-count-20261115
+$env:RN_MINIFLARE_ROOT = Join-Path $env:TEMP "rn-miniflare-phase5-isolated"
+node --test .\tests\dtf-artwork-d1-audit-rn3b1c.test.mjs
+if($LASTEXITCODE -ne 0){throw "PHASE9_R1_FAILED"}
+node --test .\tests\*.test.mjs
+if($LASTEXITCODE -ne 0){throw "REGRESSION_FAILED"}
+npm run build
+if($LASTEXITCODE -ne 0){throw "BUILD_FAILED"}
+git diff --check origin/feature/rn-3b1c-phase9-local-d1-audit-20261115...HEAD
+if($LASTEXITCODE -ne 0){throw "DIFF_FAILED"}
+git status --short
+\`\`\`
