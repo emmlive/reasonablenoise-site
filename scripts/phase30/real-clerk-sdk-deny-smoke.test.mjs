@@ -14,7 +14,7 @@ const safety=()=>({
   paymentAuthorized:false,artworkDeletionAuthorized:false,
   productionApproved:false,deploymentAuthorized:false
 });
-test("real pinned official Clerk SDK executes denied unauthenticated request without network",async()=>{
+test("real pinned official Clerk SDK fails closed without required Secret Key and without network",async()=>{
   assert.ok(root&&existsSync(join(root,"package.json")),"isolated package root is required");
   const require=createRequire(join(root,"package.json"));
   const pkg=JSON.parse(readFileSync(join(root,"node_modules","@clerk","backend","package.json"),"utf8"));
@@ -37,11 +37,16 @@ test("real pinned official Clerk SDK executes denied unauthenticated request wit
     const request=new Request("http://localhost:8787/test-only",{
       method:"POST",headers:{origin:"http://localhost:8787"}
     });
-    const result=await client.authenticateRequest(request,{
-      jwtKey:publicKey,authorizedParties:["http://localhost:8787"],
-      acceptsToken:"session_token",audience:"rn_test_only",
-    });
-    assert.equal(result.isAuthenticated,false);
+    // This pinned SDK version requires a Secret Key even when jwtKey is supplied.
+    // Do not fabricate a credential or interpret the configuration failure as
+    // successful session verification. Assert the exact fail-closed condition.
+    await assert.rejects(
+      client.authenticateRequest(request,{
+        jwtKey:publicKey,authorizedParties:["http://localhost:8787"],
+        acceptsToken:"session_token",audience:"rn_test_only",
+      }),
+      error=>error instanceof Error && /Missing Clerk Secret Key/.test(error.message)
+    );
     assert.equal(calls,0,"SDK attempted provider network access");
     assert.deepEqual(safety(),{
       customerPrincipal:null,localSessionAuthorized:false,
