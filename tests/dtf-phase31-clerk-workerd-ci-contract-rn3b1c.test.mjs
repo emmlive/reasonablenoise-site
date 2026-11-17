@@ -26,7 +26,7 @@ test("real SDK is imported into ESM browser/worker bundle",()=>{
 });
 test("real Miniflare Workerd startup and HTTP dispatch required",()=>{
  assert.match(smoke,/new Miniflare\(/);
- assert.match(smoke,/modules:true,scriptPath:bundle/);
+ assert.match(smoke,/modules:true,modulesRoot:output,scriptPath:bundle/);
  assert.match(smoke,/compatibilityFlags:\["nodejs_compat"\]/);
  assert.match(smoke,/mf\.dispatchFetch/);
 });
@@ -60,4 +60,11 @@ test("Workerd compatibility date matches pinned binary maximum from failed CI",(
  assert.match(workflow,/miniflare@4\.20260730\.0/);
  assert.match(smoke,/compatibilityDate:"2026-08-06"/);
  assert.doesNotMatch(smoke,/compatibilityDate:"2026-11-01"/);
+});
+
+test("Workerd module root is explicit and matches disposable bundle directory",()=>{
+ assert.match(smoke,/const output=mkdtempSync\(join\(tmpdir\(\),"rn-phase31-workerd-"\)\)/);
+ assert.match(smoke,/bundle=join\(output,"worker\.mjs"\)/);
+ assert.match(smoke,/modulesRoot:output,scriptPath:bundle/);
+ assert.doesNotMatch(smoke,/modulesRoot:process\.cwd\(\)/);
 });
