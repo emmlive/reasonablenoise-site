@@ -71,3 +71,11 @@ test("unknown external path remains 404 and no real login created",()=>{
  assert.match(smoke,/assert\.equal\(wrong\.status,404\)/);
  assert.doesNotMatch(smoke,/signIn\.create|signUp\.create|users\.create/);
 });
+test("R1 explicitly unwraps Clerk JWT return type without swallowing positive failures",()=>{
+ assert.match(smoke,/Object\.hasOwn\(result,"data"\)/);
+ assert.match(smoke,/Object\.hasOwn\(result,"errors"\)/);
+ assert.match(smoke,/const claims=isWrapped\?result\.data:result/);
+ assert.match(smoke,/verified=!hasErrors&&claims\?\.sub/);
+ assert.match(smoke,/assert\.equal\(data\.validFixtureDiagnostic,"CLAIMS_VERIFIED"\)/);
+ assert.doesNotMatch(smoke,/catch\{verified=false;\}/);
+});
