@@ -24,7 +24,7 @@ test("actual Clerk SDK bundle runs missing-secret fail-closed probe in workerd",
   privateKeyEncoding:{type:"pkcs8",format:"pem"}
  });
  const output=mkdtempSync(join(tmpdir(),"rn-phase31-workerd-"));
- const source=join(output,"entry.mjs"),bundle=join(output,"worker.mjs");
+ const source=join(root,"phase31-entry.mjs"),bundle=join(output,"worker.mjs");
  const frontendKey="pk_test_"+Buffer.from("local-fixture.clerk.accounts.dev$").toString("base64");
  const worker=[
  'import {createClerkClient} from "@clerk/backend";',
