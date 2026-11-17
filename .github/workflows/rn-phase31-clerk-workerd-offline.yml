@@ -1,0 +1,41 @@
+name: RN Phase31 actual Clerk SDK Workerd deny-only isolated CI
+on:
+  push:
+    branches:
+      - feature/rn-3b1c-phase31-clerk-workerd-compat-20261116
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clerk-workerd-deny-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare isolated SDK and Workerd test root
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/rn-phase31-workerd-sdk"
+          mkdir -p "$root"
+          printf '{"private":true,"name":"rn-phase31-worker-synthetic","version":"0.0.0"}\n' > "$root/package.json"
+          echo "RN_CLERK_WORKERD_ROOT=$root" >> "$GITHUB_ENV"
+      - name: Install three exact pinned testing packages outside the site
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$RN_CLERK_WORKERD_ROOT" install --no-audit --no-fund --save-exact @clerk/backend@3.29.0 miniflare@4.20260730.0 esbuild@0.28.2
+      - name: Actual Workerd executes bundled Clerk SDK fail-closed probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test scripts/phase31/real-clerk-workerd-deny-only.test.mjs
+      - name: Verify website dependency files and checkout untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- package.json package-lock.json
+          git status --short
