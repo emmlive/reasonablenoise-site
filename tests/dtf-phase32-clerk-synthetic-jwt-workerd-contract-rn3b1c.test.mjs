@@ -93,3 +93,14 @@ test("R2 classifies Workerd verifier exceptions without printing raw error data"
  assert.match(smoke,/assert\.equal\(data\.validFixtureDiagnostic,"CLAIMS_VERIFIED"\)/);
  assert.doesNotMatch(smoke,/console\.(?:log|error)\(error\)|JSON\.stringify\(error\)|error\.stack/);
 });
+
+test("R3 independently verifies valid RS256 fixture using real Workerd WebCrypto",()=>{
+ assert.match(smoke,/__VALID_TOKEN__\.split/);
+ assert.match(smoke,/crypto\.subtle\.importKey\("spki"/);
+ assert.match(smoke,/crypto\.subtle\.verify\("RSASSA-PKCS1-v1_5"/);
+ assert.match(smoke,/independentSignatureDiagnostic=valid\?"VALID_SIGNATURE":"INVALID_SIGNATURE"/);
+ assert.match(smoke,/assert\.equal\(data\.independentSignatureDiagnostic,"VALID_SIGNATURE"/);
+ assert.match(smoke,/assert\.deepEqual\(data\.verdicts,cases\.map/);
+ assert.match(smoke,/assert\.equal\(data\.validFixtureDiagnostic,"CLAIMS_VERIFIED"\)/);
+ assert.doesNotMatch(smoke,/console\.log\([^)]*(?:token|keys\.privateKey)\)/);
+});
