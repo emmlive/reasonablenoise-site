@@ -64,7 +64,7 @@ test("actual Clerk SDK bundle runs missing-secret fail-closed probe in workerd",
  let mf;
  try{
   mf=new Miniflare({modules:true,scriptPath:bundle,
-   compatibilityDate:"2026-11-01",
+   compatibilityDate:"2026-08-06",
    compatibilityFlags:["nodejs_compat"]});
   const response=await mf.dispatchFetch("http://localhost:8787/__rn_phase31_local_probe");
   assert.equal(response.status,200,"workerd failed SDK missing-key denial probe");
