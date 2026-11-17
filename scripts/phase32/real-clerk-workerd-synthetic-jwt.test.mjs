@@ -65,6 +65,18 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   ' const originalFetch=globalThis.fetch;let networkAttempts=0;',
   ' globalThis.fetch=async()=>{networkAttempts++;throw Error("EXTERNAL_NETWORK_FORBIDDEN");};',
   ' try{const verdicts=[];let validFixtureDiagnostic="NOT_RUN";',
+  ' let independentSignatureDiagnostic="NOT_RUN";',
+  ' try{',
+  '  const parts=__VALID_TOKEN__.split(".");',
+  '  const pem=__PUBLIC_KEY__.replace(/-----[^-]+-----/g,"").replace(/\\s/g,"");',
+  '  const bytes=text=>Uint8Array.from(atob(text.replace(/-/g,"+").replace(/_/g,"/")',
+  '    .padEnd(Math.ceil(text.length/4)*4,"=")),ch=>ch.charCodeAt(0));',
+  '  const key=await crypto.subtle.importKey("spki",bytes(pem),',
+  '    {name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);',
+  '  const valid=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,',
+  '    bytes(parts[2]),new TextEncoder().encode(parts.slice(0,2).join(".")));',
+  '  independentSignatureDiagnostic=valid?"VALID_SIGNATURE":"INVALID_SIGNATURE";',
+  ' }catch{independentSignatureDiagnostic="CRYPTO_BASELINE_EXCEPTION";}',
   ' for(const [name,token] of cases){',
   '  let verified=false,diagnostic="NOT_EVALUATED";',
   '  try{if(token){',
@@ -97,7 +109,8 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   '  if(name==="valid"&&!verified)validFixtureDiagnostic=diagnostic;',
   ' }',
   ' return Response.json({scope:"SYNTHETIC_CRYPTO_ONLY",',
-  '  verdicts,validFixtureDiagnostic,networkAttempts,customerPrincipal:null,',
+  '  verdicts,validFixtureDiagnostic,independentSignatureDiagnostic,',
+  '  networkAttempts,customerPrincipal:null,',
   '  localSessionAuthorized:false,dtfCheckoutEnabled:false,',
   '  paymentAuthorized:false,artworkDeletionAuthorized:false,',
   '  productionApproved:false});',
@@ -105,6 +118,7 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   '}};'
  ].join("\n")
   .replaceAll("__FIXTURES__",JSON.stringify(cases.map(([name,token])=>[name,token])))
+  .replaceAll("__VALID_TOKEN__",JSON.stringify(valid))
   .replaceAll("__PUBLIC_KEY__",JSON.stringify(keys.publicKey))
   .replaceAll("__ISSUER__",JSON.stringify(fixtureIssuer))
   .replaceAll("__AUDIENCE__",JSON.stringify(fixtureAudience))
@@ -123,6 +137,8 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   assert.equal(response.status,200,"Workerd synthetic crypto probe must run");
   const data=await response.json();
   assert.equal(data.scope,"SYNTHETIC_CRYPTO_ONLY");
+  assert.equal(data.independentSignatureDiagnostic,"VALID_SIGNATURE",
+   `independent WebCrypto fixture check: ${data.independentSignatureDiagnostic}`);
   assert.deepEqual(data.verdicts,cases.map(([name,,expected])=>({name,verified:expected})),
    `synthetic verifier mismatch; valid fixture diagnostic: ${data.validFixtureDiagnostic}`);
   assert.equal(data.validFixtureDiagnostic,"CLAIMS_VERIFIED");
