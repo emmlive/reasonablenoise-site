@@ -56,7 +56,7 @@ test("actual Clerk SDK bundle runs missing-secret fail-closed probe in workerd",
   .replaceAll("__FRONTEND_KEY__",JSON.stringify(frontendKey));
  writeFileSync(source,worker,"utf8");
  await build({entryPoints:[source],outfile:bundle,bundle:true,
-  platform:"browser",format:"esm",target:"es2022",
+  platform:"browser",format:"esm",target:"es2022",external:["node:*"],
   mainFields:["browser","module","main"],
   conditions:["workerd","worker","browser"],logLevel:"silent"});
  const bundled=readFileSync(bundle,"utf8");
