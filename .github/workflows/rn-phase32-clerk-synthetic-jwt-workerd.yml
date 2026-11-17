@@ -1,0 +1,41 @@
+name: RN Phase32 Clerk synthetic JWT crypto in isolated Workerd
+on:
+  push:
+    branches:
+      - feature/rn-3b1c-phase32-clerk-synthetic-jwt-workerd-20261116
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clerk-workerd-synthetic-crypto:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare disposable official SDK and Workerd directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/rn-phase32-clerk-workerd"
+          mkdir -p "$root"
+          printf '{"private":true,"name":"rn-phase32-synthetic-test","version":"0.0.0"}\n' > "$root/package.json"
+          echo "RN_CLERK_WORKERD_ROOT=$root" >> "$GITHUB_ENV"
+      - name: Install exact Clerk SDK and Workerd tooling outside website
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$RN_CLERK_WORKERD_ROOT" install --no-audit --no-fund --save-exact @clerk/backend@3.29.0 miniflare@4.20260730.0 esbuild@0.28.2
+      - name: Execute official SDK synthetic crypto fixture checks inside actual Workerd
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test scripts/phase32/real-clerk-workerd-synthetic-jwt.test.mjs
+      - name: Confirm website dependency files and Git status unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- package.json package-lock.json
+          git status --short
