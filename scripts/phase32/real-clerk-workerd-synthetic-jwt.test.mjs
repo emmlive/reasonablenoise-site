@@ -40,7 +40,9 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   return signingInput+"."+sign("RSA-SHA256",Buffer.from(signingInput),privateKey).toString("base64url");
  };
  const valid=issue(claims);
- const tampered=valid.slice(0,-1)+(valid.endsWith("A")?"B":"A");
+ const signature=valid.split(".")[2];
+ const tampered=valid.split(".").slice(0,2).join(".")+"."+
+  (signature.startsWith("A")?"B":"A")+signature.slice(1);
  const cases=[
   ["valid",valid,true],
   ["tampered-signature",tampered,false],
