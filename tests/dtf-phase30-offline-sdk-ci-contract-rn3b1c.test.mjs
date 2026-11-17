@@ -17,8 +17,10 @@ test("SDK must actually be imported and invoked, no SDK mocks",()=>{
  assert.match(smoke,/sdk\.createClerkClient/);
  assert.match(smoke,/client\.authenticateRequest\(request,/);
 });
-test("SDK tests deny-only request with zero network calls",()=>{
- assert.match(smoke,/assert\.equal\(result\.isAuthenticated,false\)/);
+test("SDK tests missing-secret fail-closed rejection with zero network calls",()=>{
+ assert.match(smoke,/assert\.rejects\(/);
+ assert.match(smoke,/Missing Clerk Secret Key/);
+ assert.doesNotMatch(smoke,/assert\.equal\(result\.isAuthenticated,false\)/);
  assert.match(smoke,/assert\.equal\(calls,0,/);
  assert.match(smoke,/globalThis\.fetch=async/);
 });
