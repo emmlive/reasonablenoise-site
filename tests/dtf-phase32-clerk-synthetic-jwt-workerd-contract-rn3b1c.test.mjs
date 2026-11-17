@@ -79,3 +79,17 @@ test("R1 explicitly unwraps Clerk JWT return type without swallowing positive fa
  assert.match(smoke,/assert\.equal\(data\.validFixtureDiagnostic,"CLAIMS_VERIFIED"\)/);
  assert.doesNotMatch(smoke,/catch\{verified=false;\}/);
 });
+
+test("R2 classifies Workerd verifier exceptions without printing raw error data",()=>{
+ for(const category of [
+  "TOKEN_VERIFICATION_EXCEPTION","MISSING_CLERK_SECRET_KEY",
+  "WEBCRYPTO_RUNTIME_ERROR","PUBLIC_KEY_RUNTIME_ERROR",
+  "JS_TYPE_ERROR","JS_REFERENCE_ERROR","JS_SYNTAX_ERROR",
+  "JS_RANGE_ERROR","GENERIC_SDK_ERROR","UNKNOWN_EXCEPTION"
+ ])assert.ok(smoke.includes(category),category);
+ assert.match(smoke,/type==="TypeError"/);
+ assert.match(smoke,/typeof error\?\.message==="string"/);
+ assert.match(smoke,/validFixtureDiagnostic/);
+ assert.match(smoke,/assert\.equal\(data\.validFixtureDiagnostic,"CLAIMS_VERIFIED"\)/);
+ assert.doesNotMatch(smoke,/console\.(?:log|error)\(error\)|JSON\.stringify\(error\)|error\.stack/);
+});
