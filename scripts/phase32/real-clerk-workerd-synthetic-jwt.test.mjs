@@ -64,20 +64,30 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   '  return new Response("not found",{status:404});',
   ' const originalFetch=globalThis.fetch;let networkAttempts=0;',
   ' globalThis.fetch=async()=>{networkAttempts++;throw Error("EXTERNAL_NETWORK_FORBIDDEN");};',
-  ' try{const verdicts=[];',
+  ' try{const verdicts=[];let validFixtureDiagnostic="NOT_RUN";',
   ' for(const [name,token] of cases){',
-  '  let verified=false;',
+  '  let verified=false,diagnostic="NOT_EVALUATED";',
   '  try{if(token){',
-  '   const claims=await verifyToken(token,{jwtKey:__PUBLIC_KEY__,',
+  '   const result=await verifyToken(token,{jwtKey:__PUBLIC_KEY__,',
   '    issuer:__ISSUER__,audience:__AUDIENCE__,',
   '    authorizedParties:[__ORIGIN__],clockSkewInMs:0});',
-  '   verified=claims?.sub==="user_phase32_synthetic_only"&&',
+  '   const isWrapped=result!==null&&typeof result==="object"&&',
+  '     (Object.hasOwn(result,"data")||Object.hasOwn(result,"errors"));',
+  '   const hasErrors=isWrapped&&Array.isArray(result.errors)&&result.errors.length>0;',
+  '   const claims=isWrapped?result.data:result;',
+  '   verified=!hasErrors&&claims?.sub==="user_phase32_synthetic_only"&&',
   '     claims?.sid==="sess_phase32_synthetic_only";',
-  '  }}catch{verified=false;}',
+  '   diagnostic=verified?"CLAIMS_VERIFIED":hasErrors?"SDK_RETURNED_ERRORS":',
+  '     claims==null?"NO_CLAIMS":"CLAIMS_MISMATCH";',
+  '  }else{diagnostic="EMPTY_TOKEN";}',
+  '  }catch(error){diagnostic=error instanceof Error?',
+  '    (error.name==="TokenVerificationError"?"TOKEN_VERIFICATION_EXCEPTION":',
+  '     "SDK_EXCEPTION"):"UNKNOWN_EXCEPTION";}',
   '  verdicts.push({name,verified});',
+  '  if(name==="valid"&&!verified)validFixtureDiagnostic=diagnostic;',
   ' }',
   ' return Response.json({scope:"SYNTHETIC_CRYPTO_ONLY",',
-  '  verdicts,networkAttempts,customerPrincipal:null,',
+  '  verdicts,validFixtureDiagnostic,networkAttempts,customerPrincipal:null,',
   '  localSessionAuthorized:false,dtfCheckoutEnabled:false,',
   '  paymentAuthorized:false,artworkDeletionAuthorized:false,',
   '  productionApproved:false});',
@@ -103,7 +113,9 @@ test("actual Clerk SDK verifyToken checks synthetic RS256 fixtures in Workerd wi
   assert.equal(response.status,200,"Workerd synthetic crypto probe must run");
   const data=await response.json();
   assert.equal(data.scope,"SYNTHETIC_CRYPTO_ONLY");
-  assert.deepEqual(data.verdicts,cases.map(([name,,expected])=>({name,verified:expected})));
+  assert.deepEqual(data.verdicts,cases.map(([name,,expected])=>({name,verified:expected})),
+   `synthetic verifier mismatch; valid fixture diagnostic: ${data.validFixtureDiagnostic}`);
+  assert.equal(data.validFixtureDiagnostic,"CLAIMS_VERIFIED");
   assert.equal(data.networkAttempts,0);
   for(const name of ["customerPrincipal","localSessionAuthorized","dtfCheckoutEnabled",
    "paymentAuthorized","artworkDeletionAuthorized","productionApproved"]){
