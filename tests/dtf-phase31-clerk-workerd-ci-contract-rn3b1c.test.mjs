@@ -56,3 +56,8 @@ test("CI checks original site dependency files unchanged",()=>{
  assert.match(workflow,/git diff --exit-code -- package\.json package-lock\.json/);
  assert.match(workflow,/git status --short/);
 });
+test("Workerd compatibility date matches pinned binary maximum from failed CI",()=>{
+ assert.match(workflow,/miniflare@4\.20260730\.0/);
+ assert.match(smoke,/compatibilityDate:"2026-08-06"/);
+ assert.doesNotMatch(smoke,/compatibilityDate:"2026-11-01"/);
+});
