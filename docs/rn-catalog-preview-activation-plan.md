@@ -34,3 +34,22 @@ Only after Preview binding is proven correct and Production rechecked may the is
 - **STOP now:** Local file integrity and CI alone are not sufficient, particularly because non-inheritable Preview bindings/vars and config-governance migration remain unreviewed.
 - **GO for read-only inspection:** Inspect the private config's table names, variable names/counts and Preview resource requirements without publishing values.
 - **NO GO for activation:** Config deployment, database migration, feature activation, or Production promotion.
+
+## Read-only source dependency audit — 2026-11-27
+
+Actual source inspection at PR #71's candidate branch found **10 Pages Functions**. Their static `context.env` and `env` references are inventoried by `scripts/rn-catalog-preview-dependency-audit.mjs`. Explicit names are not secret values; do not copy real values into this repository.
+
+| API route | Dependency categories observed | Current Preview D1-only candidate |
+| --- | --- | --- |
+| `/api/admin-products` | RN_CATALOG_DB, feature switch, Access team/AUD, approved email allowlist | D1 present locally; auth vars absent; admin stays disabled |
+| `/api/admin-orders`, `/api/backfill-test-order`, `/api/download-artwork`, `/api/order-status` | ARTWORK_BUCKET, admin tokens/access email, optional email/site URL | NOT parity; leave operations disabled |
+| `/api/contact` | ARTWORK_BUCKET, Resend, Turnstile, notification and site settings | NOT parity |
+| `/api/create-checkout-session` | Stripe secret, site URL and checkout amounts | NOT parity; never add production Stripe secret to Preview |
+| `/api/stripe-webhook` | Stripe secret/webhook, R2, Resend and order settings | NOT parity; never add live payment/webhook secrets |
+| `/api/track-event`, `/api/upload-artwork` | ARTWORK_BUCKET | NOT parity; never attach live R2 to Preview |
+
+**Conclusion: PREVIEW_COMPATIBILITY_NOT_ESTABLISHED.** This is a conditional preview **catalog-only** candidate, not full Pages preview environment compatibility. Existing preview routes might already be disabled, but that fact was not demonstrated by code audit or browser smoke. Static analysis also cannot find dynamic environment key reads: hosted behavior needs independent testing.
+
+Safe path forward: build a separate catalog-only Preview deployment/route isolation plan that does not activate legacy functions, or prepare a complete Preview configuration with isolated bindings and placeholder/disabled payment/contact dependencies. Review total Preview impact and Cloudflare source-of-truth/rollback implications **before deployment**. Do not try to make the compatibility checker green by placing live Stripe, Resend, or production R2 credentials into Preview.
+
+A new set of dependency-contract tests should run in CI. Until Preview is demonstrably safe for unrelated routes and Access config is present, **no activation, migrations, writes, or production changes**.
