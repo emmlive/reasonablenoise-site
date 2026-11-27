@@ -34,9 +34,12 @@ export async function verifyHolidayProviderTestAccount({
   let account;
   try { account=await response.json(); }
   catch { return deny("invalid_provider_response"); }
+  // Stripe's GET /v1/account may omit livemode. Mode is enforced by the
+  // sk_test_ credential; an explicit non-false livemode value is rejected.
+  // Retrieved Checkout Sessions must separately report livemode:false.
   if(account?.object!=="account" ||
      account?.id!==expectedStripeAccountId ||
-     account?.livemode!==false)
+     (account?.livemode!==undefined && account?.livemode!==false))
     return deny("account_identity_or_mode_mismatch");
   // Explicitly not evidence of a completed test Checkout Session or webhook.
   return hold("test_account_verified_provider_event_still_required");
