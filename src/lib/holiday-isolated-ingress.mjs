@@ -62,4 +62,3 @@ export async function inspectIsolatedHolidayWebhook({
     emailAuthorized:false,deletionAuthorized:false
   };
 }
-export const RN_HOLIDAY_ISOLATED_TEST_PATH=PATH;
