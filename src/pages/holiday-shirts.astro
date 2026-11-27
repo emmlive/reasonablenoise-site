@@ -40,12 +40,7 @@ const products = [
       <div class={"shirt-stage " + p.className}>
         <div class="stage-badge">Holiday edit</div>
         <div class="shirt-body" role="img" aria-label={"Illustrative T-shirt preview for " + p.name}>
-          <div class="shirt-print" style={"--ink:" + p.ink}>
-            <span class="sparkle" aria-hidden="true">✧ · ✦ · ✧</span>
-            <div class="animal" aria-hidden="true">{p.glyph}</div>
-            <div class="print-name">{p.design}</div>
-            <div class="print-tagline">{p.tagline}</div>
-          </div>
+          <div class="shirt-print"><img src={"/holiday-art/" + p.id + ".svg"} alt={p.name + " original holiday illustration concept"} loading="lazy" /></div>
         </div>
       </div>
       <div class="product-info">
@@ -166,7 +161,7 @@ readCart();render();
 .stage-badge{position:absolute;top:16px;left:15px;background:#fff9ee;color:#a13c36;border:1px solid #ead8ba;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:800}
 .shirt-body{position:relative;width:75%;height:235px;background:#fffdfa;clip-path:polygon(24% 0,37% 0,40% 6%,60% 6%,63% 0,76% 0,100% 21%,85% 37%,80% 29%,80% 100%,20% 100%,20% 29%,15% 37%,0 21%);filter:drop-shadow(0 12px 13px #0002)}
 .gray .shirt-body{background:#e9e9e6}.cream .shirt-body{background:#f8f0e1}
-.shirt-print{position:absolute;top:35px;left:25%;width:50%;text-align:center;color:var(--ink);line-height:1.12}
+.shirt-print{position:absolute;top:18px;left:20%;width:60%;height:188px;display:grid;place-items:center}.shirt-print img{width:100%;max-height:100%;object-fit:contain}
 .sparkle{font-size:9px;color:#bc9c56;white-space:nowrap}.animal{font-size:54px;margin:3px 0}.print-name{font-family:Georgia,serif;font-size:16px;font-weight:800}.print-tagline{font-size:9px;font-weight:750;margin-top:6px}
 .product-info{padding:20px}.product-info h3{font-family:Georgia,serif;font-size:21px;line-height:1.25;margin:8px 0 12px}
 .product-price{font-size:21px;font-weight:850;margin:0 0 17px;color:#a12931}.product-price span{font-size:12px;font-weight:500;color:#7a857a}
