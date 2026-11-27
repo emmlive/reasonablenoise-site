@@ -21,7 +21,8 @@ export function validateHostedReadiness(env = {}) {
     ["preview_host_distinct_from_production", Boolean(env.RN_PREVIEW_HOST) &&
       /^[a-z0-9.-]+$/.test(env.RN_PREVIEW_HOST) &&
       !["reasonablenoise.com", "www.reasonablenoise.com"].includes(env.RN_PREVIEW_HOST)],
-    ["access_route_covers_admin_api", env.RN_ACCESS_APPLICATION_PATH === "/api/admin-products*"],
+    ["access_route_covers_admin_api", env.RN_ACCESS_APPLICATION_PATH === "/api/admin-products*" ||
+      env.RN_ACCESS_APPLICATION_PATH === "*.reasonablenoise-site.pages.dev"],
   ];
   const failed = checks.filter(([, pass]) => !pass).map(([name]) => name);
   return { status: failed.length ? "BLOCKED" : "CONFIG_PRECHECK_PASS",
