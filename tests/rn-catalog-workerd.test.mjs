@@ -19,7 +19,7 @@ async function disposable() {
   const mf = new Miniflare({
     modules: true,
     script: worker,
-    compatibilityDate: "2026-11-27",
+    compatibilityDate: "2026-08-06",
     d1Databases: { RN_CATALOG_DB: "rn-catalog-disposable-test" },
     bindings: {
       RN_CATALOG_ADMIN_ENABLED: "true",
