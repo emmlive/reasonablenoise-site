@@ -19,6 +19,8 @@ on:
       - "tests/rn-pages-preview-d1-candidate.test.mjs"
       - "scripts/rn-catalog-preview-dependency-audit.mjs"
       - "tests/rn-catalog-preview-dependency-audit.test.mjs"
+      - "functions/api/_middleware.js"
+      - "tests/rn-catalog-preview-middleware.test.mjs"
 
 permissions:
   contents: read
@@ -46,6 +48,8 @@ jobs:
         run: node --test tests/rn-pages-preview-d1-candidate.test.mjs
       - name: Preview runtime dependency compatibility contracts (no Cloudflare connection)
         run: node --test tests/rn-catalog-preview-dependency-audit.test.mjs
+      - name: Catalog-only preview middleware contracts (no network)
+        run: node --test tests/rn-catalog-preview-middleware.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
