@@ -100,8 +100,14 @@ test("malformed provider JSON blocks",async()=>{
   denied(await verifyHolidayProviderTestAccount({...good,fetcher:x.fetcher}),
     "invalid_provider_response");
 });
-test("provider mode omitted blocks",async()=>{
+test("real Stripe account shape may omit livemode under sk_test key; still HOLD",async()=>{
   const x=mock({object:"account",id:account});
+  const r=await verifyHolidayProviderTestAccount({...good,fetcher:x.fetcher});
+  denied(r,"test_account_verified_provider_event_still_required");
+  assert.equal(r.status,"hold");
+});
+test("explicit nonboolean livemode is rejected",async()=>{
+  const x=mock({object:"account",id:account,livemode:"false"});
   denied(await verifyHolidayProviderTestAccount({...good,fetcher:x.fetcher}),
     "account_identity_or_mode_mismatch");
 });
