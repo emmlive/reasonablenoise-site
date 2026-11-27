@@ -132,7 +132,7 @@ export async function recordPhysicalProofReview({
   rightsEvidenceId,reviewId,ledger,decision
 }={}) {
   if(!safeIdentity(adminIdentity)||!safeIdentity(reviewerIdentity)||
-     adminIdentity.subject!==reviewerIdentity.subject||
+     adminIdentity.subject===reviewerIdentity.subject||
      !pendingRecord||pendingRecord.status!=="proof_pending"||
      pendingRecord.printReady!==false||
      !AUDIT_REF.test(String(physicalProofId||""))||
