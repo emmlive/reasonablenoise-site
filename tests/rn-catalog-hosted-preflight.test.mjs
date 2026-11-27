@@ -42,3 +42,11 @@ test("Access app and preview route must be explicit", () => {
   assert.equal(validateHostedReadiness({ ...preview, RN_PREVIEW_HOST: "reasonablenoise.com" }).status, "BLOCKED");
   assert.equal(validateHostedReadiness({ ...preview, RN_CATALOG_ADMIN_EMAILS: "" }).status, "BLOCKED");
 });
+
+test("Pages-wide Access destination is accepted only for the exact ReasonableNoise preview domain", () => {
+  const pagesProtected = { ...preview, RN_ACCESS_APPLICATION_PATH: "*.reasonablenoise-site.pages.dev" };
+  assert.equal(validateHostedReadiness(pagesProtected).status, "CONFIG_PRECHECK_PASS");
+  for (const unsafe of ["*.pages.dev", "*.reasonablenoise.com", "*.other-site.pages.dev", "reasonablenoise-site.pages.dev", ""]) {
+    assert.equal(validateHostedReadiness({ ...pagesProtected, RN_ACCESS_APPLICATION_PATH: unsafe }).status, "BLOCKED", unsafe);
+  }
+});
