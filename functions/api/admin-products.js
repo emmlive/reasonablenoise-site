@@ -93,7 +93,7 @@ export async function onRequestPatch(context) {
     `UPDATE rn_catalog_products SET ${sql}, version = version + 1, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now'), updated_by = ? WHERE id = ? AND version = ?`
   ).bind(...entries.map(([,v]) => v), access.actor, id, body.version);
   const audit = context.env.RN_CATALOG_DB.prepare(
-    "INSERT INTO rn_catalog_audit (product_id, actor_email, previous_version, next_version, patch_json) SELECT id, ?, ?, version, ? FROM rn_catalog_products WHERE id = ? AND version = ? AND updated_by = ?"
+    "INSERT INTO rn_catalog_audit (product_id, actor_email, previous_version, next_version, patch_json) SELECT id, ?, ?, version, ? FROM rn_catalog_products WHERE id = ? AND version = ? AND updated_by = ? AND changes() = 1"
   ).bind(access.actor, body.version, JSON.stringify(Object.fromEntries(entries)), id, body.version + 1, access.actor);
   try {
     const results = await context.env.RN_CATALOG_DB.batch([update, audit]);
