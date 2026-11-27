@@ -1,5 +1,6 @@
 ﻿---
 import "../styles/global.css";
+import { PRINT_ARTWORK_CONCEPTS, displayPrintArtworkStatus } from "../lib/print-artwork-catalog.mjs";
 ---
 
 <html lang="en">
@@ -33,6 +34,32 @@ import "../styles/global.css";
           </button>
         </div>
       </header>
+
+      <section id="admin-print-artwork" aria-labelledby="admin-print-artwork-title" class="mt-10 rounded-[2rem] border border-cyan-300/20 bg-white/[0.06] p-5 sm:p-7">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Production artwork · Readiness preview</p>
+            <h2 id="admin-print-artwork-title" class="mt-3 text-3xl font-bold tracking-tight">Print Artwork Library</h2>
+            <p class="mt-3 max-w-3xl text-sm leading-6 text-white/60">Approved production artwork will be organized here by design, version, proof, and print file. These six existing SVGs are concept previews only; none can be downloaded or marked print ready from this dashboard.</p>
+          </div>
+          <span class="rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100">0 approved print files</span>
+        </div>
+        <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {PRINT_ARTWORK_CONCEPTS.map((item) => (
+            <article class="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+              <img src={item.previewPath} alt={item.name + " editorial artwork concept preview, not approved for printing"} width="1200" height="850" loading="lazy" class="aspect-[12/8.5] w-full object-cover"/>
+              <div class="p-4">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/45">{item.collection} · {item.version}</p>
+                <h3 class="mt-2 text-xl font-bold">{item.name}</h3>
+                <p class="mt-2 text-sm text-amber-200">{displayPrintArtworkStatus(item)}</p>
+                <p class="mt-2 text-xs leading-5 text-white/50">Requires owned or licensed artwork, a finalized transparent production file, physical proof, dimensions, checksum, and admin approval.</p>
+                <button type="button" disabled aria-label={"Print file unavailable for " + item.name} class="mt-4 w-full cursor-not-allowed rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/35">Print download locked</button>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p class="mt-5 text-xs leading-5 text-white/50">A new, independently security-tested private R2 approval-and-download API is required before any customer-order artwork can be retrieved from this library. Existing order artwork downloads are not modified.</p>
+      </section>
 
       <section class="mt-10 grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
         <aside class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
