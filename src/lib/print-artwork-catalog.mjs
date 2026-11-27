@@ -22,8 +22,10 @@ export function validApprovedPrintArtwork(record){
      record.printReady!==true ||
      record.rightsConfirmed!==true ||
      record.proofApproved!==true ||
-     record.approverId==null ||
-     record.approvedAt==null ||
+     !/^[a-zA-Z0-9_-]{3,100}$/.test(String(record.approverId||"")) ||
+     typeof record.approvedAt!=="string" ||
+     !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(record.approvedAt) ||
+     !Number.isFinite(Date.parse(record.approvedAt)) ||
      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(record.id||"")) ||
      !/^v[1-9][0-9]*$/.test(String(record.version||"")) ||
      !/^[a-f0-9]{64}$/.test(String(record.sha256||"")) ||
@@ -36,6 +38,9 @@ export function validApprovedPrintArtwork(record){
      typeof record.printFileR2Key!=="string" ||
      !/^print-library\/approved\/[a-z0-9-]+\/v[1-9][0-9]*\/[a-zA-Z0-9_-]+\.(?:png|tiff|pdf)$/.test(record.printFileR2Key) ||
      !record.printFileR2Key.includes("/"+record.id+"/"+record.version+"/")) return false;
+  const ext=record.printFileR2Key.split(".").pop();
+  const mimeByExt={png:"image/png",tiff:"image/tiff",pdf:"application/pdf"};
+  if(mimeByExt[ext]!==record.mimeType)return false;
   return true;
 }
 export function displayPrintArtworkStatus(record){
