@@ -89,14 +89,14 @@ test("real workerd HTTP handler denies missing credentials, forged headers, and 
   const { mf } = await disposable();
   try {
     const url = "https://local-test.invalid/api/admin-products?id=usdot-sticker-pair&token=not-valid-for-catalog";
-    const req = new Request(url, { method:"PATCH", headers: {
+    const requestInit = { method:"PATCH", headers: {
       "cf-access-authenticated-user-email":"admin@example.com",
       "x-admin-order-token":"not-valid-for-catalog",
       "content-type":"application/json",
-    }, body: JSON.stringify({ version:1, name:"Bad edit" }) });
-    const result = await mf.dispatchFetch(req);
+    }, body: JSON.stringify({ version:1, name:"Bad edit" }) };
+    const result = await mf.dispatchFetch(url, requestInit);
     assert.equal(result.status, 401);
-    assert.equal((await mf.dispatchFetch(new Request(url))).status, 401);
+    assert.equal((await mf.dispatchFetch(url)).status, 401);
   } finally { await mf.dispose(); }
 });
 
