@@ -1,0 +1,30 @@
+name: RN Catalog Isolated Gate
+on:
+  push:
+    branches:
+      - feature/rn-product-catalog-stock-management-20261127
+  pull_request:
+    paths:
+      - "functions/api/admin-products.js"
+      - "migrations/0001_rn_catalog.sql"
+      - "tests/rn-catalog-admin.test.mjs"
+      - ".github/workflows/rn-catalog-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Isolated admin security and concurrency contracts
+        run: node --test tests/rn-catalog-admin.test.mjs
+      - name: Astro production build (no deployment)
+        run: npm run build
