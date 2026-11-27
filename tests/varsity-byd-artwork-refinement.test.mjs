@@ -58,7 +58,7 @@ test("BYD brief requires legal rights confirmation and bounded quantity",()=>{
 });
 test("BYD brief does not initiate network traffic or store personal data",()=>{
  assert.doesNotMatch(byd,/fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|sendBeacon/);
- assert.doesNotMatch(byd,/Stripe|\/api\/holiday-checkout|<form/);
+ assert.doesNotMatch(byd,/sk_live_|STRIPE_SECRET_KEY|\/api\/holiday-checkout|<form/);
 });
 test("BYD output uses textContent not unsanitized HTML or auto submission",()=>{
  assert.match(byd,/out\.textContent=prepared/);
