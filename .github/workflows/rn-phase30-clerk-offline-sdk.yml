@@ -1,0 +1,43 @@
+name: RN Phase30 Clerk official SDK deny-only isolated CI
+on:
+  push:
+    branches:
+      - feature/rn-3b1c-phase30-clerk-sdk-offline-ci-20261116
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clerk-offline-deny-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare disposable independent SDK directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/rn-phase30-clerk-sdk"
+          mkdir -p "$root"
+          printf '{"private":true,"name":"rn-phase30-isolated","version":"0.0.0"}\n' > "$root/package.json"
+          echo "RN_CLERK_OFFLINE_ROOT=$root" >> "$GITHUB_ENV"
+      - name: Install exact official SDK in disposable location only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$RN_CLERK_OFFLINE_ROOT" install --ignore-scripts --no-audit --no-fund --save-exact @clerk/backend@3.29.0
+      - name: Execute actual pinned SDK deny-only smoke without provider keys
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test scripts/phase30/real-clerk-sdk-deny-smoke.test.mjs
+      - name: Check site install remains untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- package.json package-lock.json
+          git status --short
