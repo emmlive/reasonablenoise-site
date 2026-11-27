@@ -1,0 +1,43 @@
+name: RN Varsity & BYD — Draft Catalog Safety (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-varsity-byd-catalog-draft-20261127
+  pull_request:
+    paths:
+      - 'src/pages/shirt-designs.astro'
+      - 'src/pages/bring-your-design.astro'
+      - 'src/pages/dtf-shirts.astro'
+      - 'tests/varsity-byd-catalog-draft.test.mjs'
+      - '.github/workflows/rn-varsity-byd-draft.yml'
+permissions:
+  contents: read
+jobs:
+  design-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+      RN_HOLIDAY_PROVIDER_TEST_ENABLED: "false"
+      RN_HOLIDAY_ISOLATED_INGRESS_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Draft no-payment, rights, existing secure BYD quote route
+        run: node --test tests/varsity-byd-catalog-draft.test.mjs
+      - name: Existing holiday, sticker webhook and DTF quote safety
+        run: node --test tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - name: Astro build of concept pages
+        run: npm run build
+      - name: Fail closed on checkout flags and dependency drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          test "$RN_HOLIDAY_PROVIDER_TEST_ENABLED" = false
+          test "$RN_HOLIDAY_ISOLATED_INGRESS_ENABLED" = false
+          git diff --exit-code -- package.json package-lock.json
+          test -z "$(git status --short)"
