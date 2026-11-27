@@ -19,7 +19,7 @@ Cloudflare Pages supports distinct preview and production bindings. The producti
 
 ## Local configuration shape precheck (not hosted validation)
 
-`node scripts/rn-catalog-hosted-preflight.mjs` reads **locally supplied** environment values: `RN_TARGET_ENVIRONMENT=preview`, `RN_CATALOG_ADMIN_ENABLED=false`, `RN_CATALOG_BINDING_NAME=RN_CATALOG_DB`, `RN_PREVIEW_D1_DATABASE_ID`, `RN_PRODUCTION_CATALOG_BINDING_PRESENT=false`, `RN_ACCESS_TEAM_DOMAIN`, `RN_ACCESS_AUD`, `RN_CATALOG_ADMIN_EMAILS`, `RN_PREVIEW_HOST`, and `RN_ACCESS_APPLICATION_PATH=/api/admin-products*`. It prints only PASS/FAIL check names. Use non-secret values in local shell; do **not** paste environment values into chat or GitHub.
+`node scripts/rn-catalog-hosted-preflight.mjs` reads **locally supplied** environment values: `RN_TARGET_ENVIRONMENT=preview`, `RN_CATALOG_ADMIN_ENABLED=false`, `RN_CATALOG_BINDING_NAME=RN_CATALOG_DB`, `RN_PREVIEW_D1_DATABASE_ID`, `RN_PRODUCTION_CATALOG_BINDING_PRESENT=false`, `RN_ACCESS_TEAM_DOMAIN`, `RN_ACCESS_AUD`, `RN_CATALOG_ADMIN_EMAILS`, `RN_PREVIEW_HOST`, and `RN_ACCESS_APPLICATION_PATH=*.reasonablenoise-site.pages.dev` (or `/api/admin-products*` when an explicitly scoped admin app exists). It prints only PASS/FAIL check names. Use non-secret values in local shell; do **not** paste environment values into chat or GitHub.
 
 **Passing this script proves only input shape and isolation declarations.** It never authenticates to Cloudflare and cannot prove the declared IDs or paths exist. The script exits nonzero on incomplete/production-targeted input.
 
@@ -86,3 +86,7 @@ Cloudflare's officially documented read-only configuration export is `npx wrangl
 After inspecting the export, mark `RN_PRODUCTION_CATALOG_BINDING_PRESENT` explicitly `false` in the local preflight only if the effective production binding is absent. Unknown and `true` must BLOCK. The preflight must never require a production catalog D1 database ID.
 
 If the export shows production has the preview D1 binding, stop before migration or flag activation. Follow an isolated configuration remediation after reviewing the full production R2 and other bindings to avoid accidental replacement. Wrangler configuration, if introduced later, becomes the source of truth for Pages deployments; never add an ad-hoc production Wrangler file just to override the one catalog binding.
+
+## Pages-wide Access app already browser-verified
+
+The Cloudflare Pages Preview protection application named `reasonablenoise-site - Cloudflare Pages` covers the destination `*.reasonablenoise-site.pages.dev`; browser Access OTP login and the disabled catalog API route have been observed. The preflight now recognizes this **exact** app destination as satisfying coverage of `/api/admin-products` on a preview deployment, alongside an explicitly path-scoped app. Never treat a generic `*.pages.dev` wildcard or production custom domain as equivalent. The preflight remains an offline shape check and cannot prove the AUD, login identity, or runtime D1 binding. Collect the **Preview Pages Access app's** AUD using Zero Trust → Access controls → Applications → Edit application → Additional settings; never use the production order-admin app's AUD.
