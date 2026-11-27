@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Miniflare } from "miniflare";
 
-const migration = readFileSync(new URL("../migrations/0001_rn_catalog.sql", import.meta.url), "utf8");
+const migration = readFileSync(new URL("../migrations/0001_rn_catalog.sql", import.meta.url), "utf8")
+  .replace(/^\\s*--.*$/gm, "");
 const adminSource = readFileSync(new URL("../functions/api/admin-products.js", import.meta.url), "utf8");
 const worker = adminSource + `
 export default {
