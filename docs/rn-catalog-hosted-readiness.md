@@ -40,3 +40,37 @@ Record **gate name, date, exact GitHub SHA, pass/fail, environment, and redacted
 Successful hosted Access/D1 acceptance would complete the Phase 2 backend infrastructure gate, **not** the finished stock-management feature. Customer storefront rendering, SKU-safe checkout stock enforcement, paid-order regressions and explicit owner release approval remain separate work.
 
 Official references: Cloudflare Pages Functions Bindings (developers.cloudflare.com/pages/functions/bindings/) and Cloudflare Access JWT Validation (developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/).
+
+
+## Safe negative-access probe — available but not yet run against a hosted preview
+
+Once the actual **isolated preview hostname** and the separate Access app are confirmed, run `scripts/rn-catalog-hosted-boundary.mjs` from a trusted machine with these environment settings:
+
+- `RN_TARGET_ENVIRONMENT=preview`
+- `RN_HOSTED_PROBE_APPROVED=read-only`
+- `RN_CATALOG_ADMIN_ENABLED=false`
+- `RN_PREVIEW_HOST`: actual approved isolated preview hostname (without `https://`)
+- `RN_ACCESS_TEAM_DOMAIN`: the approved Access team domain (no credentials)
+
+This performs three credential-free calls to **only** `/api/admin-products`: anonymous GET, forged-header GET, and a PATCH with the deliberately invalid `{"version":0}` body. No valid catalog mutation is sent; it never sends a real token. All requests use manual redirect handling. It blocks production hosts, internal/localhost targets, non-preview mode, missing approval, and enabled admin feature flags. It prints statuses and categorical results only, never response bodies or redirected URLs.
+
+- `NEGATIVE_BOUNDARY_PASS` means all three requests were denied. This is **not** proof of real Access sign-in or D1 binding.
+- `edge_access_redirect_observed=true` means the script observed a redirect to the configured Access team. A 401/403 without such a redirect proves denial only; Cloudflare Access configuration remains unverified.
+- `BLOCKED` includes 200 (unexpected public success), 404 (missing staging route), 503 (unavailable route/binding) and network errors.
+- `BLOCKED_TARGET` means no network requests were sent.
+
+**Never** call this script using the live production hostname, add live tokens to environment variables for the probe, or relax the guard to force a PASS. Only a hosted preview account-side review can establish that the intended D1 database and Access application are actually configured.
+
+## Exact remaining acceptance evidence
+
+| Gate | Required observable proof | Current state |
+| --- | --- | --- |
+| Preview hostname | Confirmed matching Pages preview deployment and exact code SHA | UNVERIFIED |
+| Preview D1 | Dedicated preview binding + database ID confirmed via dashboard, distinct from production | UNVERIFIED |
+| Access policy | Preview route covers GET/PATCH; audience and team domain confirmed | UNVERIFIED |
+| Access negative boundary | Cred-free denial probe against approved preview | NOT RUN |
+| Access positive identity | Real authorized Access sign-in, read and safe write, unauthorized principal denied | NOT RUN |
+| D1 audit | Disposable staged item version, actor audit, stale 409, rollback | NOT RUN |
+| Production invariance | No order/Stripe/production binding changes | No production changes initiated in this gate |
+
+Do not mark these rows PASS solely because local CI reports success.
