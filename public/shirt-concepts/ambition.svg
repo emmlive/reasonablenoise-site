@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">
+<title id="title">AMBITION original collegiate typography concept</title><desc id="desc">An original abstract emblem, collegiate lettering and contrasting decorative lines. Concept only; not production artwork.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#103d42"/><stop offset="1" stop-color="#07101d"/></linearGradient><pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#a7f3d0" opacity=".17"/></pattern><path id="arc" d="M142 362 Q600 222 1058 362"/></defs>
+<rect width="1200" height="850" rx="32" fill="url(#bg)"/><rect width="1200" height="850" rx="32" fill="url(#dots)"/>
+<path d="M76 90H1124V760H76Z" fill="none" stroke="#a7f3d0" opacity=".45" stroke-width="4"/><path d="M101 115H1099V736H101Z" fill="none" stroke="#a7f3d0" opacity=".38" stroke-width="2"/>
+<text x="600" y="170" font-family="Arial,sans-serif" font-size="26" font-weight="800" letter-spacing="10" fill="#a7f3d0" text-anchor="middle">FUTURE IN MOTION</text>
+<g transform="translate(600 355)"><path d="M-65 55L-21-56L12-16 39-76 70 55" fill="none" stroke="#a7f3d0" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M-75 74H75M23-76L39-102 55-76" fill="none" stroke="#a7f3d0" stroke-width="10" stroke-linecap="round"/></g>
+<path d="M228 425H465M735 425H972" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round"/>
+<text x="600" y="580" font-family="Georgia,serif" font-size="144" font-weight="900" letter-spacing="-6" fill="#a7f3d0" stroke="#103d42" stroke-width="2" paint-order="stroke" text-anchor="middle" textLength="970" lengthAdjust="spacingAndGlyphs">AMBITION</text>
+<path d="M242 615H958" stroke="#a7f3d0" stroke-width="6"/><text x="600" y="677" text-anchor="middle" font-size="30" font-family="Arial,sans-serif" letter-spacing="6" font-weight="800" fill="#fff5dc">KEEP GOING · GO FURTHER</text>
+<text x="600" y="724" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="5" fill="#ddd7c8" opacity=".65">REASONABLENOISE · CONCEPT STUDY</text></svg>
