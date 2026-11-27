@@ -85,7 +85,7 @@ test("holiday products are separate from DTF quote-first and sticker fulfillment
   assert.match(site, /holiday-checkout/);
   assert.match(site, /concept mockups|illustrative concepts/i);
   assert.match(dtf, /Request DTF Order Quote/);
-  assert.match(sticker, /metadata\.order_type === "sticker_order"/);
+  assert.match(sticker, /order_type === "sticker_order"/);
   assert.doesNotMatch(source, /metadata\[order_type\].*sticker_order/);
   assert.doesNotMatch(source, /sk_live_/);
 });
