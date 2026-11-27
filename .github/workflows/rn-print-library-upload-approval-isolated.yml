@@ -1,0 +1,45 @@
+name: RN Print Library — Isolated Upload and Proof Review (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-print-library-upload-approval-isolated-20261127
+  pull_request:
+    paths:
+      - 'src/lib/print-library-upload-approval-isolated.mjs'
+      - 'tests/print-library-upload-approval-isolated.test.mjs'
+      - '.github/workflows/rn-print-library-upload-approval-isolated.yml'
+permissions:
+  contents: read
+jobs:
+  isolated-upload-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+      RN_HOLIDAY_PROVIDER_TEST_ENABLED: "false"
+      RN_HOLIDAY_ISOLATED_INGRESS_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Isolated true PNG signature/CRC, immutable R2 mock and proof review tests
+        run: node --test tests/print-library-upload-approval-isolated.test.mjs
+      - name: Inherited cryptographic Access JWT and mock R2 download guard tests
+        run: node --test tests/admin-print-library-secure-core.test.mjs
+      - name: Inherited admin print, artwork and BYD safety contracts
+        run: node --test tests/admin-print-artwork-readiness.test.mjs tests/varsity-byd-artwork-refinement.test.mjs tests/varsity-byd-catalog-draft.test.mjs
+      - name: Existing holiday, USDOT and DTF safety regressions
+        run: node --test tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - name: Astro production build with checkout disabled
+        run: npm run build
+      - name: No production, dependency or checkout drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          test "$RN_HOLIDAY_PROVIDER_TEST_ENABLED" = false
+          test "$RN_HOLIDAY_ISOLATED_INGRESS_ENABLED" = false
+          git diff --exit-code -- package.json package-lock.json
+          test -z "$(git status --short)"
