@@ -1,0 +1,53 @@
+name: RN Holiday 2F — Test Provider Preflight (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-2f-provider-test-preflight-20261127
+  pull_request:
+    paths:
+      - 'src/lib/holiday-provider-test-preflight.mjs'
+      - 'tests/holiday-provider-test-preflight-rn2f.test.mjs'
+      - '.github/workflows/rn-holiday-2f-test-provider-preflight.yml'
+permissions:
+  contents: read
+jobs:
+  preflight-readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+      RN_HOLIDAY_PROVIDER_TEST_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: node --check src/lib/holiday-provider-test-preflight.mjs
+      - name: Fail-closed provider identity and mode contracts
+        run: node --test tests/holiday-provider-test-preflight-rn2f.test.mjs
+      - name: Isolated Miniflare / Workerd test toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/rn-holiday-2f-test"
+          mkdir -p "$root"
+          printf '{"name":"rn-holiday-2f-no-provider","version":"0.0.0","private":true,"type":"module"}\n' > "$root/package.json"
+          echo "RN_MINIFLARE_ROOT=$root" >> "$GITHUB_ENV"
+          npm --prefix "$root" install --no-audit --no-fund --save-exact miniflare@4.20260730.0 esbuild@0.28.2
+      - name: Rerun inherited genuine local Workerd and SQLite acceptance
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/holiday-integrated-workerd-rn2e.test.mjs tests/holiday-real-workerd-d1-rn2d.test.mjs
+          node --experimental-sqlite --test tests/holiday-disposable-ledger-rn2c.test.mjs
+          node --test tests/holiday-stripe-reconciliation-rn2b.test.mjs tests/holiday-payment-decision-rn2a.test.mjs tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - run: npm run build
+      - name: Fail closed on production environment/credential modification
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          test "$RN_HOLIDAY_PROVIDER_TEST_ENABLED" = false
+          git diff --exit-code -- package.json package-lock.json
+          test -z "$(git status --short)"
