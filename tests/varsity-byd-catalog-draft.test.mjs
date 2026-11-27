@@ -17,7 +17,7 @@ test("catalog contains all four user-approved varsity directions",()=>{
 });
 test("catalog is design-preview only, no indexed checkout",()=>{
  assert.match(catalog,/noindex, nofollow/);
- assert.match(catalog,/text-only concept/i);
+ assert.match(catalog,/original scalable SVG concept/i);
  assert.doesNotMatch(catalog,/checkout\.stripe\.com|\/api\/holiday-checkout|\/api\/checkout|<form/);
 });
 test("BYD concept page is noindex and quote-first",()=>{
@@ -53,6 +53,6 @@ test("school/team rights and print proof requirement explicit",()=>{
  assert.match(byd,/print proof/);
 });
 test("no purported use of uploaded images or artificial claims of print readiness",()=>{
- assert.match(catalog,/not final artwork/i);
+ assert.match(catalog,/not a production print file/i);
  assert.match(byd,/review print readiness/i);
 });

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">
+<title id="title">VICTORY original collegiate typography concept</title><desc id="desc">An original abstract emblem, collegiate lettering and contrasting decorative lines. Concept only; not production artwork.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#172b46"/><stop offset="1" stop-color="#07101d"/></linearGradient><pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#f5dfaa" opacity=".17"/></pattern><path id="arc" d="M142 362 Q600 222 1058 362"/></defs>
+<rect width="1200" height="850" rx="32" fill="url(#bg)"/><rect width="1200" height="850" rx="32" fill="url(#dots)"/>
+<path d="M76 90H1124V760H76Z" fill="none" stroke="#f5dfaa" opacity=".45" stroke-width="4"/><path d="M101 115H1099V736H101Z" fill="none" stroke="#f5dfaa" opacity=".38" stroke-width="2"/>
+<text x="600" y="170" font-family="Arial,sans-serif" font-size="26" font-weight="800" letter-spacing="10" fill="#f5dfaa" text-anchor="middle">CHAMPIONSHIP SPIRIT</text>
+<g transform="translate(600 355)"><path d="M-73-42H73V-14Q66 66 0 86Q-66 66-73-14Z" fill="#f5dfaa"/><path d="M-58-28H58V-10Q52 54 0 69Q-52 54-58-10Z" fill="#172b46"/><path d="M0-35L12-7 42-7 19 12 27 42 0 25-27 42-19 12-42-7-12-7Z" fill="#f5dfaa"/></g>
+<path d="M228 425H465M735 425H972" stroke="#f5dfaa" stroke-width="4" stroke-linecap="round"/>
+<text x="600" y="580" font-family="Georgia,serif" font-size="144" font-weight="900" letter-spacing="-6" fill="#f5dfaa" stroke="#172b46" stroke-width="2" paint-order="stroke" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">VICTORY</text>
+<path d="M242 615H958" stroke="#f5dfaa" stroke-width="6"/><text x="600" y="677" text-anchor="middle" font-size="30" font-family="Arial,sans-serif" letter-spacing="6" font-weight="800" fill="#fff5dc">WORK · HEART · HONOR</text>
+<text x="600" y="724" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="5" fill="#ddd7c8" opacity=".65">REASONABLENOISE · CONCEPT STUDY</text></svg>

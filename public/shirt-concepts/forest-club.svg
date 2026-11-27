@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title description"><title id="title">FOREST CLUB original illustrated wordmark concept</title><desc id="description">Original geometric forest, rolling hills, a stylized panda face, and bold lettering. Concept-only digital illustration.</desc>
+<defs><linearGradient id="sky" x1="0" x2="1" y2="1"><stop stop-color="#075c4e"/><stop offset="1" stop-color="#183f72"/></linearGradient><clipPath id="frame"><rect width="1200" height="850" rx="32"/></clipPath></defs><g clip-path="url(#frame)">
+<rect width="1200" height="850" fill="url(#sky)"/><circle cx="965" cy="174" r="92" fill="#ffcb56" opacity=".98"/><path d="M0 430L145 294 299 420 442 223 615 408 767 266 950 462 1102 303 1200 385V850H0Z" fill="#0d2c44" opacity=".76"/>
+<path d="M0 505Q230 340 445 497T910 497T1200 452V850H0Z" fill="#0b5a43"/><path d="M0 628Q240 505 495 647T1200 534V850H0Z" fill="#153a29"/><path d="M0 712Q300 604 545 745T1200 638V850H0Z" fill="#092821"/>
+<path d="M110 565l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/><path d="M220 609l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/><path d="M340 653l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/><path d="M905 565l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/><path d="M1030 609l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/><path d="M1135 653l-45 54h22l-42 51h36v53h18v-53h36l-42-51h22Z" fill="#031f21"/>
+<g transform="translate(600 320)">
+<circle cx="-135" cy="-130" r="81" fill="#112727"/><circle cx="135" cy="-130" r="81" fill="#112727"/><ellipse cy="5" rx="228" ry="191" fill="#fff6df"/>
+<ellipse cx="-92" cy="-19" rx="76" ry="94" transform="rotate(21 -92 -19)" fill="#102421"/><ellipse cx="92" cy="-19" rx="76" ry="94" transform="rotate(-21 92 -19)" fill="#102421"/>
+<circle cx="-80" cy="-13" r="15" fill="white"/><circle cx="80" cy="-13" r="15" fill="white"/>
+<path d="M-35 75Q0 34 35 75Q31 101 0 105Q-31 101-35 75Z" fill="#112727"/><path d="M0 105v21m-43-5q43 37 86 0" fill="none" stroke="#112727" stroke-width="8" stroke-linecap="round"/>
+<path d="M-151 99Q-98 110 -49 102M49 102Q98 110 151 99" stroke="#dfcc9a" stroke-width="5" fill="none"/>
+</g>
+<path d="M88 710Q600 630 1112 710" fill="none" stroke="#ffcb56" stroke-width="16" stroke-linecap="round" opacity=".85"/>
+<text x="600" y="620" text-anchor="middle" font-family="Arial,sans-serif" font-size="112" font-weight="900" fill="#fff6da" stroke="#0b2822" stroke-width="12" paint-order="stroke" textLength="1040" lengthAdjust="spacingAndGlyphs">FOREST CLUB</text>
+<text x="600" y="777" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="700" letter-spacing="9" fill="#fff4cb">THE WILD SIDE OF GOOD</text>
+<text x="600" y="819" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="4" fill="#fff4cb" opacity=".7">ORIGINAL CREATIVE CONCEPT · NOT PRINT PROOF</text>
+</g></svg>

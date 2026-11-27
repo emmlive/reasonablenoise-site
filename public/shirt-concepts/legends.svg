@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">
+<title id="title">LEGENDS original collegiate typography concept</title><desc id="desc">An original abstract emblem, collegiate lettering and contrasting decorative lines. Concept only; not production artwork.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#18342e"/><stop offset="1" stop-color="#07101d"/></linearGradient><pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ead28e" opacity=".17"/></pattern><path id="arc" d="M142 362 Q600 222 1058 362"/></defs>
+<rect width="1200" height="850" rx="32" fill="url(#bg)"/><rect width="1200" height="850" rx="32" fill="url(#dots)"/>
+<path d="M76 90H1124V760H76Z" fill="none" stroke="#ead28e" opacity=".45" stroke-width="4"/><path d="M101 115H1099V736H101Z" fill="none" stroke="#ead28e" opacity=".38" stroke-width="2"/>
+<text x="600" y="170" font-family="Arial,sans-serif" font-size="26" font-weight="800" letter-spacing="10" fill="#ead28e" text-anchor="middle">SENIOR EDITION</text>
+<g transform="translate(600 355)"><path d="M-68 43Q-51-28-22-42L0-82 22-42Q51-28 68 43Q31 17 0 28Q-31 17-68 43Z" fill="#ead28e"/><path d="M0-69V65M-45 7Q0-15 45 7" fill="none" stroke="#18342e" stroke-width="10" stroke-linecap="round"/><path d="M-26 70H26" stroke="#ead28e" stroke-width="9" stroke-linecap="round"/></g>
+<path d="M228 425H465M735 425H972" stroke="#ead28e" stroke-width="4" stroke-linecap="round"/>
+<text x="600" y="580" font-family="Georgia,serif" font-size="144" font-weight="900" letter-spacing="-6" fill="#ead28e" stroke="#18342e" stroke-width="2" paint-order="stroke" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">LEGENDS</text>
+<path d="M242 615H958" stroke="#ead28e" stroke-width="6"/><text x="600" y="677" text-anchor="middle" font-size="30" font-family="Arial,sans-serif" letter-spacing="6" font-weight="800" fill="#fff5dc">MAKE THE MOMENT COUNT</text>
+<text x="600" y="724" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="5" fill="#ddd7c8" opacity=".65">REASONABLENOISE · CONCEPT STUDY</text></svg>

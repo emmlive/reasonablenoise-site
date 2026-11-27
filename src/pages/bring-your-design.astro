@@ -26,5 +26,79 @@ import SiteAnalytics from "../components/SiteAnalytics.astro";
 ["School and team art","Only artwork you own or have permission to reproduce, including mascots and logos."],
 ["Print placement ideas","Front, back, sleeve, or multi-location printing; quote confirmed after review."]
 ].map(([t,d])=><article class="rounded-2xl border border-white/10 bg-white/5 p-5"><h3 class="text-lg font-bold">{t}</h3><p class="mt-2 text-sm leading-6 text-white/60">{d}</p></article>)}</div><p class="mt-6 text-sm text-white/50">The current quote form may disable artwork upload if its security verification is not configured. Text-based quote requests remain available; don't send sensitive documents via public links.</p></div></section>
+<section class="border-t border-white/10 px-5 py-20" aria-labelledby="brief-title">
+<div class="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1fr_1.15fr]">
+<div><p class="text-xs font-bold uppercase tracking-[.25em] text-cyan-300">Helpful before your quote</p><h2 id="brief-title" class="mt-4 text-4xl font-bold tracking-tight">Build a simple print brief.</h2><p class="mt-5 max-w-xl leading-7 text-white/60">Choose your preferences below, then copy the summary into the message field of our existing DTF quote form. This tool runs only in your browser; it does not upload artwork, save details, or submit an order.</p>
+<div class="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[.07] p-5"><h3 class="font-bold text-cyan-100">Artwork preparation checklist</h3><ul class="mt-4 list-inside list-disc space-y-2 text-sm leading-6 text-white/70"><li>Use original artwork or obtain permission for any school, team, character, or brand mark.</li><li>Provide a high-resolution file at the intended print size; transparent background where appropriate.</li><li>Confirm garment color, print placement, and quantity.</li><li>Keep artwork without tiny unreadable text or excessive details; final print proof is required.</li></ul><p class="mt-4 text-xs text-white/50">A checkerboard preview does not prove transparency. We review the actual file before printing.</p></div>
+</div>
+<div class="rounded-[2rem] border border-white/15 bg-white/[.06] p-6 sm:p-8" data-byd-brief>
+<p class="text-xs font-bold uppercase tracking-widest text-white/50">Quick brief · No submission</p>
+<div class="mt-6 grid gap-5 sm:grid-cols-2">
+<label class="grid gap-2"><span class="text-sm font-semibold">Quantity</span><input id="byd-quantity" type="number" min="1" max="500" value="12" inputmode="numeric" class="w-full rounded-xl border border-white/20 bg-[#0f1925] px-4 py-3 text-white outline-none focus:border-cyan-300"/></label>
+<label class="grid gap-2"><span class="text-sm font-semibold">Shirt source</span><select id="byd-source" class="w-full rounded-xl border border-white/20 bg-[#0f1925] px-4 py-3 text-white outline-none focus:border-cyan-300"><option value="ReasonableNoise supplies shirts">ReasonableNoise supplies</option><option value="Customer brings shirts">I bring shirts</option><option value="Not decided">Not decided</option></select></label>
+<label class="grid gap-2"><span class="text-sm font-semibold">Shirt color</span><select id="byd-color" class="w-full rounded-xl border border-white/20 bg-[#0f1925] px-4 py-3 text-white outline-none focus:border-cyan-300"><option>Black</option><option>White</option><option>Heather gray</option><option>Mixed colors</option><option>Other (describe in quote)</option></select></label>
+<label class="grid gap-2"><span class="text-sm font-semibold">Print placement</span><select id="byd-placement" class="w-full rounded-xl border border-white/20 bg-[#0f1925] px-4 py-3 text-white outline-none focus:border-cyan-300"><option>Front</option><option>Back</option><option>Front + back</option><option>Sleeve / other</option><option>Not sure yet</option></select></label>
+</div>
+<label class="mt-6 flex items-start gap-3 text-sm leading-6 text-white/70"><input id="byd-rights" type="checkbox" class="mt-1 h-4 w-4 shrink-0 accent-cyan-300"/><span>I own the artwork or have permission to reproduce it. I understand that school, team and brand marks may require separate approval.</span></label>
+<button id="byd-build-brief" type="button" class="mt-6 w-full rounded-full bg-cyan-300 px-6 py-3 font-bold text-[#07141a] hover:bg-cyan-200">Prepare my quote notes</button>
+<p id="byd-brief-status" class="mt-3 text-sm text-amber-100" role="status" aria-live="polite">No details sent. Artwork review and payment are not started.</p>
+<div class="mt-5 rounded-xl border border-white/15 bg-black/20 p-4"><p class="text-xs font-bold uppercase tracking-widest text-white/45">Copy this into your DTF request</p><pre id="byd-brief-output" class="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-white/70">Your quote notes will appear here after selecting Prepare.</pre></div>
+<button id="byd-copy-brief" type="button" disabled class="mt-4 w-full rounded-full border border-white/25 px-6 py-3 font-semibold text-white hover:border-white disabled:cursor-not-allowed disabled:opacity-40">Copy quote notes</button>
+<a href="/contact?topic=dtf" class="mt-4 block text-center text-sm font-semibold text-cyan-200 underline underline-offset-4">Open protected DTF quote & artwork upload</a>
+</div></div></section>
+<script>
+const briefArea=document.querySelector<HTMLElement>("[data-byd-brief]");
+if(briefArea){
+  const quantity=briefArea.querySelector<HTMLInputElement>("#byd-quantity");
+  const source=briefArea.querySelector<HTMLSelectElement>("#byd-source");
+  const color=briefArea.querySelector<HTMLSelectElement>("#byd-color");
+  const placement=briefArea.querySelector<HTMLSelectElement>("#byd-placement");
+  const rights=briefArea.querySelector<HTMLInputElement>("#byd-rights");
+  const build=briefArea.querySelector<HTMLButtonElement>("#byd-build-brief");
+  const copy=briefArea.querySelector<HTMLButtonElement>("#byd-copy-brief");
+  const out=briefArea.querySelector<HTMLElement>("#byd-brief-output");
+  const status=briefArea.querySelector<HTMLElement>("#byd-brief-status");
+  let prepared="";
+  function resetPrepared(){
+    prepared="";
+    if(copy)copy.disabled=true;
+    if(out)out.textContent="Your quote notes will appear here after selecting Prepare.";
+    if(status)status.textContent="Preferences changed. Prepare the notes again before copying.";
+  }
+  [quantity,source,color,placement,rights].forEach(el=>el?.addEventListener("change",resetPrepared));
+  build?.addEventListener("click",()=>{
+    const n=Number(quantity?.value);
+    if(!Number.isSafeInteger(n)||n<1||n>500){
+      resetPrepared();if(status)status.textContent="Enter a whole-number quantity between 1 and 500.";return;
+    }
+    if(!rights?.checked){
+      resetPrepared();if(status)status.textContent="Please confirm that you own the artwork or have permission to reproduce it.";return;
+    }
+    prepared=[
+      "Bring Your Design (BYD) - DTF quote request",
+      "Quantity: "+n,
+      "Shirt source: "+(source?.value||"Not decided"),
+      "Color: "+(color?.value||"Not decided"),
+      "Placement: "+(placement?.value||"Not decided"),
+      "Artwork rights: Customer confirms ownership or permission",
+      "Artwork: I will attach it through the secure quote form if upload is available",
+      "Please confirm garment size mix, print proof, lead time, and final price before payment."
+    ].join("\n");
+    if(out)out.textContent=prepared;
+    if(copy)copy.disabled=false;
+    if(status)status.textContent="Quote notes prepared locally. Copy them and paste into the DTF message field.";
+  });
+  copy?.addEventListener("click",async()=>{
+    if(!prepared)return;
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error("clipboard unavailable");
+      await navigator.clipboard.writeText(prepared);
+      if(status)status.textContent="Quote notes copied. Paste them into the protected DTF quote form.";
+    }catch{
+      if(status)status.textContent="Clipboard unavailable. Select the prepared text above and copy it manually.";
+    }
+  });
+}
+</script>
 <section class="mx-auto max-w-7xl px-5 py-16 text-center"><h2 class="text-3xl font-bold">Ready to get your design reviewed?</h2><p class="mx-auto mt-4 max-w-xl text-white/60">Start with the existing custom shirt quote process. We won't ask you to pay before reviewing the design and production requirements.</p><a href="/contact?topic=dtf" class="mt-7 inline-block rounded-full bg-white px-7 py-3 font-bold text-[#07141a]">Request BYD Quote</a></section>
 </main><footer class="border-t border-white/10 px-5 py-8 text-center text-sm text-white/45">ReasonableNoise · Custom print requests · <a href="/privacy" class="underline">Privacy</a></footer><SiteAnalytics/></body></html>
