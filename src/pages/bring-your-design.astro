@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
+---
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
+<title>Bring Your Design (BYD) — Custom Shirts | ReasonableNoise</title>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="description" content="Bring your artwork for custom T-shirt printing. Securely request a quote and upload a design after selecting your print options. No payment until review."/>
+<link rel="icon" type="image/png" href="/assets/rn-logo.png"/>
+</head>
+<body class="min-h-screen bg-[#080b12] text-white antialiased">
+<header class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-6"><a href="/" class="flex items-center gap-3 font-semibold"><img src="/assets/rn-logo.png" class="h-12 w-12 object-contain" alt=""/>ReasonableNoise</a><nav aria-label="Shirt printing" class="flex gap-5 text-sm text-white/70"><a href="/shirt-designs">Design collections</a><a href="/dtf-shirts">Printing quotes</a><a href="/">Home</a></nav></header>
+<main>
+<section class="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:grid-cols-2 md:items-center">
+<div><p class="text-xs font-bold uppercase tracking-[.28em] text-cyan-300">BYD / Bring Your Design</p><h1 class="mt-5 text-5xl font-black leading-tight tracking-[-.05em] sm:text-7xl">Your artwork.<br/><span class="text-cyan-300">Your shirt.</span></h1><p class="mt-6 max-w-xl text-lg leading-8 text-white/65">Already have a design? Tell us about your shirt, add your file through our existing protected quote form, and we'll review print readiness before confirming price and production.</p><div class="mt-9 flex flex-wrap gap-3"><a href="/contact?topic=dtf" class="rounded-full bg-cyan-300 px-6 py-3 font-bold text-[#07141a]">Start BYD quote and artwork upload</a><a href="/shirt-designs" class="rounded-full border border-white/20 px-6 py-3 font-semibold">Browse design ideas</a></div><p class="mt-4 text-xs text-white/45">Quote request only. No checkout, charge, instant print authorization or automatic fulfillment.</p></div>
+<div class="rounded-[2rem] border border-cyan-300/20 bg-white/[.05] p-7 sm:p-9"><p class="text-xs font-bold uppercase tracking-widest text-cyan-200">Your design workflow</p><ol class="mt-6 space-y-6">{[
+["01","Share the artwork","Use the secure DTF quote form. Optional upload supports PNG, JPG, WEBP, PDF, SVG, AI, EPS and PSD (up to 15 MB) when security verification is available."],
+["02","Choose your shirt","Tell us quantity, shirt source, size/color preferences, placement, and any deadline."],
+["03","Approve a print proof","We check file quality, rights, garment suitability and print layout before approval."],
+["04","Confirm price before payment","We send a quote for review. Nothing on this page creates a Stripe Checkout Session."]
+].map(([n,title,description])=><li class="flex gap-4"><span class="font-black text-cyan-300">{n}</span><div><h2 class="font-bold">{title}</h2><p class="mt-2 text-sm leading-6 text-white/55">{description}</p></div></li>)}</ol></div>
+</section>
+<section class="border-t border-white/10 bg-[#101923] px-5 py-16"><div class="mx-auto max-w-7xl"><h2 class="text-3xl font-bold">What can I bring?</h2><div class="mt-7 grid gap-4 sm:grid-cols-3">{[
+["Original artwork","Your own illustration, brand mark, lettering or photo."],
+["School and team art","Only artwork you own or have permission to reproduce, including mascots and logos."],
+["Print placement ideas","Front, back, sleeve, or multi-location printing; quote confirmed after review."]
+].map(([t,d])=><article class="rounded-2xl border border-white/10 bg-white/5 p-5"><h3 class="text-lg font-bold">{t}</h3><p class="mt-2 text-sm leading-6 text-white/60">{d}</p></article>)}</div><p class="mt-6 text-sm text-white/50">The current quote form may disable artwork upload if its security verification is not configured. Text-based quote requests remain available; don't send sensitive documents via public links.</p></div></section>
+<section class="mx-auto max-w-7xl px-5 py-16 text-center"><h2 class="text-3xl font-bold">Ready to get your design reviewed?</h2><p class="mx-auto mt-4 max-w-xl text-white/60">Start with the existing custom shirt quote process. We won't ask you to pay before reviewing the design and production requirements.</p><a href="/contact?topic=dtf" class="mt-7 inline-block rounded-full bg-white px-7 py-3 font-bold text-[#07141a]">Request BYD Quote</a></section>
+</main><footer class="border-t border-white/10 px-5 py-8 text-center text-sm text-white/45">ReasonableNoise · Custom print requests · <a href="/privacy" class="underline">Privacy</a></footer><SiteAnalytics/></body></html>
