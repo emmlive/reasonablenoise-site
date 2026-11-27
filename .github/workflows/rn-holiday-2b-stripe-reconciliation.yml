@@ -1,0 +1,34 @@
+name: RN Holiday 2B — Stripe Reconciliation (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-2b-stripe-reconciliation-20261127
+  pull_request:
+    paths:
+      - 'src/lib/holiday-stripe-reconciliation.mjs'
+      - 'tests/holiday-stripe-reconciliation-rn2b.test.mjs'
+      - '.github/workflows/rn-holiday-2b-stripe-reconciliation.yml'
+permissions:
+  contents: read
+jobs:
+  test-reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --check src/lib/holiday-stripe-reconciliation.mjs
+      - run: node --test tests/holiday-stripe-reconciliation-rn2b.test.mjs
+      - run: node --test tests/holiday-payment-decision-rn2a.test.mjs tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - run: npm run build
+      - name: Guarantee no production payment activation
+        run: |
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          ! grep -q 'sk_live_' src/lib/holiday-stripe-reconciliation.mjs
+          ! grep -q 'fulfillmentAuthorized: true' src/lib/holiday-stripe-reconciliation.mjs
