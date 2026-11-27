@@ -1,0 +1,34 @@
+name: RN Holiday 2A — Signed Event Decision (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-2a-payment-decision-gate-20261127
+  pull_request:
+    paths:
+      - 'src/lib/holiday-payment-decision.mjs'
+      - 'tests/holiday-payment-decision-rn2a.test.mjs'
+      - '.github/workflows/rn-holiday-2a-payment-decision.yml'
+permissions:
+  contents: read
+jobs:
+  payment-decision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --check src/lib/holiday-payment-decision.mjs
+      - run: node --test tests/holiday-payment-decision-rn2a.test.mjs
+      - run: node --test tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - run: npm run build
+      - name: Hold release and check untouched live endpoints
+        run: |
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          ! grep -q 'paymentAuthorized: true' src/lib/holiday-payment-decision.mjs
+          ! grep -q 'fulfillmentAuthorized: true' src/lib/holiday-payment-decision.mjs
