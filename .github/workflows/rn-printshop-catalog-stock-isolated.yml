@@ -1,0 +1,48 @@
+name: RN Print Shop — Product Catalog and Availability (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-printshop-catalog-stock-isolated-20261127
+  pull_request:
+    paths:
+      - 'src/lib/printshop-catalog-stock.mjs'
+      - 'src/pages/admin-orders.astro'
+      - 'tests/printshop-catalog-stock-isolated.test.mjs'
+      - '.github/workflows/rn-printshop-catalog-stock-isolated.yml'
+permissions:
+  contents: read
+jobs:
+  catalog-stock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+      RN_HOLIDAY_PROVIDER_TEST_ENABLED: "false"
+      RN_HOLIDAY_ISOLATED_INGRESS_ENABLED: "false"
+      RN_PRINTSHOP_CATALOG_WRITE_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Product catalog edit, availability, optimistic concurrency and checkout preflight
+        run: node --test tests/printshop-catalog-stock-isolated.test.mjs
+      - name: Inherited secure print staging and proof tests
+        run: node --test tests/print-library-upload-approval-isolated.test.mjs tests/admin-print-library-secure-core.test.mjs
+      - name: Inherited admin artwork and BYD contracts
+        run: node --test tests/admin-print-artwork-readiness.test.mjs tests/varsity-byd-artwork-refinement.test.mjs tests/varsity-byd-catalog-draft.test.mjs
+      - name: Existing sticker, DTF and holiday commerce guards
+        run: node --test tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - name: Astro static site build
+        run: npm run build
+      - name: Check no live configuration or dependencies changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RN_PRINTSHOP_CATALOG_WRITE_ENABLED" = false
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          test "$RN_HOLIDAY_PROVIDER_TEST_ENABLED" = false
+          test "$RN_HOLIDAY_ISOLATED_INGRESS_ENABLED" = false
+          git diff --exit-code -- package.json package-lock.json functions/api/create-checkout-session.js
+          test -z "$(git status --short)"
