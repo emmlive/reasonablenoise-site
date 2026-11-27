@@ -13,7 +13,7 @@ test("varsity and creative draft catalog page exists",()=>{
 });
 test("catalog contains all four user-approved varsity directions",()=>{
  for(const label of ["Spirit","Legends","Victory","Ambition"])
-   assert.match(catalog,new RegExp("name:\\""+label+"\\""));
+   assert.ok(catalog.includes('name:"'+label+'"'));
 });
 test("catalog is design-preview only, no indexed checkout",()=>{
  assert.match(catalog,/noindex, nofollow/);
