@@ -19,7 +19,7 @@ Cloudflare Pages supports distinct preview and production bindings. The producti
 
 ## Local configuration shape precheck (not hosted validation)
 
-`node scripts/rn-catalog-hosted-preflight.mjs` reads **locally supplied** environment values: `RN_TARGET_ENVIRONMENT=preview`, `RN_CATALOG_ADMIN_ENABLED=false`, `RN_CATALOG_BINDING_NAME=RN_CATALOG_DB`, `RN_PREVIEW_D1_DATABASE_ID`, `RN_PRODUCTION_D1_DATABASE_ID`, `RN_ACCESS_TEAM_DOMAIN`, `RN_ACCESS_AUD`, `RN_CATALOG_ADMIN_EMAILS`, `RN_PREVIEW_HOST`, and `RN_ACCESS_APPLICATION_PATH=/api/admin-products*`. It prints only PASS/FAIL check names. Use non-secret values in local shell; do **not** paste environment values into chat or GitHub.
+`node scripts/rn-catalog-hosted-preflight.mjs` reads **locally supplied** environment values: `RN_TARGET_ENVIRONMENT=preview`, `RN_CATALOG_ADMIN_ENABLED=false`, `RN_CATALOG_BINDING_NAME=RN_CATALOG_DB`, `RN_PREVIEW_D1_DATABASE_ID`, `RN_PRODUCTION_CATALOG_BINDING_PRESENT=false`, `RN_ACCESS_TEAM_DOMAIN`, `RN_ACCESS_AUD`, `RN_CATALOG_ADMIN_EMAILS`, `RN_PREVIEW_HOST`, and `RN_ACCESS_APPLICATION_PATH=/api/admin-products*`. It prints only PASS/FAIL check names. Use non-secret values in local shell; do **not** paste environment values into chat or GitHub.
 
 **Passing this script proves only input shape and isolation declarations.** It never authenticates to Cloudflare and cannot prove the declared IDs or paths exist. The script exits nonzero on incomplete/production-targeted input.
 
@@ -74,3 +74,15 @@ This performs three credential-free calls to **only** `/api/admin-products`: ano
 | Production invariance | No order/Stripe/production binding changes | No production changes initiated in this gate |
 
 Do not mark these rows PASS solely because local CI reports success.
+
+## Single definitive isolation check (read-only)
+
+**Required evidence:** An authenticated Cloudflare Pages project configuration read showing the effective **production** and **preview** binding sets. The safest result is `env.preview.d1_databases` containing `RN_CATALOG_DB → reasonablenoise-catalog-preview`, and `env.production.d1_databases` containing **no** `RN_CATALOG_DB` binding. The existing production R2 artwork binding must remain unchanged.
+
+The dashboard screenshots so far do not distinguish the environments. Do not treat the shared settings list as proof of preview-only binding, and do not enable any catalog flag while scope is unknown.
+
+Cloudflare's officially documented read-only configuration export is `npx wrangler pages download config reasonablenoise-site` from an authenticated developer workstation. Run it in an **empty temporary working directory**, not at the repository root, so no tracked Wrangler file is overwritten. Review `env.preview`, `env.production`, and any top-level/default `d1_databases`: values at the top level can apply to production. **Do not deploy, commit, or publish the downloaded config**; it may contain values inappropriate for publication. If necessary, report only whether `RN_CATALOG_DB` is present in each effective environment and whether the preview database name matches, without copying IDs or environment-variable values.
+
+After inspecting the export, mark `RN_PRODUCTION_CATALOG_BINDING_PRESENT` explicitly `false` in the local preflight only if the effective production binding is absent. Unknown and `true` must BLOCK. The preflight must never require a production catalog D1 database ID.
+
+If the export shows production has the preview D1 binding, stop before migration or flag activation. Follow an isolated configuration remediation after reviewing the full production R2 and other bindings to avoid accidental replacement. Wrangler configuration, if introduced later, becomes the source of truth for Pages deployments; never add an ad-hoc production Wrangler file just to override the one catalog binding.
