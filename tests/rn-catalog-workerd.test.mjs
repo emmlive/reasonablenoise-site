@@ -3,9 +3,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Miniflare } from "miniflare";
 
+// Miniflare D1 exec expects complete SQL statements on separate lines.
 const migration = readFileSync(new URL("../migrations/0001_rn_catalog.sql", import.meta.url), "utf8")
   .replace(/^\s*--.*$/gm, "")
-  .replace(/^\s*PRAGMA foreign_keys\s*=\s*ON;\s*$/gmi, "");
+  .replace(/^\s*PRAGMA foreign_keys\s*=\s*ON;\s*$/gmi, "")
+  .trim()
+  .split(/(?<=;)\s*\n(?=(?:CREATE|INSERT)\b)/i)
+  .map((statement) => statement.replace(/\s*\n\s*/g, " ").trim())
+  .join("\n");
 const adminSource = readFileSync(new URL("../functions/api/admin-products.js", import.meta.url), "utf8");
 const worker = adminSource + `
 export default {
