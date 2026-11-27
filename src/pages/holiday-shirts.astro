@@ -1,0 +1,182 @@
+---
+import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
+const products = [
+  { id: "reindeer", name: "Season's Greetings Tee", tagline: "Cheer & Light", glyph: "🦌", ink: "#27472b", shirt: "white", design: "Season's Greetings", className: "snow" },
+  { id: "bear", name: "Holiday Cheer Tee", tagline: "A little extra holiday magic", glyph: "🐻‍❄️", ink: "#aa3034", shirt: "cream", design: "Holiday Cheer", className: "cream" },
+  { id: "owl", name: "Holiday Hoots Tee", tagline: "Winter Wishes", glyph: "🦉", ink: "#28523c", shirt: "heather-gray", design: "Holiday Hoots", className: "gray" },
+  { id: "gingerbread", name: "Ginger Snap Tee", tagline: "Holiday Cheer", glyph: "🍪", ink: "#99572c", shirt: "cream", design: "Ginger Snap", className: "cream" },
+];
+---
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width" />
+<title>Holiday T-Shirt Collection | ReasonableNoise</title>
+<meta name="description" content="Explore four festive seasonal T-shirt designs from ReasonableNoise. Choose your preferred size and color. Seasonal shop preview." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+<link rel="canonical" href="https://reasonablenoise.com/holiday-shirts/" />
+</head>
+<body class="holiday-body">
+<header class="holiday-header">
+  <a class="brand" href="/"><img src="/assets/rn-logo.png" alt="" /><span>ReasonableNoise<span class="brand-dot">.</span></span></a>
+  <nav aria-label="Holiday shop navigation"><a href="/">Home</a><a href="#collection">Holiday collection</a><a href="/dtf-shirts">Custom shirt quotes</a></nav>
+  <a href="#cart" class="cart-link">View cart <span id="cart-count" aria-live="polite">0</span></a>
+</header>
+<main>
+<section class="holiday-hero">
+  <div class="holiday-sparkles" aria-hidden="true">✦ &nbsp; ❄ &nbsp; ✦</div>
+  <p class="eyebrow">ReasonableNoise · Holiday Capsule Collection</p>
+  <h1>Little moments.<br /><em>Big holiday cheer.</em></h1>
+  <p class="hero-sub">Four playful designs made for cozy mornings, family photos and thoughtful gifting.</p>
+  <a href="#collection" class="primary-cta">Explore the collection <span aria-hidden="true">↘</span></a>
+  <p class="fineprint">Seasonal shop preview · Product imagery shown as illustrative concepts. Final print artwork and fulfillment details require approval.</p>
+</section>
+<section class="holiday-content" id="collection">
+  <div class="collection-heading"><div><p class="eyebrow">The collection / 2026</p><h2>Choose your holiday favorite</h2></div><p>Thoughtfully playful. Easy to gift. <strong>$24 per tee</strong> before shipping and applicable tax.</p></div>
+  <div class="product-grid">
+  {products.map((p) => (
+    <article class="product-card">
+      <div class={"shirt-stage " + p.className}>
+        <div class="stage-badge">Holiday edit</div>
+        <div class="shirt-body" role="img" aria-label={"Illustrative T-shirt preview for " + p.name}>
+          <div class="shirt-print"><img src={"/holiday-art/" + p.id + ".svg"} alt={p.name + " original holiday illustration concept"} loading="lazy" /></div>
+        </div>
+      </div>
+      <div class="product-info">
+        <p class="eyebrow">Limited seasonal design</p>
+        <h3>{p.name}</h3>
+        <p class="product-price">$24.00 <span>/ each</span></p>
+        <div class="product-options">
+          <label>Size<select aria-label={"Size for " + p.name} data-size={p.id}><option value="S">S</option><option value="M" selected>M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option></select></label>
+          <label>Color<select aria-label={"Color for " + p.name} data-color={p.id}>
+            <option value={p.shirt}>{p.shirt.replaceAll("-", " ")}</option>
+            {["white","cream","heather-gray"].filter(c => c !== p.shirt).map(c => <option value={c}>{c.replaceAll("-", " ")}</option>)}
+          </select></label>
+        </div>
+        <button type="button" class="add-button" data-add={p.id}>Add to bag <span aria-hidden="true">＋</span></button>
+      </div>
+    </article>
+  ))}
+  </div>
+</section>
+<section class="cart-section" id="cart" aria-labelledby="cart-title">
+  <div class="cart-panel">
+    <p class="eyebrow">Your picks</p><h2 id="cart-title">Holiday shopping bag</h2>
+    <div id="cart-items" class="cart-items" aria-live="polite"><p>Your bag is empty.</p></div>
+    <div class="cart-total"><span>Subtotal <small>Excludes shipping and applicable tax</small></span><strong id="cart-subtotal">$0.00</strong></div>
+    <button type="button" id="holiday-checkout" class="primary-cta checkout-button" disabled>Continue to secure checkout</button>
+    <p class="checkout-note" id="checkout-status" role="status">Checkout is currently in a controlled test phase. No live payments are accepted here.</p>
+  </div>
+  <div class="note-panel"><span class="note-star">✳</span><h3>A seasonal little shop, built with care.</h3><p>These are concept mockups, not final production proofs. Before taking customer payments, we'll confirm print-ready artwork, shirt stock, fulfillment and the payment-to-order workflow.</p><a href="/contact">Ask us a question ↗</a></div>
+</section>
+</main>
+<footer class="holiday-footer"><a href="/">ReasonableNoise</a><span>Festive by design. Built for real life.</span><a href="/terms">Terms</a><a href="/privacy">Privacy</a></footer>
+<SiteAnalytics />
+<script>
+type CartItem = {id:string;size:string;color:string;quantity:number};
+const catalog = new Set(["reindeer","bear","owl","gingerbread"]);
+const sizes = new Set(["S","M","L","XL","2XL"]);
+const colors = new Set(["white","cream","heather-gray"]);
+const productNames:Record<string,string> = {
+ reindeer:"Season's Greetings Tee", bear:"Holiday Cheer Tee",
+ owl:"Holiday Hoots Tee", gingerbread:"Ginger Snap Tee"
+};
+const input = document.getElementById("cart-items");
+const checkout = document.getElementById("holiday-checkout") as HTMLButtonElement;
+const status = document.getElementById("checkout-status");
+const count = document.getElementById("cart-count");
+const subtotal = document.getElementById("cart-subtotal");
+let cart:CartItem[]=[];
+function valid(item:any):item is CartItem {return item && catalog.has(item.id)&&sizes.has(item.size)&&colors.has(item.color)&&Number.isInteger(item.quantity)&&item.quantity>0&&item.quantity<=12;}
+function readCart(){try{const raw=JSON.parse(localStorage.getItem("rn-holiday-cart-v1")||"[]");cart=Array.isArray(raw)?raw.filter(valid).slice(0,12):[];if(cart.reduce((n,x)=>n+x.quantity,0)>12)cart=[];}catch{cart=[];}}
+function save(){try{localStorage.setItem("rn-holiday-cart-v1",JSON.stringify(cart));}catch{}}
+function render(){
+ if(!input||!checkout||!count||!subtotal)return;
+ input.replaceChildren();
+ const total=cart.reduce((n,x)=>n+x.quantity,0);
+ if(!cart.length){const p=document.createElement("p");p.textContent="Your bag is empty. Add a holiday tee to get started.";input.append(p);}
+ cart.forEach((item,index)=>{
+  const row=document.createElement("div");row.className="cart-item";
+  const label=document.createElement("span");label.textContent=productNames[item.id]+" · "+item.size+" / "+item.color.replaceAll("-"," ")+" · Qty "+item.quantity;
+  const remove=document.createElement("button");remove.type="button";remove.textContent="Remove";remove.setAttribute("aria-label","Remove "+productNames[item.id]);remove.addEventListener("click",()=>{cart.splice(index,1);save();render();});
+  row.append(label,remove);input.append(row);
+ });
+ count.textContent=String(total);
+ subtotal.textContent="$"+(total*24).toFixed(2);
+ checkout.disabled=total===0;
+}
+document.querySelectorAll<HTMLButtonElement>("[data-add]").forEach(button=>button.addEventListener("click",()=>{
+ const id=button.dataset.add||"";if(!catalog.has(id))return;
+ const size=(document.querySelector(`[data-size="${id}"]`) as HTMLSelectElement)?.value||"";
+ const color=(document.querySelector(`[data-color="${id}"]`) as HTMLSelectElement)?.value||"";
+ if(!sizes.has(size)||!colors.has(color))return;
+ const total=cart.reduce((n,x)=>n+x.quantity,0);
+ if(total>=12){if(status)status.textContent="Maximum 12 shirts per test order.";return;}
+ const existing=cart.find(x=>x.id===id&&x.size===size&&x.color===color);
+ if(existing)existing.quantity++;else cart.push({id,size,color,quantity:1});
+ save();render();button.textContent="Added ✓";setTimeout(()=>{button.textContent="Add to bag ＋";},1300);
+}));
+checkout?.addEventListener("click",async()=>{
+ if(!cart.length||!status)return;checkout.disabled=true;status.textContent="Starting secure checkout…";
+ try{
+  const res=await fetch("/api/holiday-checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({items:cart})});
+  const data=await res.json();
+  if(!res.ok)throw new Error(String(data.error||"Checkout is unavailable."));
+  if(typeof data.url!=="string"||!data.url.startsWith("https://checkout.stripe.com/"))throw new Error("Invalid payment destination.");
+  window.location.assign(data.url);
+ }catch(error){status.textContent=error instanceof Error?error.message:"Checkout is unavailable.";checkout.disabled=false;}
+});
+readCart();render();
+</script>
+<style>
+:global(html){scroll-behavior:smooth}
+.holiday-body{margin:0;background:#fcfaf5;color:#1b3024;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.holiday-header{max-width:1300px;margin:auto;padding:18px 30px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;color:#17271b;text-decoration:none;font-size:24px;font-weight:850;letter-spacing:-1.4px}
+.brand img{height:44px;width:44px;object-fit:contain;background:#151515;border-radius:12px}
+.brand-dot{color:#aa252b}
+.holiday-header nav{display:flex;gap:28px}.holiday-header nav a,.cart-link{color:#324e3c;font-size:13px;font-weight:650;text-decoration:none}
+.cart-link{padding:11px 18px;border:1px solid #d9d7ca;border-radius:30px;white-space:nowrap}
+.cart-link span{background:#a52a30;color:white;padding:2px 7px;border-radius:99px;margin-left:7px}
+.holiday-hero{text-align:center;min-height:455px;padding:75px 20px 65px;background:radial-gradient(circle at 13% 18%,#e2ead6 0,transparent 25%),radial-gradient(circle at 88% 30%,#f2dfcb 0,transparent 25%),linear-gradient(160deg,#fffaf0,#f8f1e7 58%,#f8f9f1);border-top:1px solid #e7e8da;border-bottom:1px solid #e4dfd3}
+.holiday-sparkles{font-size:30px;color:#b69242;letter-spacing:14px}
+.eyebrow{color:#9f3a35;font-size:11px;font-weight:850;letter-spacing:2.2px;text-transform:uppercase}
+.holiday-hero .eyebrow{margin:18px auto}
+.holiday-hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(43px,6vw,86px);font-weight:600;line-height:1.09;letter-spacing:-2px;margin:10px 0}
+.holiday-hero h1 em{color:#aa3334;font-weight:normal}
+.hero-sub{font-size:17px;color:#5c675c;max-width:510px;margin:22px auto 29px;line-height:1.6}
+.primary-cta{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding:15px 27px;border:0;border-radius:999px;background:#a92b34;color:white;font-size:14px;font-weight:800;text-decoration:none;cursor:pointer}
+.primary-cta:hover{background:#7d1d25}.primary-cta:disabled{opacity:.5;cursor:not-allowed}
+.fineprint{font-size:11px;color:#777f71;max-width:620px;margin:22px auto 0}
+.holiday-content{max-width:1300px;margin:0 auto;padding:75px 30px}
+.collection-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:30px}
+.collection-heading h2,.cart-panel h2{font-family:Georgia,serif;font-size:clamp(28px,3.2vw,44px);margin:8px 0 0;font-weight:550}
+.collection-heading>p{max-width:320px;line-height:1.6;color:#677268;font-size:13px}
+.product-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.product-card{background:white;border:1px solid #e9e5d9;border-radius:20px;overflow:hidden;box-shadow:0 8px 25px #1d2f1b0b}
+.shirt-stage{position:relative;display:flex;justify-content:center;align-items:center;height:340px;padding:25px;background:radial-gradient(circle at 50% 40%,#ffffffdd,transparent 70%),#e8e8e3}
+.shirt-stage.cream{background:radial-gradient(circle,#fffdf7,transparent 70%),#ede5d7}
+.shirt-stage.gray{background:radial-gradient(circle,#fff,transparent 70%),#e0e1df}
+.stage-badge{position:absolute;top:16px;left:15px;background:#fff9ee;color:#a13c36;border:1px solid #ead8ba;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:800}
+.shirt-body{position:relative;width:75%;height:235px;background:#fffdfa;clip-path:polygon(24% 0,37% 0,40% 6%,60% 6%,63% 0,76% 0,100% 21%,85% 37%,80% 29%,80% 100%,20% 100%,20% 29%,15% 37%,0 21%);filter:drop-shadow(0 12px 13px #0002)}
+.gray .shirt-body{background:#e9e9e6}.cream .shirt-body{background:#f8f0e1}
+.shirt-print{position:absolute;top:18px;left:20%;width:60%;height:188px;display:grid;place-items:center}.shirt-print img{width:100%;max-height:100%;object-fit:contain}
+.sparkle{font-size:9px;color:#bc9c56;white-space:nowrap}.animal{font-size:54px;margin:3px 0}.print-name{font-family:Georgia,serif;font-size:16px;font-weight:800}.print-tagline{font-size:9px;font-weight:750;margin-top:6px}
+.product-info{padding:20px}.product-info h3{font-family:Georgia,serif;font-size:21px;line-height:1.25;margin:8px 0 12px}
+.product-price{font-size:21px;font-weight:850;margin:0 0 17px;color:#a12931}.product-price span{font-size:12px;font-weight:500;color:#7a857a}
+.product-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.product-options label{font-size:11px;font-weight:850;color:#536455;display:block}
+.product-options select{margin-top:6px;display:block;width:100%;padding:9px;border:1px solid #dddcd0;border-radius:9px;background:#fffdf7;color:#1b3024}
+.add-button{width:100%;padding:13px;margin-top:18px;background:#1f3e2e;color:white;border:none;border-radius:10px;font-size:13px;font-weight:850;cursor:pointer;display:flex;justify-content:center;gap:14px}
+.add-button:hover{background:#2f6245}
+.cart-section{max-width:1300px;margin:0 auto;padding:0 30px 90px;display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
+.cart-panel,.note-panel{padding:34px;border:1px solid #e6e2d8;border-radius:22px;background:#fff}
+.cart-items{margin-top:25px;color:#5d6a5e;font-size:13px;min-height:60px}.cart-item{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #eee}.cart-item button{color:#a12a32;border:0;background:transparent;cursor:pointer;font-weight:700}
+.cart-total{display:flex;justify-content:space-between;gap:15px;align-items:center;border-top:1px solid #e6e2d8;padding:20px 0;margin-top:22px;font-weight:800}.cart-total small{display:block;color:#859083;font-size:11px;font-weight:400;margin-top:6px}
+.checkout-button{width:100%}.checkout-note{font-size:12px;color:#778071;line-height:1.5}
+.note-panel{background:#233c2b;color:#fff}.note-star{color:#d4bc78;font-size:40px}.note-panel h3{font-family:Georgia,serif;font-size:28px;font-weight:500}.note-panel p{color:#cedacb;font-size:14px;line-height:1.8}.note-panel a{color:#e1cb89}
+.holiday-footer{padding:28px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;background:#192d20;color:#cbd8c8;font-size:12px}.holiday-footer a{color:white;text-decoration:none}
+@media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.holiday-header{padding:15px;flex-wrap:wrap}.holiday-header nav{width:100%;justify-content:center;order:3;gap:15px}.holiday-header nav a{font-size:11px}.brand{font-size:19px}.holiday-hero{padding:58px 17px}.collection-heading{display:block}.holiday-content{padding:50px 15px}.product-grid{grid-template-columns:1fr}.shirt-stage{height:340px}.cart-section{grid-template-columns:1fr;padding:0 15px 55px}.cart-panel,.note-panel{padding:22px}}
+</style>
+</body></html>

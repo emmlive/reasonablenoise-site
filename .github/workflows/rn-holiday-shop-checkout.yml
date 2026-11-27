@@ -1,0 +1,35 @@
+name: RN Holiday Shop — Isolated Tests (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-shop-checkout-isolated-20261127
+  pull_request:
+    paths:
+      - 'src/pages/holiday-shirts.astro'
+      - 'src/pages/holiday-order-return.astro'
+      - 'functions/api/holiday-checkout.js'
+      - 'tests/holiday-shop-checkout-isolation.test.mjs'
+      - '.github/workflows/rn-holiday-shop-checkout.yml'
+permissions:
+  contents: read
+jobs:
+  holiday-shop-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --check functions/api/holiday-checkout.js
+      - run: node --test tests/holiday-shop-checkout-isolation.test.mjs
+      - run: node --test tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - run: npm run build
+      - name: Assert no deploy or production checkout activation
+        run: |
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          ! grep -q 'sk_live_' functions/api/holiday-checkout.js
