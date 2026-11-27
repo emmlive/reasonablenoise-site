@@ -36,7 +36,7 @@ function parseSignature(header) {
 export async function verifyHolidayStripeEvent({ rawBody, stripeSignature, secret, nowSeconds }) {
   // No production key material, request objects or arbitrary JSON are trusted.
   if (typeof rawBody !== "string" || rawBody.length > 128000 || !rawBody ||
-      typeof secret !== "string" || !/^whsec_[A-Za-z0-9]{8,}$/.test(secret) ||
+      typeof secret !== "string" || !/^whsec_[A-Za-z0-9_-]{8,}$/.test(secret) ||
       !Number.isSafeInteger(nowSeconds)) return { status: "blocked", reason: "invalid_input" };
   const { timestamp, signatures } = parseSignature(stripeSignature);
   if (!Number.isSafeInteger(timestamp) || !signatures.length ||
