@@ -7,7 +7,7 @@ const preview = {
   RN_CATALOG_ADMIN_ENABLED: "false",
   RN_CATALOG_BINDING_NAME: "RN_CATALOG_DB",
   RN_PREVIEW_D1_DATABASE_ID: "68fbc4e1-1312-4ab3-a241-77a4c815f100",
-  RN_PRODUCTION_D1_DATABASE_ID: "04cc5769-66c8-4eab-9246-6724b33729a9",
+  RN_PRODUCTION_CATALOG_BINDING_PRESENT: "false",
   RN_ACCESS_TEAM_DOMAIN: "rn-acceptance.cloudflareaccess.com",
   RN_ACCESS_AUD: "example-acceptance-aud-tag",
   RN_CATALOG_ADMIN_EMAILS: "operator@example.com",
@@ -28,9 +28,11 @@ test("production target or enabled catalog blocks", () => {
   assert.equal(validateHostedReadiness({ ...preview, RN_CATALOG_ADMIN_ENABLED: "true" }).status, "BLOCKED");
 });
 
-test("missing or reused D1 binding blocks", () => {
+test("missing preview binding or present/unknown production catalog binding blocks", () => {
   assert.equal(validateHostedReadiness({ ...preview, RN_CATALOG_BINDING_NAME: "ARTWORK_BUCKET" }).status, "BLOCKED");
-  assert.equal(validateHostedReadiness({ ...preview, RN_PREVIEW_D1_DATABASE_ID: preview.RN_PRODUCTION_D1_DATABASE_ID }).status, "BLOCKED");
+  assert.equal(validateHostedReadiness({ ...preview, RN_PRODUCTION_CATALOG_BINDING_PRESENT: "true" }).status, "BLOCKED");
+  assert.equal(validateHostedReadiness({ ...preview, RN_PRODUCTION_CATALOG_BINDING_PRESENT: "" }).status, "BLOCKED");
+  assert.equal(validateHostedReadiness({ ...preview, RN_PRODUCTION_CATALOG_BINDING_PRESENT: undefined }).status, "BLOCKED");
   assert.equal(validateHostedReadiness({ ...preview, RN_PREVIEW_D1_DATABASE_ID: "invalid" }).status, "BLOCKED");
 });
 
