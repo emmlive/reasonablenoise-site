@@ -1,0 +1,53 @@
+name: RN Holiday 2D — Real Disposable Workerd D1 (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-2d-real-workerd-d1-20261127
+  pull_request:
+    paths:
+      - 'tests/holiday-real-workerd-d1-rn2d.test.mjs'
+      - '.github/workflows/rn-holiday-2d-workerd-d1.yml'
+      - 'src/lib/holiday-review-ledger.mjs'
+      - 'migrations/holiday-disposable/0001_review_ledger.sql'
+permissions:
+  contents: read
+jobs:
+  actual-disposable-d1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Prepare independent Miniflare root (outside website dependencies)
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/rn-holiday-2d-workerd"
+          mkdir -p "$root"
+          printf '{"name":"rn-holiday-2d-disposable","version":"0.0.0","private":true,"type":"module"}\n' > "$root/package.json"
+          echo "RN_MINIFLARE_ROOT=$root" >> "$GITHUB_ENV"
+      - name: Install pinned real Miniflare/Workerd
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix "$RN_MINIFLARE_ROOT" install --no-audit --no-fund --save-exact miniflare@4.20260730.0
+      - name: Execute actual Workerd + disposable D1 migrations/replay/rollback/restart
+        run: node --test tests/holiday-real-workerd-d1-rn2d.test.mjs
+      - name: Inherited in-memory SQLite and commerce regressions
+        run: |
+          node --experimental-sqlite --test tests/holiday-disposable-ledger-rn2c.test.mjs
+          node --test tests/holiday-stripe-reconciliation-rn2b.test.mjs tests/holiday-payment-decision-rn2a.test.mjs tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - name: Static website build
+        run: npm run build
+      - name: Assert no production checkout or dependency mutations
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          git diff --exit-code -- package.json package-lock.json
+          test -z "$(git status --short)"
