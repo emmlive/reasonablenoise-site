@@ -8,6 +8,7 @@ on:
       - "functions/api/admin-products.js"
       - "migrations/0001_rn_catalog.sql"
       - "tests/rn-catalog-admin.test.mjs"
+      - "tests/rn-catalog-workerd.test.mjs"
       - "tests/test_rn_catalog_migration.py"
       - ".github/workflows/rn-catalog-gate.yml"
 
@@ -29,5 +30,9 @@ jobs:
         run: node --test tests/rn-catalog-admin.test.mjs
       - name: Disposable SQLite migration and audit checks
         run: python3 -m unittest discover -s tests -p "test_rn_catalog_migration.py" -v
+      - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
+        run: npm install --no-save --package-lock=false miniflare@4
+      - name: Real workerd D1 batch, rollback, HTTP authorization smoke
+        run: node --test tests/rn-catalog-workerd.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
