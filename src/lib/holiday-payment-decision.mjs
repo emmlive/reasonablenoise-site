@@ -50,7 +50,7 @@ export async function verifyHolidayStripeEvent({ rawBody, stripeSignature, secre
   let event;
   try { event = JSON.parse(rawBody); } catch { return { status: "blocked", reason: "invalid_json" }; }
   if (!event || typeof event !== "object" || Array.isArray(event) ||
-      !EVENT_ID.test(String(event.id || "")) || !/^202[0-9]-[0-9]{2}-[0-9]{2}$/.test("2026-11-27")) {
+      !EVENT_ID.test(String(event.id || ""))) {
     return { status: "blocked", reason: "invalid_event" };
   }
   if (event.livemode !== false || !RECOGNIZED.has(event.type)) {
