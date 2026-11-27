@@ -53,3 +53,17 @@ Actual source inspection at PR #71's candidate branch found **10 Pages Functions
 Safe path forward: build a separate catalog-only Preview deployment/route isolation plan that does not activate legacy functions, or prepare a complete Preview configuration with isolated bindings and placeholder/disabled payment/contact dependencies. Review total Preview impact and Cloudflare source-of-truth/rollback implications **before deployment**. Do not try to make the compatibility checker green by placing live Stripe, Resend, or production R2 credentials into Preview.
 
 A new set of dependency-contract tests should run in CI. Until Preview is demonstrably safe for unrelated routes and Access config is present, **no activation, migrations, writes, or production changes**.
+
+
+## Catalog-only Pages Preview API boundary (branch candidate; not deployed)
+
+A new `functions/api/_middleware.js` scopes to `/api` on this candidate branch only. Cloudflare's official Pages middleware specification confirms that `functions/api/_middleware.js` wraps API route handlers in the directory and nested directories, without wrapping static pages.
+
+- For Pages Preview hosts under `*.reasonablenoise-site.pages.dev`, **only** `GET /api/admin-products` and `PATCH /api/admin-products` can call their handler. Both still require the endpoint's independent feature-flag, D1, and signed Cloudflare Access JWT validation; current flag is OFF.
+- All nine other API routes (including Stripe checkout, Stripe webhook, artwork uploads, contact email, order admin/update and tracking) return HTTP 403 with `Cache-Control: no-store` **before** executing any handler, regardless of method, headers, or credentials.
+- Known Production hostnames (`reasonablenoise.com`, `www.reasonablenoise.com`, `reasonablenoise-site.pages.dev`) are explicit pass-through; local loopback development is pass-through. Unknown/other hostnames are denied.
+- This is a defense-in-depth gate for the intended branch. It does **not** isolate all existing Pages Preview deployments or prove that Cloudflare Access/JWT authentication is configured in the actual hosted environment.
+- The branch push may trigger automatic **Preview** deployment because the existing Pages project has Git integration. We did not manually deploy, alter production, enable D1, apply SQL, or approve catalog writes. Hosted confirmation is required before any release claim.
+- Once the middleware is proven on a Preview deployment, the intended hosted acceptance includes an authenticated user loading a disabled catalog route plus a denied legacy route, with no live transactions performed. Do not call webhooks or payment endpoints with authentic provider payloads; a negative request is sufficient, and Access may intercept unauthenticated requests before the middleware.
+
+**Outstanding:** Complete, reviewed Preview environment configuration (dedicated D1; Access team/AUD/email allowlist; admin switch OFF) and a preapproved rollback. The local candidate's Preview D1 block has not been deployed. Production release remains HOLD.
