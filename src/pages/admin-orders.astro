@@ -1,6 +1,7 @@
 ﻿---
 import "../styles/global.css";
 import { PRINT_ARTWORK_CONCEPTS, displayPrintArtworkStatus } from "../lib/print-artwork-catalog.mjs";
+import { PRINTSHOP_PRODUCTS } from "../lib/printshop-catalog-stock.mjs";
 ---
 
 <html lang="en">
@@ -34,6 +35,31 @@ import { PRINT_ARTWORK_CONCEPTS, displayPrintArtworkStatus } from "../lib/print-
           </button>
         </div>
       </header>
+
+
+      <section id="admin-product-catalog" aria-labelledby="catalog-heading" class="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
+        <p class="text-xs uppercase tracking-widest text-cyan-300">Print shop · Draft-only preview</p>
+        <h2 id="catalog-heading" class="mt-3 text-3xl font-bold">Products &amp; Availability</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-6 text-white/60">Local-only stock-control preview. No edits are saved, no inventory endpoint is connected, and the live storefront or customer checkout cannot change here.</p>
+        <p class="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm font-semibold text-amber-100">DRAFT · 0 live availability records · Production checkout unchanged</p>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {PRINTSHOP_PRODUCTS.map((item) => (
+            <article class="rounded-2xl border border-white/10 bg-black/25 p-4">
+              <p class="text-xs uppercase tracking-widest text-white/40">{item.category} · {item.salesMode.replaceAll("_", " ")}</p>
+              <h3 class="mt-2 text-base font-bold">{item.name}</h3>
+              <label class="mt-4 block text-xs text-white/60" for={"local-stock-"+item.id}>Local availability preview only</label>
+              <select data-local-stock-preview id={"local-stock-"+item.id} class="mt-2 w-full rounded-xl border border-white/15 bg-[#171923] p-2 text-sm text-white">
+                <option value="unconfigured">Not configured</option>
+                <option value="available">Available</option>
+                <option value="out_of_stock">Out of stock</option>
+                <option value="paused">Paused</option>
+              </select>
+              <p class="mt-2 text-xs text-white/40">No Save control. Not a live inventory update.</p>
+            </article>
+          ))}
+        </div>
+        <p class="mt-5 text-xs text-white/45">Real stock changes will require signed admin authorization, transaction-safe revision checks and server-side checkout protection. Existing paid orders remain unchanged.</p>
+      </section>
 
       <section id="admin-print-artwork" aria-labelledby="admin-print-artwork-title" class="mt-10 rounded-[2rem] border border-cyan-300/20 bg-white/[0.06] p-5 sm:p-7">
         <div class="flex flex-wrap items-start justify-between gap-4">
