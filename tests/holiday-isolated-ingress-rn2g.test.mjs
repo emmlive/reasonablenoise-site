@@ -41,7 +41,7 @@ const bundle=await build({entryPoints:[resolve("src/lib/holiday-isolated-ingress
   bundle:true,write:false,platform:"browser",format:"esm",target:"es2022",
   logLevel:"silent"});
 const worker=bundle.outputFiles[0].text+"\n"+[
-  "const SESSION="+JSON.stringify(session)+";",
+  "const MOCK_PROVIDER_SESSION="+JSON.stringify(session)+";",
   "const LINES="+JSON.stringify(lines)+";",
   "export default {async fetch(request,env){",
   "  const meta=await request.headers.get('x-isolated-test-case');",
@@ -51,7 +51,7 @@ const worker=bundle.outputFiles[0].text+"\n"+[
   "    if(init.method!=='GET'||init.headers.authorization!=='Bearer sk_test_isolated2g012345')",
   "      return new Response('{}',{status:403});",
   "    if(url==='https://api.stripe.com/v1/checkout/sessions/cs_test_holiday2g123456')",
-  "      return Response.json(meta==='unpaid'?{...SESSION,payment_status:'unpaid'}:SESSION);",
+  "      return Response.json(meta==='unpaid'?{...MOCK_PROVIDER_SESSION,payment_status:'unpaid'}:MOCK_PROVIDER_SESSION);",
   "    if(url==='https://api.stripe.com/v1/checkout/sessions/cs_test_holiday2g123456/line_items?limit=100')",
   "      return Response.json(LINES);",
   "    return new Response('{}',{status:404});",
