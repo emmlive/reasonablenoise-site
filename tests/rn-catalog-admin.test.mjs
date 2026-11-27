@@ -20,16 +20,16 @@ async function jwtFixture() {
 function dbFixture() {
   const product = { id: "usdot-sticker-pair", name: "USDOT Sticker Pair", description: "", image_url: "", price_cents: 2900, price_mode: "fixed", status: "draft", version: 1 };
   const audits = [];
-  let pending = [];
   return {
     product, audits,
     prepare(sql) {
+      let bound = [];
       return {
-        bind(...args) { pending = args; return this; },
+        bind(...args) { bound = args; return this; },
         async all() { return { results: [ { ...product } ] }; },
         async first() { return { ...product }; },
         _sql: sql,
-        get _args() { return [...pending]; },
+        get _args() { return [...bound]; },
       };
     },
     async batch(statements) {
