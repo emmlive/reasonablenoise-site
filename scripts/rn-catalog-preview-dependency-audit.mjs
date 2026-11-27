@@ -10,7 +10,7 @@ export const forbiddenPreviewLiveBindings = Object.freeze([
 ]);
 
 export function inventoryPagesFunctions(directory) {
-  return fs.readdirSync(directory).filter(name => name.endsWith(".js")).sort().map(file => {
+  return fs.readdirSync(directory).filter(name => name.endsWith(".js") && name !== "_middleware.js").sort().map(file => {
     const source = fs.readFileSync(path.join(directory, file), "utf8");
     const references = [...new Set([...source.matchAll(/\b(?:context\.env|ctx\.env|env)\.([A-Z][A-Z0-9_]+)/g)].map(match => match[1]))].sort();
     return { route: "/api/" + file.replace(/\.js$/, ""), references };
