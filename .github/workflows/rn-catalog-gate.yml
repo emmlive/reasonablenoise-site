@@ -17,6 +17,8 @@ on:
       - ".github/workflows/rn-catalog-gate.yml"
       - "scripts/rn-pages-preview-d1-candidate.mjs"
       - "tests/rn-pages-preview-d1-candidate.test.mjs"
+      - "scripts/rn-catalog-preview-dependency-audit.mjs"
+      - "tests/rn-catalog-preview-dependency-audit.test.mjs"
 
 permissions:
   contents: read
@@ -42,6 +44,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p "test_rn_catalog_migration.py" -v
       - name: Preview D1 configuration candidate isolation contracts (no Cloudflare connection)
         run: node --test tests/rn-pages-preview-d1-candidate.test.mjs
+      - name: Preview runtime dependency compatibility contracts (no Cloudflare connection)
+        run: node --test tests/rn-catalog-preview-dependency-audit.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
