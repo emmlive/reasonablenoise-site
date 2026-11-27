@@ -13,9 +13,7 @@ export function validateHostedReadiness(env = {}) {
     ["catalog_switch_off", isFalse(env.RN_CATALOG_ADMIN_ENABLED || "unset")],
     ["binding_name", env.RN_CATALOG_BINDING_NAME === "RN_CATALOG_DB"],
     ["preview_db_valid", uuid.test(env.RN_PREVIEW_D1_DATABASE_ID || "")],
-    ["production_db_valid", uuid.test(env.RN_PRODUCTION_D1_DATABASE_ID || "")],
-    ["databases_distinct", Boolean(env.RN_PREVIEW_D1_DATABASE_ID) &&
-      env.RN_PREVIEW_D1_DATABASE_ID !== env.RN_PRODUCTION_D1_DATABASE_ID],
+    ["production_catalog_binding_absent", env.RN_PRODUCTION_CATALOG_BINDING_PRESENT === "false"],
     ["access_team_valid", accessDomain.test(env.RN_ACCESS_TEAM_DOMAIN || "")],
     ["access_audience_present", /^[a-zA-Z0-9_-]{16,128}$/.test(env.RN_ACCESS_AUD || "")],
     ["admin_allowlist", Boolean((env.RN_CATALOG_ADMIN_EMAILS || "").split(",").map(x => x.trim()).filter(Boolean).length) &&
