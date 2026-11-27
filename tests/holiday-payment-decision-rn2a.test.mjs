@@ -10,7 +10,7 @@ const secret = "whsec_holiday_test1234";
 const reference = "RNH-0123456789ABCDEF";
 const checkoutId = "cs_test_holiday_123456";
 const event = () => ({
-  id: "evt_holiday_123456",
+  id: "evt_holiday123456",
   type: "checkout.session.completed",
   livemode: false,
   data: { object: {
@@ -38,7 +38,7 @@ test("genuine offline HMAC positive remains a hold, never fulfillment", async()=
   const result = await decide();
   assert.equal(result.status, "hold");
   assert.equal(result.reason, "retrieve_stripe_session_line_items_and_provenance_then_durable_dedupe");
-  assert.equal(result.eventId, "evt_holiday_123456");
+  assert.equal(result.eventId, "evt_holiday123456");
   assert.equal(result.orderReference, reference);
   for (const k of ["paymentAuthorized","fulfillmentAuthorized","emailAuthorized","deletionAuthorized"])
     assert.equal(result[k],false,k);
