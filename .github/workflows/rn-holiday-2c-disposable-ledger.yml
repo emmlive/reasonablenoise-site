@@ -1,0 +1,35 @@
+name: RN Holiday 2C — Disposable Ledger (No Deploy)
+on:
+  push:
+    branches:
+      - feature/rn-holiday-2c-disposable-d1-ledger-20261127
+  pull_request:
+    paths:
+      - 'src/lib/holiday-review-ledger.mjs'
+      - 'migrations/holiday-disposable/0001_review_ledger.sql'
+      - 'tests/holiday-disposable-ledger-rn2c.test.mjs'
+      - '.github/workflows/rn-holiday-2c-disposable-ledger.yml'
+permissions:
+  contents: read
+jobs:
+  disposable-ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RN_HOLIDAY_CHECKOUT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --check src/lib/holiday-review-ledger.mjs
+      - run: node --experimental-sqlite --test tests/holiday-disposable-ledger-rn2c.test.mjs
+      - run: node --test tests/holiday-stripe-reconciliation-rn2b.test.mjs tests/holiday-payment-decision-rn2a.test.mjs tests/holiday-shop-checkout-isolation.test.mjs tests/stripe-webhook-isolation.test.mjs tests/dtf-quote-artwork.test.mjs
+      - run: npm run build
+      - name: Verify disabled checkout and no deploy
+        run: |
+          test "$RN_HOLIDAY_CHECKOUT_ENABLED" = false
+          ! grep -q 'fulfillmentAuthorized:true' src/lib/holiday-review-ledger.mjs
+          ! grep -q 'paymentAuthorized:true' src/lib/holiday-review-ledger.mjs
