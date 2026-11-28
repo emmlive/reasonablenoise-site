@@ -13,10 +13,10 @@ const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const imagePath = /^\/assets\/[a-zA-Z0-9/_-]+\.(?:png|jpg|jpeg|webp)$/;
 
 export async function onRequestGet({ env }) {
-  if (env?.RN_PUBLIC_CATALOG_ENABLED !== "true") {
+  if (!env || env.RN_PUBLIC_CATALOG_ENABLED !== "true") {
     return reply({ success: false, error: "Catalog is not published." }, 503);
   }
-  if (!env?.RN_CATALOG_DB?.prepare) {
+  if (!env.RN_CATALOG_DB?.prepare) {
     return reply({ success: false, error: "Catalog is unavailable." }, 503);
   }
   try {
