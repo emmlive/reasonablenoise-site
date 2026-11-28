@@ -32,7 +32,11 @@ export function catalogPreviewDecision(request) {
   }
   if (productionHosts.has(target.hostname)) return "production-pass";
   if (target.hostname === "localhost" || target.hostname === "127.0.0.1") return "local-pass";
-  if (!/^[a-z0-9-]+\.reasonablenoise-site\.pages\.dev$/.test(target.hostname)) return "deny";
+  const legacyPreviewHost = /^[a-z0-9-]+\.reasonablenoise-site\.pages\.dev$/.test(target.hostname);
+  // Separate, catalog-only Pages acceptance project. Its canonical and hashed hosts
+  // must NEVER be interpreted as production pass-through.
+  const isolatedCatalogHost = /^(?:[a-z0-9-]+\.)?reasonablenoise-catalog-isolated\.pages\.dev$/.test(target.hostname);
+  if (!legacyPreviewHost && !isolatedCatalogHost) return "deny";
   if (target.pathname !== "/api/admin-products") return "deny";
   if (request.method !== "GET" && request.method !== "PATCH") return "deny";
   return "catalog-pass";
