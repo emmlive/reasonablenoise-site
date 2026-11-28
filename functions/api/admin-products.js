@@ -17,7 +17,7 @@ function parseJwtPart(part) {
 function allowedEmails(env) {
   return String(env.RN_CATALOG_ADMIN_EMAILS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
 }
-async function verifyAccess(request, env) {
+export async function verifyCatalogAdminAccess(request, env) {
   const domain = String(env.RN_ACCESS_TEAM_DOMAIN || "").trim().toLowerCase().replace(/^https:\/\//, "").replace(/\/$/, "");
   const audience = String(env.RN_ACCESS_AUD || "").trim();
   if (!domain || !/^[a-z0-9.-]+\.cloudflareaccess\.com$/.test(domain) || !audience || !allowedEmails(env).length) return null;
@@ -64,7 +64,7 @@ async function authorize(context) {
   const { request, env } = context;
   if (env.RN_CATALOG_ADMIN_ENABLED !== "true") return { error: reply({ success: false, error: "Catalog administration disabled." }, 503) };
   if (!env.RN_CATALOG_DB?.prepare || !env.RN_CATALOG_DB?.batch) return { error: reply({ success: false, error: "Catalog database unavailable." }, 503) };
-  const actor = await verifyAccess(request, env);
+  const actor = await verifyCatalogAdminAccess(request, env);
   if (!actor) return { error: reply({ success: false, error: "Unauthorized." }, 401) };
   return { actor };
 }
