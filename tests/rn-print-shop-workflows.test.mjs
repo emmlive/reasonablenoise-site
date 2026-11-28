@@ -47,3 +47,13 @@ test("transfer page uses light branding without claiming gang-sheet builder exis
   assert.match(transfers, /Gang sheets next/);
   assert.match(transfers, /visual drag-and-drop editor is on the roadmap, not available at launch/);
 });
+
+test("DTF contrast and preview action follow light-theme accessibility", () => {
+  assert.match(transfers, /bg-\[#101b25\] text-white p-5/);
+  assert.match(transfers, /id="rn-transfer-summary-size"/);
+  assert.match(transfers, /id="rn-transfer-summary-quantity"/);
+  assert.match(transfers, /id="rn-transfer-summary-visual"/);
+  assert.match(transfers, /if \(submit\) \{ submit\.disabled = true; submit\.textContent = "Quote submissions disabled in preview"; \}/);
+  assert.match(transfers, /On the live shop, you can request a quote without attaching a file/);
+  assert.doesNotMatch(transfers, /class="rounded-3xl border border-white\/10 bg-white\/\[0\.04\] p-6"/);
+});
