@@ -4,6 +4,7 @@ import { webcrypto } from "node:crypto";
 import { createCatalogSnapshot, verifyCatalogSnapshot } from "../functions/_catalog-order-snapshot.js";
 import { onRequestPost as checkout } from "../functions/api/create-checkout-session.js";
 import { onRequestPost as webhook } from "../functions/api/stripe-webhook.js";
+import { onRequestPost as updateOrderStatus } from "../functions/api/order-status.js";
 
 const snapshotSecret = "rn-only-disposable-snapshot-key-with-32-characters-minimum";
 const webhookSecret = "whsec_disposable_not_real";
@@ -47,7 +48,7 @@ function bucket() {
   const writes = [];
   return {
     writes, entries,
-    async get(key) { return entries.has(key) ? { body: entries.get(key) } : null; },
+    async get(key) { return entries.has(key) ? { body: entries.get(key), json: async () => JSON.parse(entries.get(key)) } : null; },
     async put(key, value) { writes.push(key); entries.set(key, value); },
   };
 }
@@ -179,4 +180,32 @@ test("actual checkout embeds snapshot only when gate enabled, refuses missing si
     const checked = await verifyCatalogSnapshot(meta, session(meta, { client_reference_id: ref }), snapshotSecret, true);
     assert.equal(checked.ok, true);
   } finally { globalThis.fetch = original; }
+});
+
+test("later allowed fulfillment status edit preserves signed catalog snapshot verbatim", async () => {
+  const metadata = await validMetadata();
+  const storage = bucket();
+  const paid = await deliver(metadata, { bucket: storage });
+  assert.equal(paid.status, 200);
+  const key = storage.writes.find(k => k.startsWith("orders/status/"));
+  assert.ok(key);
+  const before = JSON.parse(storage.entries.get(key)).catalog_snapshot;
+  const request = new Request("https://reasonablenoise.test/api/order-status", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-admin-order-token": "disposable-test-token" },
+    body: JSON.stringify({
+      orderReference,
+      status: "completed",
+      catalog_snapshot: { catalog_version: 9999 },
+      stripe: { checkout_price_cents: "1" },
+    }),
+  });
+  const response = await updateOrderStatus({
+    request, env: { ARTWORK_BUCKET: storage, ADMIN_ORDER_TOKEN: "disposable-test-token" },
+  });
+  assert.equal(response.status, 200);
+  const after = JSON.parse(storage.entries.get(key));
+  assert.equal(after.status, "completed");
+  assert.deepEqual(after.catalog_snapshot, before);
+  assert.equal(after.catalog_snapshot.catalog_version, 7);
 });
