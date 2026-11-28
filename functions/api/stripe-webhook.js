@@ -1,3 +1,4 @@
+import { verifyCatalogSnapshot } from "../_catalog-order-snapshot.js";
 ﻿function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -189,7 +190,7 @@ async function checkStripeCustomerSource(session, env) {
   }
 }
 
-function orderDetailsFromSession(session) {
+function orderDetailsFromSession(session, catalogSnapshot = null) {
   const metadata = session.metadata || {};
   const customerDetails = session.customer_details || {};
   const shippingDetails = session.shipping_details || {};
@@ -203,6 +204,7 @@ function orderDetailsFromSession(session) {
     amountSubtotalCents: Number(session.amount_subtotal || 0),
     currency: String(session.currency || "usd").toUpperCase(),
     paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : "",
+    catalogSnapshot,
 
     checkoutPriceLabel: metadata.checkout_price_label || "",
     checkoutPriceCents: metadata.checkout_price_cents || "",
@@ -266,6 +268,7 @@ function buildInitialOrderRecord(order, event) {
 
   return {
     order_reference: order.orderReference || "",
+    ...(order.catalogSnapshot ? { catalog_snapshot: order.catalogSnapshot } : {}),
     status: "order_received",
     status_label: "Order received",
     created_at: now,
@@ -818,6 +821,18 @@ export async function onRequestPost(context) {
       return json({ success: true, received: true, ignored: "unpaid_checkout", skipped_emails: true });
     }
 
+    // Stripe-signed metadata must contain a valid checkout-time catalog snapshot
+    // before R2 writes, fulfillment emails, or duplicate markers can be created.
+    // The live legacy path remains compatible while both catalog flags are OFF.
+    const snapshotDecision = await verifyCatalogSnapshot(
+      session.metadata || {}, session, env.RN_CATALOG_SNAPSHOT_SECRET,
+      env.RN_CATALOG_CHECKOUT_GATE_ENABLED === "true" ||
+      env.RN_CATALOG_ORDER_SNAPSHOT_REQUIRED === "true"
+    );
+    if (!snapshotDecision.ok) {
+      return json({ success: false, error: "Paid order catalog snapshot could not be verified.", code: snapshotDecision.code }, 503);
+    }
+
     const customerSource = await checkStripeCustomerSource(session, env);
     if (!customerSource.allowed) {
       if (customerSource.unavailable) {
@@ -839,7 +854,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    const order = orderDetailsFromSession(session);
+    const order = orderDetailsFromSession(session, snapshotDecision.snapshot);
     const orderRecordResult = await storeInitialOrderRecord(env, order, event);
     const emailResult = await sendOrderEmail(env, order);
     const customerEmailResult = await sendCustomerConfirmationEmail(env, order);
