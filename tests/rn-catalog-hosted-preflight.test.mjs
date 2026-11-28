@@ -11,7 +11,7 @@ const preview = {
   RN_ACCESS_TEAM_DOMAIN: "rn-acceptance.cloudflareaccess.com",
   RN_ACCESS_AUD: "example-acceptance-aud-tag",
   RN_CATALOG_ADMIN_EMAILS: "operator@example.com",
-  RN_PREVIEW_HOST: "rn-catalog-stage.pages.dev",
+  RN_PREVIEW_HOST: "reasonablenoise-catalog-isolated.pages.dev",
   RN_ACCESS_APPLICATION_PATH: "/api/admin-products*",
 };
 
@@ -44,9 +44,27 @@ test("Access app and preview route must be explicit", () => {
 });
 
 test("Pages-wide Access destination is accepted only for the exact ReasonableNoise preview domain", () => {
-  const pagesProtected = { ...preview, RN_ACCESS_APPLICATION_PATH: "*.reasonablenoise-site.pages.dev" };
+  const pagesProtected = { ...preview, RN_ACCESS_APPLICATION_PATH: "*.reasonablenoise-catalog-isolated.pages.dev" };
   assert.equal(validateHostedReadiness(pagesProtected).status, "CONFIG_PRECHECK_PASS");
   for (const unsafe of ["*.pages.dev", "*.reasonablenoise.com", "*.other-site.pages.dev", "reasonablenoise-site.pages.dev", ""]) {
     assert.equal(validateHostedReadiness({ ...pagesProtected, RN_ACCESS_APPLICATION_PATH: unsafe }).status, "BLOCKED", unsafe);
+  }
+});
+
+test("readiness refuses any other Pages project or production hostname", () => {
+  const allowedBranch = validateHostedReadiness({
+    ...preview, RN_PREVIEW_HOST: "abc123.reasonablenoise-catalog-isolated.pages.dev",
+  });
+  assert.equal(allowedBranch.status, "CONFIG_PRECHECK_PASS");
+  for (const hostname of [
+    "reasonablenoise-site.pages.dev",
+    "abc.reasonablenoise-site.pages.dev",
+    "other-catalog.pages.dev",
+    "reasonablenoise.com",
+    "www.reasonablenoise.com",
+    "reasonablenoise-catalog-isolated.pages.dev.evil.example",
+    "a.b.reasonablenoise-catalog-isolated.pages.dev",
+  ]) {
+    assert.equal(validateHostedReadiness({ ...preview, RN_PREVIEW_HOST: hostname }).status, "BLOCKED", hostname);
   }
 });
