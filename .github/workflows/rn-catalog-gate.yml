@@ -25,6 +25,9 @@ on:
       - "tests/rn-pages-preview-disabled-auth-candidate.test.mjs"
       - "src/pages/admin-catalog.astro"
       - "tests/rn-catalog-admin-screen.test.mjs"
+      - "functions/_catalog-checkout-gate.js"
+      - "functions/api/create-checkout-session.js"
+      - "tests/rn-catalog-checkout-gate.test.mjs"
 
 permissions:
   contents: read
@@ -58,6 +61,8 @@ jobs:
         run: node --test tests/rn-pages-preview-disabled-auth-candidate.test.mjs
       - name: Catalog admin UI safety contracts
         run: node --test tests/rn-catalog-admin-screen.test.mjs
+      - name: Opt-in catalog stock and checkout price gate (mock Stripe only)
+        run: node --test tests/rn-catalog-checkout-gate.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
