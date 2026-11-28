@@ -44,7 +44,7 @@ export async function authorizeCatalogCheckout(env, checkoutPricing) {
     if (!["fixed", "starting_at"].includes(record.price_mode)) {
       return { allowed: false, status: 503, code: "CATALOG_INVALID" };
     }
-    return { allowed: true, gate_active: true, product_id: id, version: record.version };
+    return { allowed: true, gate_active: true, product_id: id, version: record.version, price_cents: record.price_cents, price_mode: record.price_mode };
   } catch (_) {
     return { allowed: false, status: 503, code: "CATALOG_UNAVAILABLE" };
   }
