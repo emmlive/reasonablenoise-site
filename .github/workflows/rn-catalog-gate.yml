@@ -46,6 +46,11 @@ on:
       - "public/sitemap.xml"
       - "tests/rn-storefront-experience.test.mjs"
       - "tests/brand-voice-rn-v1.test.mjs"
+      - "src/pages/dtf-transfers.astro"
+      - "src/components/TransferShirtIcon.astro"
+      - "src/pages/dtf-shirts.astro"
+      - "tests/dtf-transfers-rn3a.test.mjs"
+      - "tests/rn-print-shop-workflows.test.mjs"
 
 permissions:
   contents: read
@@ -89,6 +94,8 @@ jobs:
         run: node --test tests/rn-catalog-inventory-review-ui.test.mjs
       - name: Light storefront, published availability and static pricing parity
         run: node --test tests/rn-storefront-experience.test.mjs tests/brand-voice-rn-v1.test.mjs
+      - name: Recovered DTF transfer and Gang Sheet quote-first workflow contracts
+        run: node --test tests/rn-print-shop-workflows.test.mjs tests/dtf-transfers-rn3a.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
