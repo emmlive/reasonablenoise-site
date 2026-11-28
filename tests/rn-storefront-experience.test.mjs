@@ -113,7 +113,7 @@ test("shop starts unconfirmed, updates only from public catalog and hides unpubl
   assert.match(shop, /card\.style\.display = show \? "" : "none"/);
   assert.match(shop, /data-shop-filter/);
   assert.match(shop, /aria-pressed/);
-  assert.match(shop, /Live product availability is not confirmed/);
+  assert.match(shop, /Availability is confirmed during ordering or quote review/);
   assert.doesNotMatch(shop, /https?:\/\/api\.stripe\.com/);
 });
 
@@ -128,4 +128,20 @@ test("apparel card uses full-width desktop feature without breaking category fil
   assert.equal(apparel[0].id, "dtf-shirts");
   assert.equal(apparel[0].pricing, "quote_only");
   assert.equal(apparel[0].href, "/contact?topic=dtf");
+});
+
+test("shop consolidates USDOT variants without altering server catalog or payment options", () => {
+  const variants = ["usdot-business-name-pair", "extra-usdot-pair", "one-side-usdot-replacement"];
+  assert.match(shop, /const shopItems = printShopItems\.filter\(item => !hiddenUsdots\.has\(item\.id\)\)/);
+  for (const id of variants) {
+    assert.ok(printShopItems.some(item => item.id === id), "catalog still has " + id);
+    assert.ok(Object.values(checkoutCatalogIds).includes(id), "checkout still accepts " + id);
+    assert.ok(shop.includes('"' + id + '"'), "consolidated shop excludes only " + id);
+  }
+  assert.match(shop, /Choose your option when ordering/);
+  assert.match(shop, /USDOT stickers/);
+  assert.match(shop, /Decals & lettering/);
+  assert.match(shop, /Design help/);
+  assert.match(shop, /DTF shirts/);
+  assert.equal(printShopItems.length - variants.length, 7);
 });
