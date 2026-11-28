@@ -233,6 +233,7 @@ import "../styles/global.css";
           status: String(data.get("status") || ""),
         };
         saving = true;
+        let conflicted = false;
         fields.disabled = true;
         saveButton.textContent = "Saving…";
         announce("Saving the selected product…");
@@ -247,7 +248,7 @@ import "../styles/global.css";
           if (response.status === 409) {
             announce("This product was changed elsewhere. Refresh before editing again.", true);
             selected = null;
-            await load();
+            conflicted = true;
             return;
           }
           if (!response.ok) {
@@ -268,6 +269,7 @@ import "../styles/global.css";
           saveButton.textContent = "Save product changes";
           fields.disabled = !selected;
           render();
+          if (conflicted) void load();
         }
       });
       refreshButton.addEventListener("click", load);
