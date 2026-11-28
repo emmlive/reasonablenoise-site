@@ -19,7 +19,7 @@ test("catalog GET/PATCH alone passes Pages Preview middleware", async () => {
 
 test("every legacy API route is denied on Preview without calling handler", async () => {
   for (const route of [
-    "admin-orders", "backfill-test-order", "contact", "create-checkout-session",
+    "admin-orders", "backfill-test-order", "catalog", "contact", "create-checkout-session",
     "download-artwork", "order-status", "stripe-webhook", "track-event", "upload-artwork"
   ]) {
     for (const method of ["GET", "POST", "PATCH", "DELETE", "OPTIONS"]) {
@@ -90,7 +90,7 @@ test("independent catalog acceptance project canonical and hashed hosts are cata
       const request = new Request(`https://${host}/api/admin-products`, { method });
       assert.equal(catalogPreviewDecision(request), "catalog-pass", host);
     }
-    for (const endpoint of ["stripe-webhook", "upload-artwork", "create-checkout-session", "contact", "order-status"]) {
+    for (const endpoint of ["catalog", "stripe-webhook", "upload-artwork", "create-checkout-session", "contact", "order-status"]) {
       let reached = false;
       const request = new Request(`https://${host}/api/${endpoint}`, { method: "POST" });
       const response = await onRequest({request, next: () => { reached = true; return new Response("UNSAFE"); }});
