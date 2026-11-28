@@ -1,5 +1,5 @@
 // Local-only addition to an already validated Pages Preview D1 config candidate.
-// Deliberately never collects the Access AUD, email allowlist, or provider secrets.
+// Deliberately never adds the Access AUD, email allowlist, or provider secrets.\n// The input and output may still preserve private Production settings: never commit/share them.
 // No Cloudflare API, no deployment, no writes except distinct requested local output.
 import fs from "node:fs";
 import path from "node:path";
@@ -29,7 +29,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     if (!inputPath || !outputPath || path.resolve(inputPath) === path.resolve(outputPath) || fs.existsSync(outputPath)) throw new Error("BLOCKED: distinct new output path required");
     const result = makeDisabledPreviewAuthCandidate(fs.readFileSync(inputPath, "utf8"));
     fs.writeFileSync(outputPath, result, { flag: "wx", mode: 0o600 });
-    process.stdout.write("PREVIEW_DISABLED_AUTH_CANDIDATE_PASS: D1 remains preview-only, production R2 preserved, catalog flag false, no secrets, NO DEPLOY\n");
+    process.stdout.write("PREVIEW_DISABLED_AUTH_CANDIDATE_PASS: D1 remains preview-only, production R2 preserved, catalog flag false, no NEW auth credentials, NO DEPLOY\n");
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;
