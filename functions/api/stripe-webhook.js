@@ -1,3 +1,4 @@
+import { classifyPaidCatalogFulfillment } from "../_catalog-fulfillment-review.js";
 import { verifyCatalogSnapshot } from "../_catalog-order-snapshot.js";
 ﻿function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -190,7 +191,7 @@ async function checkStripeCustomerSource(session, env) {
   }
 }
 
-function orderDetailsFromSession(session, catalogSnapshot = null) {
+function orderDetailsFromSession(session, catalogSnapshot = null, fulfillmentReview = null) {
   const metadata = session.metadata || {};
   const customerDetails = session.customer_details || {};
   const shippingDetails = session.shipping_details || {};
@@ -205,6 +206,7 @@ function orderDetailsFromSession(session, catalogSnapshot = null) {
     currency: String(session.currency || "usd").toUpperCase(),
     paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : "",
     catalogSnapshot,
+    fulfillmentReview,
 
     checkoutPriceLabel: metadata.checkout_price_label || "",
     checkoutPriceCents: metadata.checkout_price_cents || "",
@@ -316,6 +318,13 @@ function buildInitialOrderRecord(order, event) {
       upload_id: order.uploadId || "",
     },
     fulfillment: {
+      ...(order.fulfillmentReview?.checked ? {
+        inventory_review_required: order.fulfillmentReview.required,
+        inventory_review_reason: order.fulfillmentReview.reason,
+        inventory_review_checked_at: now,
+        inventory_observed_status: order.fulfillmentReview.observed_status || "",
+        inventory_observed_version: order.fulfillmentReview.observed_version || null,
+      } : {}),
       shipping_name: order.shippingName || "",
       shipping_address: order.shippingAddress || "",
     },
@@ -326,6 +335,14 @@ function buildInitialOrderRecord(order, event) {
         at: now,
         note: "Customer completed Stripe Checkout. Initial confirmation emails were sent or attempted.",
       },
+      ...(order.fulfillmentReview?.required ? [{
+        status: "inventory_review_required",
+        label: "Manual inventory review required",
+        at: now,
+        note: "Checkout was already issued; confirm availability before fulfilling this paid order.",
+        source: "catalog_paid_order_review",
+        reason: order.fulfillmentReview.reason,
+      }] : []),
     ],
   };
 }
@@ -854,7 +871,8 @@ export async function onRequestPost(context) {
       });
     }
 
-    const order = orderDetailsFromSession(session, snapshotDecision.snapshot);
+    const fulfillmentReview = await classifyPaidCatalogFulfillment(env, snapshotDecision.snapshot);
+    const order = orderDetailsFromSession(session, snapshotDecision.snapshot, fulfillmentReview);
     const orderRecordResult = await storeInitialOrderRecord(env, order, event);
     const emailResult = await sendOrderEmail(env, order);
     const customerEmailResult = await sendCustomerConfirmationEmail(env, order);
