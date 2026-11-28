@@ -31,6 +31,7 @@ on:
       - "functions/_catalog-order-snapshot.js"
       - "functions/api/stripe-webhook.js"
       - "tests/rn-catalog-order-snapshot.test.mjs"
+      - "tests/rn-catalog-integrated-lifecycle.test.mjs"
 
 permissions:
   contents: read
@@ -74,3 +75,5 @@ jobs:
         run: npm install --no-save --package-lock=false miniflare@4
       - name: Real workerd D1 batch, rollback, HTTP authorization smoke
         run: node --test tests/rn-catalog-workerd.test.mjs
+      - name: Integrated product edit through paid order fulfillment (disposable D1, mocked providers)
+        run: node --test tests/rn-catalog-integrated-lifecycle.test.mjs
