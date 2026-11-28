@@ -1,0 +1,464 @@
+---
+import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
+import WhatsAppChat from "../components/WhatsAppChat.astro";
+import TransferShirtIcon from "../components/TransferShirtIcon.astro";
+const turnstileSiteKey = import.meta.env.PUBLIC_DTF_TURNSTILE_SITE_KEY || "";
+const placementOptions = [
+  { value: "left-chest", label: "Left chest" },
+  { value: "full-front", label: "Full front" },
+  { value: "full-back", label: "Full back" },
+  { value: "sleeve", label: "Sleeve" },
+  { value: "custom", label: "Custom" },
+];
+const garmentColors = [
+  { value: "White", hex: "#f8fafc" },
+  { value: "Black", hex: "#15171e" },
+  { value: "Gray", hex: "#94a3b8" },
+  { value: "Navy", hex: "#172554" },
+  { value: "Red", hex: "#dc2626" },
+  { value: "Royal blue", hex: "#2563eb" },
+];
+const transferSizes = [
+  { label: "Pocket / small", width: 3, height: 3, note: "Small logos and accents" },
+  { label: "Youth / medium", width: 8, height: 10, note: "Compact front prints" },
+  { label: "Adult standard", width: 10.5, height: 11, note: "Popular chest print" },
+  { label: "Large back print", width: 11, height: 14, note: "Bigger statement graphics" },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Custom DTF Transfers | Easy Artwork Upload & Quotes | ReasonableNoise</title>
+    <meta name="description" content="Request custom ready-to-press DTF transfers from ReasonableNoise. Select your size and quantity, preview your design, and send a secure artwork quote request before paying." />
+    <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+    <link rel="canonical" href="https://reasonablenoise.com/dtf-transfers/" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ReasonableNoise" />
+    <meta property="og:title" content="DTF Transfers Without the Complicated Ordering | ReasonableNoise" />
+    <meta property="og:description" content="Upload artwork, choose a transfer size, and request a quote. No checkout or payment until your order is reviewed." />
+    <meta property="og:url" content="https://reasonablenoise.com/dtf-transfers/" />
+    <meta property="og:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline id="rn-transfer-turnstile-api" src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Custom DTF heat transfers",
+      serviceType: "Ready-to-press DTF transfers and transfer gang sheet quotes",
+      provider: { "@type": "Organization", name: "ReasonableNoise", url: "https://reasonablenoise.com" },
+      url: "https://reasonablenoise.com/dtf-transfers/",
+      areaServed: "United States",
+    })} />
+  </head>
+  <body class="min-h-screen bg-[#F9FAF8] text-[#162234] antialiased">
+    <main class="relative overflow-hidden">
+      <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] bg-gradient-to-br from-white to-[#EAF2FE]"></div>
+
+      <header class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
+        <a href="/" class="flex items-center gap-3" aria-label="ReasonableNoise Home">
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-black p-2 ring-1 ring-white/15"><img src="/assets/rn-logo.png" alt="" class="h-full w-full object-contain" /></div>
+          <div><p class="text-sm font-bold">ReasonableNoise</p><p class="text-xs text-slate-500">Custom printing, made simple.</p></div>
+        </a>
+        <nav class="hidden items-center gap-7 text-sm text-slate-600 md:flex" aria-label="Primary navigation">
+          <a href="/" class="hover:text-blue-700">Home</a>
+          <a href="/usdot-stickers/" class="hover:text-blue-700">USDOT Stickers</a>
+          <a href="/dtf-shirts/" class="hover:text-blue-700">Printed Shirts</a>
+          <a href="/contact/" class="hover:text-blue-700">Contact</a>
+        </nav>
+        <a href="#transfer-quote" class="rounded-full bg-[#175CD3] px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700">Start my quote</a>
+      </header>
+
+      <section class="mx-auto grid max-w-7xl gap-8 px-4 pb-10 pt-8 sm:px-6 md:grid-cols-[0.98fr_1.02fr] md:items-center md:pb-14 md:pt-14">
+        <div>
+          <p class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700"><span class="h-2 w-2 rounded-full bg-blue-600"></span> New • DTF Transfer Quotes</p>
+          <h1 class="mt-6 max-w-2xl text-5xl font-semibold leading-[1.02] tracking-[-0.06em] sm:text-6xl lg:text-7xl">DTF transfers.<br /><span class="text-[#175CD3]">Less clicking.</span><br />More creating.</h1>
+          <p class="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg">Ready-to-press transfers for makers, small businesses, and apparel brands. Tell us your size, quantity, and design in one straightforward request.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#transfer-quote" class="rounded-full bg-[#175CD3] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700">Choose size &amp; upload artwork →</a>
+            <a href="/dtf-shirts/" class="rounded-full border border-slate-300 bg-white px-6 py-3.5 text-sm font-semibold text-slate-800 transition hover:border-blue-600">Need finished shirts?</a>
+          </div>
+          <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600"><span>✓ Small orders welcome</span><span>✓ No payment to request a quote</span><span>✓ Artwork reviewed before printing</span></div>
+          <p class="mt-6 max-w-xl text-xs leading-5 text-amber-800">Print capacity and pricing are being finalized during equipment replacement. Quotes and timing are confirmed individually before payment.</p>
+        </div>
+        <div class="relative rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-300/30 sm:p-8">
+          <div class="flex items-center justify-between gap-2"><span class="text-xs font-bold uppercase tracking-[0.25em] text-slate-600">How it works</span><span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs text-blue-700">Quote-first</span></div>
+          <div class="mt-6 grid gap-3">
+            {[
+              ["01", "Choose your transfer", "Pick a common size or enter custom dimensions."],
+              ["02", "Preview & upload", "Review your art locally before securely sending it."],
+              ["03", "Get a clear quote", "We confirm your price, production timing, and pickup or shipping."],
+            ].map(([number, title, detail]) => (
+              <div class="flex gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-sm font-bold text-blue-700">{number}</span>
+                <div><p class="font-bold">{title}</p><p class="mt-1 text-sm leading-6 text-slate-600">{detail}</p></div>
+              </div>
+            ))}
+          </div>
+          <div class="mt-5 rounded-2xl bg-white p-5 text-[#151b24]"><p class="text-xs font-bold uppercase tracking-[0.2em] text-black/40">Built around your project</p><p class="mt-2 text-xl font-semibold tracking-tight">Single designs now. Gang sheets next.</p><p class="mt-2 text-sm leading-6 text-black/60">One place to start, even if you're new to transfers.</p></div>
+        </div>
+      </section>
+
+      <section id="transfer-quote" class="scroll-mt-6 border-y border-slate-200 bg-[#EEF3F9] py-10 md:py-14">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6">
+          <div class="mb-7"><p class="text-xs font-bold uppercase tracking-[0.25em] text-blue-700">Start here</p><h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tell us what you want printed.</h2><p class="mt-3 max-w-2xl text-sm leading-7 text-slate-600">No account, no confusing builder, and no transfer payment during the quote stage.</p></div>
+          <p id="rn-transfer-preview-notice" class="mb-4 hidden rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-950" role="status">This isolated preview demonstrates the quote form. Quote submissions and artwork uploads are disabled here until secure hosted acceptance is complete.</p>
+          <form id="rn-transfer-form" class="space-y-5">
+            <div class="min-w-0 space-y-5">
+              <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
+                <div class="flex items-center justify-between gap-2"><h3 class="text-xl font-bold"><span class="mr-1 text-cyan-600" aria-hidden="true">▤</span> 1. Pick a print size</h3><span class="text-xs text-black/45">Inches</span></div>
+                <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {transferSizes.map((item, i) => (
+                    <label class="cursor-pointer rounded-2xl border border-black/10 p-3 transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
+                      <span class="flex items-start justify-between gap-1">
+                        <input type="radio" name="sizePreset" value={`${item.width}x${item.height}`} checked={i === 2} class="mt-1 accent-cyan-700" />
+                        <TransferShirtIcon placement={i === 0 ? "left-chest" : i === 3 ? "full-back" : "full-front"} size={48} />
+                      </span>
+                      <span class="mt-2 block text-sm font-bold">{item.width}″ × {item.height}″</span>
+                      <span class="mt-1 block text-xs text-black/55">{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <label class="mt-4 flex items-start gap-3 rounded-2xl border border-black/10 bg-black/[0.02] p-3">
+                  <input type="radio" name="sizePreset" value="custom" class="mt-1 accent-cyan-700" />
+                  <span class="text-sm font-semibold">Custom dimensions <span class="block text-xs font-normal text-black/50">Enter your exact width and height</span></span>
+                </label>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <label class="grid gap-1 text-sm font-semibold text-black/70">Width (in)<input id="rn-transfer-width" name="transferWidth" type="number" min="0.5" max="100" step="0.25" value="10.5" required class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                  <label class="grid gap-1 text-sm font-semibold text-black/70">Height (in)<input id="rn-transfer-height" name="transferHeight" type="number" min="0.5" max="100" step="0.25" value="11" required class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <label class="grid gap-1 text-sm font-semibold text-black/70">Quantity<input name="quantity" type="number" min="1" max="10000" step="1" value="1" required class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                  <label class="grid gap-1 text-sm font-semibold text-black/70"><span><span aria-hidden="true">🚚</span> Pickup / shipping</span><select name="fulfillment" class="w-full rounded-xl border border-black/15 bg-white px-3 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"><option>Local pickup</option><option>Shipping</option><option>Not sure yet</option></select></label>
+                </div>
+
+                <fieldset class="mt-6 border-t border-black/10 pt-5">
+                  <legend class="text-sm font-bold text-black">Print placement <span class="font-normal text-black/45">(visual reference)</span></legend>
+                  <p class="mt-1 text-xs leading-5 text-black/50">Choose where you plan to apply your transfer. Actual artwork placement is reviewed before printing.</p>
+                  <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                    {placementOptions.map((option, i) => (
+                      <label class="flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-black/10 p-2 text-center transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
+                        <input type="radio" name="printPlacement" value={option.value} checked={i === 1} class="self-start accent-cyan-700" />
+                        <TransferShirtIcon placement={option.value} size={52} />
+                        <span class="text-[11px] font-semibold leading-4">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <fieldset class="mt-6 border-t border-black/10 pt-5">
+                  <legend class="text-sm font-bold text-black">Garment color reference <span class="font-normal text-black/45">(optional)</span></legend>
+                  <p class="mt-1 text-xs leading-5 text-black/50">Preview against a shirt color. This does not add a shirt to your transfer-only order.</p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    {garmentColors.map((item, i) => (
+                      <label class="flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-semibold transition hover:border-cyan-400 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-50">
+                        <input type="radio" name="garmentColor" value={item.value} checked={i === 0} class="sr-only" />
+                        <span class="h-5 w-5 rounded-full border border-black/15" style={`background-color: ${item.hex}`}></span>
+                        {item.value}
+                      </label>
+                    ))}
+                  </div>
+                  <div class="mt-4 flex items-center gap-4 rounded-2xl border border-black/10 bg-slate-50 p-3">
+                    <svg id="rn-transfer-shirt-preview" viewBox="0 0 100 100" width="88" height="88" aria-label="Illustrative shirt with selected color and print placement" role="img">
+                      <path id="rn-transfer-shirt-fill" d="M30 15 39 10 Q50 22 61 10 L70 15 92 30 79 55 69 49 69 90 31 90 31 49 21 55 8 30Z" fill="#f8fafc" stroke="#64748b" stroke-width="3" stroke-linejoin="round"></path>
+                      <path d="M39 10 Q50 29 61 10" fill="none" stroke="#94a3b8" stroke-width="2.5"></path>
+                      <rect id="rn-transfer-placement-marker" x="34" y="36" width="32" height="34" rx="2.5" fill="#06b6d4" fill-opacity=".75" stroke="#0e7490" stroke-width="1.5"></rect>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-bold">Visual reference only</p>
+                      <p id="rn-transfer-shirt-preview-label" class="mt-1 text-xs text-black/55">White shirt • Full front</p>
+                      <p class="mt-1 text-xs leading-5 text-black/45">Not to scale. Transfer sold separately.</p>
+                    </div>
+                  </div>
+                </fieldset>
+                <p class="mt-5 rounded-xl bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">Size choices and shirt diagrams are illustrative, not equipment limits or print guarantees. We'll confirm the best layout and exact price after reviewing your file.</p>
+              </section>
+
+              <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
+                <h3 class="flex items-center gap-2 text-xl font-bold"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700" aria-hidden="true">↑</span> 2. Upload your design</h3>
+                <p class="mt-2 text-sm leading-6 text-black/55">Upload a ready-to-print design or reference file, up to 15 MB. Artwork is private and securely submitted only after you send the quote.</p>
+                <div class="mt-5 grid items-start gap-5 md:grid-cols-2">
+                  <div class="min-w-0">
+                <label for="rn-transfer-artwork" class="block cursor-pointer rounded-2xl border-2 border-dashed border-cyan-300 bg-cyan-50/60 px-4 py-8 text-center transition hover:bg-cyan-50">
+                  <span aria-hidden="true" class="mb-2 block text-2xl font-bold text-cyan-600">↑</span><span class="block text-base font-semibold text-black">Choose your artwork</span>
+                  <span class="mt-2 block text-xs text-black/55">PNG, JPG, WEBP, PDF, SVG, AI, EPS or PSD</span>
+                </label>
+                <input id="rn-transfer-artwork" name="artwork" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.svg,.ai,.eps,.psd" disabled={!turnstileSiteKey} class="sr-only" />
+                <p id="rn-transfer-file-note" role="status" class="mt-3 text-xs text-black/60">No file selected. You can request a quote without artwork.</p>
+                  </div>
+                  <div class="min-w-0">
+                <div class="overflow-hidden rounded-2xl border border-black/10 bg-[linear-gradient(45deg,#edf1f4_25%,transparent_25%,transparent_75%,#edf1f4_75%),linear-gradient(45deg,#edf1f4_25%,#fff_25%,#fff_75%,#edf1f4_75%)] bg-[length:24px_24px] bg-[position:0_0,12px_12px]">
+                  <div id="rn-transfer-preview-empty" class="flex min-h-48 items-center justify-center p-8 text-center text-sm text-black/45">Your artwork preview appears here for supported images.</div>
+                  <img id="rn-transfer-preview-image" alt="Preview of your selected artwork, before upload" class="hidden max-h-72 w-full object-contain p-4" />
+                </div>
+                <p id="rn-transfer-quality-note" class="mt-3 text-xs leading-5 text-black/55">For sharper results, use a transparent file and artwork sized for the final print. We'll check the file before production.</p>
+                  </div>
+                </div>
+                {!turnstileSiteKey && <p class="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs font-semibold text-amber-900">Secure artwork uploads are temporarily unavailable. You can still request a quote without attaching a file.</p>}
+              </section>
+
+              <section class="rounded-[1.75rem] border border-white/10 bg-white p-5 text-black sm:p-7">
+                <h3 class="text-xl font-bold">3. Where should we send your quote?</h3>
+                <p class="mt-2 text-sm text-black/55">A few details and you're done.</p>
+                <div class="mt-5 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.82fr)]">
+                  <div class="min-w-0">
+                <div class="grid gap-4">
+                  <label class="grid gap-1 text-sm font-semibold">Name *<input name="name" autocomplete="name" required maxlength="120" placeholder="Full name" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                  <label class="grid gap-1 text-sm font-semibold">Email *<input name="email" autocomplete="email" required type="email" maxlength="180" placeholder="you@email.com" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                </div>
+                <label class="mt-4 grid gap-1 text-sm font-semibold">Phone (optional)<input name="phone" autocomplete="tel" type="tel" maxlength="40" placeholder="Phone number" class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                <label class="mt-4 grid gap-1 text-sm font-semibold">Project notes<input name="notes" maxlength="450" placeholder="Colors, gang-sheet questions, deadline..." class="rounded-xl border border-black/15 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400" /></label>
+                <input type="hidden" name="contactType" value="DTF transfer quote" />
+
+                  </div>
+            <aside class="min-w-0" aria-label="Live transfer request summary">
+              <section class="rounded-[1.75rem] border border-cyan-300/25 bg-[#101b25] p-5 shadow-xl shadow-black/20 sm:p-6">
+                <div class="flex items-center justify-between gap-3"><h3 class="text-xl font-semibold">Your transfer summary</h3><span class="rounded-full bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">Live preview</span></div>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Selected size</p><p id="rn-transfer-summary-size" class="mt-2 text-lg font-bold">10.5″ × 11″</p></div>
+                  <div class="rounded-xl border border-white/10 bg-black/25 p-4"><p class="text-xs text-white/45">Quantity</p><p id="rn-transfer-summary-quantity" class="mt-2 text-lg font-bold">1 transfer</p></div>
+                </div>
+                <div class="mt-4 rounded-xl border border-white/10 bg-black/25 p-4">
+                  <p class="text-xs text-white/45">Print placement / garment reference</p>
+                  <p id="rn-transfer-summary-visual" class="mt-2 text-sm font-semibold text-cyan-100">Full front • White shirt reference</p>
+                  <p class="mt-1 text-xs text-white/45">No shirt included in this transfer-only quote.</p>
+                </div>
+                <div class="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.15em] text-cyan-200">Price</p><p class="mt-2 text-2xl font-semibold">Confirmed after review</p><p class="mt-2 text-xs leading-5 text-white/60">Pricing and timing are confirmed after artwork review. No payment at this stage.</p></div>
+              </section>
+            </aside>
+                </div>
+                {turnstileSiteKey && <div class="mt-4 rounded-xl border border-black/10 p-3"><p class="mb-3 text-xs text-black/55">Secure upload verification</p><div id="rn-transfer-turnstile" data-sitekey={turnstileSiteKey} class="min-h-16"></div></div>}
+                <p id="rn-transfer-result" role="status" aria-live="polite" class="mt-4 hidden rounded-xl border px-4 py-3 text-sm font-semibold"></p>
+                <button id="rn-transfer-submit" type="submit" class="mt-5 w-full rounded-full bg-black px-6 py-4 text-base font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">Request my DTF transfer quote →</button>
+                <p class="mt-3 text-center text-xs leading-5 text-black/50">No payment required. We'll confirm pricing before production.</p>
+              </section>
+            </div>
+
+          </form>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
+        <div class="grid gap-6 md:grid-cols-3">
+          <article class="rounded-3xl border border-slate-200 bg-white p-6"><span class="text-xs font-bold tracking-[0.2em] text-blue-700">COMING NEXT</span><h3 class="mt-3 text-xl font-semibold">Upload a gang sheet</h3><p class="mt-3 text-sm leading-6 text-slate-600">Send a finished layout for review. Standard sheet dimensions will be published after printer validation.</p></article>
+          <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-6"><span class="text-xs font-bold tracking-[0.2em] text-cyan-300">PLANNED</span><h3 class="mt-3 text-xl font-semibold">Build a gang sheet</h3><p class="mt-3 text-sm leading-6 text-slate-600">A visual drag-and-drop editor is on the roadmap, not available at launch.</p></article>
+          <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-6"><span class="text-xs font-bold tracking-[0.2em] text-cyan-300">ALSO AVAILABLE</span><h3 class="mt-3 text-xl font-semibold">Need a finished shirt?</h3><p class="mt-3 text-sm leading-6 text-slate-600">We can review the full apparel order separately, including shirts and print placement.</p><a href="/dtf-shirts/" class="mt-4 inline-block text-sm font-semibold text-blue-700 underline underline-offset-4">Explore DTF shirt printing</a></article>
+        </div>
+      </section>
+      <footer class="mx-auto flex max-w-7xl flex-col gap-4 border-t border-slate-200 px-4 py-10 text-sm text-slate-600 sm:px-6 md:flex-row md:items-center md:justify-between"><p>© 2026 ReasonableNoise. Made for makers.</p><div class="flex flex-wrap gap-4"><a href="/" class="hover:text-blue-700">Home</a><a href="/dtf-shirts/" class="hover:text-blue-700">Printed Shirts</a><a href="/contact/" class="hover:text-blue-700">Contact</a><a href="/privacy/" class="hover:text-blue-700">Privacy</a></div></footer>
+    </main>
+
+    <script>
+      const form = document.getElementById("rn-transfer-form");
+      const isolatedPreview = /(?:^|\\.)reasonablenoise-catalog-isolated\\.pages\\.dev$/.test(window.location.hostname);
+      if (isolatedPreview) document.getElementById("rn-transfer-preview-notice")?.classList.remove("hidden");
+      const fileInput = document.getElementById("rn-transfer-artwork");
+      const fileNote = document.getElementById("rn-transfer-file-note");
+      const qualityNote = document.getElementById("rn-transfer-quality-note");
+      const preview = document.getElementById("rn-transfer-preview-image");
+      const emptyPreview = document.getElementById("rn-transfer-preview-empty");
+      const result = document.getElementById("rn-transfer-result");
+      const submitButton = document.getElementById("rn-transfer-submit");
+      const widthField = document.getElementById("rn-transfer-width");
+      const heightField = document.getElementById("rn-transfer-height");
+      let previewUrl = "";
+      let widgetId = null;
+      const previewFill = document.getElementById("rn-transfer-shirt-fill");
+      const placementMarker = document.getElementById("rn-transfer-placement-marker");
+      const shirtPreviewLabel = document.getElementById("rn-transfer-shirt-preview-label");
+      const summaryVisual = document.getElementById("rn-transfer-summary-visual");
+      const placements = {
+        "left-chest": { label: "Left chest", x: 39, y: 33, width: 11, height: 11 },
+        "full-front": { label: "Full front", x: 34, y: 36, width: 32, height: 34 },
+        "full-back": { label: "Full back", x: 32, y: 35, width: 35, height: 39 },
+        sleeve: { label: "Sleeve", x: 12, y: 39, width: 13, height: 13 },
+        custom: { label: "Custom", x: 40, y: 45, width: 20, height: 20 },
+      };
+      const shirtColorCodes = {
+        White: "#f8fafc", Black: "#15171e", Gray: "#94a3b8",
+        Navy: "#172554", Red: "#dc2626", "Royal blue": "#2563eb",
+      };
+      function updateShirtReference() {
+        const selectedPlacement = form?.querySelector('input[name="printPlacement"]:checked')?.value || "full-front";
+        const selectedColor = form?.querySelector('input[name="garmentColor"]:checked')?.value || "White";
+        const marker = placements[selectedPlacement] || placements["full-front"];
+        if (previewFill) previewFill.setAttribute("fill", shirtColorCodes[selectedColor] || shirtColorCodes.White);
+        if (placementMarker) {
+          for (const attribute of ["x", "y", "width", "height"]) placementMarker.setAttribute(attribute, String(marker[attribute]));
+        }
+        if (shirtPreviewLabel) shirtPreviewLabel.textContent = selectedColor + " shirt • " + marker.label;
+        if (summaryVisual) summaryVisual.textContent = marker.label + " • " + selectedColor + " shirt reference";
+      }
+      form?.querySelectorAll('input[name="printPlacement"], input[name="garmentColor"]').forEach(input => {
+        input.addEventListener("change", updateShirtReference);
+      });
+      updateShirtReference();
+
+      function updateSummary() {
+        const width = Number(widthField?.value || 0);
+        const height = Number(heightField?.value || 0);
+        const qty = Number(form?.elements.quantity?.value || 0);
+        const sizeLabel = width > 0 && height > 0 ? width + "″ × " + height + "″" : "Custom size";
+        document.getElementById("rn-transfer-summary-size").textContent = sizeLabel;
+        document.getElementById("rn-transfer-summary-quantity").textContent = qty + (qty === 1 ? " transfer" : " transfers");
+      }
+
+      form?.querySelectorAll('input[name="sizePreset"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (!radio.checked || radio.value === "custom") return;
+          const [width, height] = radio.value.split("x");
+          widthField.value = width;
+          heightField.value = height;
+          updateSummary();
+        });
+      });
+      [widthField, heightField].forEach((field) => field?.addEventListener("input", () => {
+        form.querySelector('input[name="sizePreset"][value="custom"]').checked = true;
+        updateSummary();
+      }));
+      form?.elements.quantity?.addEventListener("input", updateSummary);
+
+      function clearPreview() {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = "";
+        preview.removeAttribute("src");
+        preview.classList.add("hidden");
+        emptyPreview.classList.remove("hidden");
+      }
+
+      fileInput?.addEventListener("change", () => {
+        clearPreview();
+        const file = fileInput.files?.[0];
+        fileNote.textContent = file ? file.name + " • " + (file.size / 1024 / 1024).toFixed(2) + " MB" : "No file selected. You can request a quote without artwork.";
+        qualityNote.textContent = "For sharper results, use a transparent file and artwork sized for the final print. We'll check the file before production.";
+        if (!file) return;
+        if (file.size > 15 * 1024 * 1024) {
+          fileNote.textContent = "This file is over 15 MB. Please choose a smaller file.";
+          return;
+        }
+        if (file.type.startsWith("image/") && ["image/png","image/jpeg","image/webp"].includes(file.type)) {
+          previewUrl = URL.createObjectURL(file);
+          preview.src = previewUrl;
+          preview.classList.remove("hidden");
+          emptyPreview.classList.add("hidden");
+          const image = new Image();
+          image.onload = () => {
+            const width = Number(widthField?.value || 0);
+            const height = Number(heightField?.value || 0);
+            if (!width || !height) return;
+            const ppi = Math.min(image.naturalWidth / width, image.naturalHeight / height);
+            qualityNote.textContent = ppi < 150
+              ? "Artwork resolution may be low at this print size. We'll review it before printing."
+              : "Preview loaded. We will check resolution, transparency, and print suitability before production.";
+          };
+          image.src = previewUrl;
+        } else {
+          emptyPreview.textContent = "File selected. Preview is available for PNG, JPG and WEBP only; other formats will be reviewed after submission.";
+        }
+      });
+
+      function renderChallenge() {
+        const host = document.getElementById("rn-transfer-turnstile");
+        if (!host || widgetId !== null || !window.turnstile?.render) return;
+        widgetId = window.turnstile.render(host, {
+          sitekey: host.dataset.sitekey,
+          action: "dtf_artwork",
+          theme: "light",
+          size: "flexible",
+        });
+      }
+      document.getElementById("rn-transfer-turnstile-api")?.addEventListener("load", renderChallenge);
+      window.addEventListener("load", renderChallenge);
+      renderChallenge();
+
+      function showResult(text, isError) {
+        result.textContent = text;
+        result.classList.remove("hidden");
+        result.classList.toggle("text-red-700", Boolean(isError));
+        result.classList.toggle("border-red-200", Boolean(isError));
+        result.classList.toggle("bg-red-50", Boolean(isError));
+        result.classList.toggle("text-emerald-700", !isError);
+        result.classList.toggle("border-emerald-200", !isError);
+        result.classList.toggle("bg-emerald-50", !isError);
+      }
+
+      form?.addEventListener("submit", async (event) => {
+        if (isolatedPreview) {
+          event.preventDefault();
+          document.getElementById("rn-transfer-result").textContent = "Quote submissions are unavailable in this isolated preview.";
+          document.getElementById("rn-transfer-result").classList.remove("hidden");
+          return;
+        }
+        event.preventDefault();
+        const file = fileInput?.files?.[0];
+        if (file && file.size > 15 * 1024 * 1024) {
+          showResult("Artwork must be 15 MB or smaller.", true);
+          return;
+        }
+        const width = Number(widthField.value);
+        const height = Number(heightField.value);
+        const qty = Number(form.elements.quantity.value);
+        if (!(width > 0 && width <= 100 && height > 0 && height <= 100 && Number.isInteger(qty) && qty > 0)) {
+          showResult("Enter valid dimensions and a positive whole-number quantity.", true);
+          return;
+        }
+        const data = new FormData(form);
+        if (file && file.name) {
+          if (widgetId === null || !window.turnstile?.getResponse?.(widgetId)) {
+            showResult("Complete the artwork security check before sending your file.", true);
+            return;
+          }
+          data.set("cf-turnstile-response", window.turnstile.getResponse(widgetId));
+        } else {
+          data.delete("artwork");
+        }
+        // Reuse the existing private DTF quote endpoint and its verified Turnstile protection.
+        const summary = [
+          "DTF TRANSFER QUOTE — ready-to-press transfer only (no shirt)",
+          "Size: " + width + " x " + height + " inches",
+          "Quantity: " + qty,
+          "Fulfillment: " + String(data.get("fulfillment") || ""),
+          "Print placement reference: " + (placements[String(data.get("printPlacement"))]?.label || "Full front"),
+          "Garment color reference (no shirt included): " + String(data.get("garmentColor") || "White"),
+          "Artwork: " + (file?.name || "Not attached"),
+          "Notes: " + String(data.get("notes") || "None"),
+          "Pricing: Pending review; no payment authorized",
+        ].join("\n");
+        data.set("message", summary);
+        // Only DTF-prefix contact types can submit private artwork using the existing backend.
+        data.set("contactType", "DTF transfer quote");
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending your transfer quote...";
+        showResult("Submitting your request securely...", false);
+        try {
+          const response = await fetch("/api/contact", { method: "POST", body: data });
+          const payload = await response.json();
+          if (!response.ok || payload.success !== true) throw new Error(payload.error || "Unable to submit your quote.");
+          showResult("Transfer quote " + (payload.quoteReference || "") + " received. We'll review your artwork, pricing, and timeline before payment.", false);
+          window.rnTrack?.("dtf_transfer_quote_submitted", { label: "DTF transfer quote", metadata: { hasArtwork: Boolean(file?.name) } });
+          form.reset();
+          fileNote.textContent = "No file selected. You can request a quote without artwork.";
+          clearPreview();
+          form.querySelector('input[name="sizePreset"][value="10.5x11"]').checked = true;
+          widthField.value = "10.5";
+          heightField.value = "11";
+          updateSummary();
+          updateShirtReference();
+          submitButton.textContent = "Quote Submitted";
+        } catch (error) {
+          showResult(error.message || "Unable to submit your quote.", true);
+          submitButton.textContent = "Request my DTF transfer quote →";
+        } finally {
+          if (widgetId !== null) window.turnstile?.reset?.(widgetId);
+          submitButton.disabled = false;
+        }
+      });
+      window.addEventListener("beforeunload", clearPreview);
+    </script>
+    <div class="hidden md:block"><WhatsAppChat /></div>
+    <SiteAnalytics />
+  </body>
+</html>
