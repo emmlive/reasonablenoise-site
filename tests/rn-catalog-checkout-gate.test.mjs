@@ -21,7 +21,7 @@ test("gate is opt-in and leaves legacy checkout untouched while disabled", async
 
 test("enabled gate allows only available, known, matching fixed price", async () => {
   const result = await authorizeCatalogCheckout({ RN_CATALOG_CHECKOUT_GATE_ENABLED: "true", RN_CATALOG_DB: db() }, pricing);
-  assert.deepEqual(result, { allowed: true, gate_active: true, product_id: "usdot-sticker-pair", version: 1 });
+  assert.deepEqual(result, { allowed: true, gate_active: true, product_id: "usdot-sticker-pair", version: 1, price_cents: 2900, price_mode: "fixed" });
   assert.equal(Object.keys(checkoutCatalogIds).length, 9);
 });
 
