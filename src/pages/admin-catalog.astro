@@ -1,0 +1,277 @@
+---
+import "../styles/global.css";
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>Product catalog administration | ReasonableNoise</title>
+    <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+  </head>
+  <body class="min-h-screen bg-[#F8FAFC] text-slate-900 antialiased">
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#111827] p-2">
+            <img src="/assets/rn-logo.png" alt="" class="h-full w-full object-contain" />
+          </div>
+          <div>
+            <p class="text-sm font-bold tracking-tight">ReasonableNoise</p>
+            <p class="text-xs text-slate-500">Print shop · Product management</p>
+          </div>
+        </div>
+        <a href="/" class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Return to storefront</a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <div class="mb-7 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Catalog workspace</p>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Products &amp; availability</h1>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Review products, adjust pricing, and set availability. Changes require a verified administrator session and are recorded by the catalog API.</p>
+        </div>
+        <button type="button" id="refresh" class="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold shadow-sm hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Refresh products</button>
+      </div>
+
+      <section aria-live="polite" aria-atomic="true" class="mb-6 rounded-xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700 shadow-sm" id="notice">
+        Checking catalog access…
+      </section>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,400px)]">
+        <section class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="products-heading">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 id="products-heading" class="text-lg font-bold">Product library</h2>
+            <span id="product-count" class="text-sm text-slate-500">No products loaded</span>
+          </div>
+          <div id="product-list" class="grid gap-3" aria-label="Products">
+            <p class="rounded-xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">Products will appear after administrator authorization.</p>
+          </div>
+        </section>
+        <section class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="editor-heading">
+          <h2 id="editor-heading" class="text-lg font-bold">Edit selected product</h2>
+          <p id="selection-caption" class="mb-5 mt-1 text-sm text-slate-500">Select a product to begin.</p>
+          <form id="product-form" class="grid gap-4">
+            <fieldset id="product-fields" disabled class="grid gap-4">
+              <div>
+                <label for="name" class="mb-1 block text-sm font-semibold">Product name</label>
+                <input id="name" name="name" required maxlength="120" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700" />
+              </div>
+              <div>
+                <label for="description" class="mb-1 block text-sm font-semibold">Description</label>
+                <textarea id="description" name="description" maxlength="2000" rows="3" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="price" class="mb-1 block text-sm font-semibold">Price (USD)</label>
+                  <input id="price" name="price" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700" />
+                </div>
+                <div>
+                  <label for="price_mode" class="mb-1 block text-sm font-semibold">Pricing type</label>
+                  <select id="price_mode" name="price_mode" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700">
+                    <option value="fixed">Fixed</option>
+                    <option value="starting_at">Starting at</option>
+                    <option value="quote_only">Quote only</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label for="image_url" class="mb-1 block text-sm font-semibold">Product image path</label>
+                <input id="image_url" name="image_url" maxlength="500" placeholder="/assets/example.png" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700" />
+                <p class="mt-1 text-xs text-slate-500">Approved local asset paths only. Images are not uploaded here.</p>
+              </div>
+              <div>
+                <label for="status" class="mb-1 block text-sm font-semibold">Availability</label>
+                <select id="status" name="status" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base focus-visible:outline-2 focus-visible:outline-blue-700">
+                  <option value="draft">Draft — not for sale</option>
+                  <option value="available">Available</option>
+                  <option value="out_of_stock">Out of stock</option>
+                  <option value="archived">Archived</option>
+                </select>
+                <p class="mt-1 text-xs text-amber-800">Availability edits do not yet control the existing checkout. Checkout integration requires a separate server-side release gate.</p>
+              </div>
+              <button id="save" type="submit" class="rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Save product changes</button>
+            </fieldset>
+          </form>
+        </section>
+      </div>
+    </main>
+    <script>
+      type CatalogProduct = {
+        id: string; name: string; description: string; image_url: string;
+        price_cents: number; price_mode: string; status: string; version: number;
+      };
+      const endpoint = "/api/admin-products";
+      const notice = document.querySelector<HTMLElement>("#notice")!;
+      const list = document.querySelector<HTMLElement>("#product-list")!;
+      const count = document.querySelector<HTMLElement>("#product-count")!;
+      const caption = document.querySelector<HTMLElement>("#selection-caption")!;
+      const fields = document.querySelector<HTMLFieldSetElement>("#product-fields")!;
+      const form = document.querySelector<HTMLFormElement>("#product-form")!;
+      const refreshButton = document.querySelector<HTMLButtonElement>("#refresh")!;
+      const saveButton = document.querySelector<HTMLButtonElement>("#save")!;
+      let products: CatalogProduct[] = [];
+      let selected: CatalogProduct | null = null;
+      let saving = false;
+      let loading = false;
+
+      function announce(message: string, error = false) {
+        notice.textContent = message;
+        notice.className = "mb-6 rounded-xl border px-4 py-4 text-sm shadow-sm " + (error
+          ? "border-amber-300 bg-amber-50 text-amber-950"
+          : "border-slate-200 bg-white text-slate-700");
+      }
+
+      function formatPrice(product: CatalogProduct) {
+        if (product.price_mode === "quote_only") return "Quote required";
+        const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price_cents / 100);
+        return product.price_mode === "starting_at" ? "From " + formatted : formatted;
+      }
+
+      function setField(id: string, value: string) {
+        const control = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+        if (control) control.value = value;
+      }
+
+      function choose(product: CatalogProduct) {
+        selected = product;
+        caption.textContent = "Editing " + product.name + " · revision " + product.version;
+        setField("name", product.name);
+        setField("description", product.description || "");
+        setField("price", (product.price_cents / 100).toFixed(2));
+        setField("price_mode", product.price_mode);
+        setField("image_url", product.image_url || "");
+        setField("status", product.status);
+        fields.disabled = false;
+        render();
+      }
+
+      function render() {
+        list.replaceChildren();
+        count.textContent = products.length + (products.length === 1 ? " product" : " products");
+        if (!products.length) {
+          const empty = document.createElement("p");
+          empty.className = "rounded-xl border border-dashed border-slate-200 p-6 text-sm text-slate-500";
+          empty.textContent = "No products returned by the catalog API.";
+          list.append(empty);
+          return;
+        }
+        for (const product of products) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.disabled = saving;
+          button.className = "w-full rounded-xl border p-4 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 " +
+            (selected?.id === product.id ? "border-blue-600 bg-blue-50" : "border-slate-200 bg-white hover:bg-slate-50");
+          const title = document.createElement("span");
+          title.className = "block font-semibold text-slate-900";
+          title.textContent = product.name;
+          const meta = document.createElement("span");
+          meta.className = "mt-1 block text-sm text-slate-600";
+          meta.textContent = formatPrice(product) + " · " + product.status.replaceAll("_", " ") + " · v" + product.version;
+          button.append(title, meta);
+          button.addEventListener("click", () => choose(product));
+          list.append(button);
+        }
+      }
+
+      async function load() {
+        if (loading || saving) return;
+        loading = true;
+        refreshButton.disabled = true;
+        fields.disabled = true;
+        announce("Checking administrator access and loading products…");
+        try {
+          const response = await fetch(endpoint, { method: "GET", credentials: "same-origin", cache: "no-store", redirect: "follow" });
+          const body = await response.json();
+          if (!response.ok || !body.success || !Array.isArray(body.products)) throw new Error(
+            response.status === 503 ? "Catalog administration is disabled or not configured. No changes can be made." :
+            response.status === 401 || response.status === 403 ? "Administrator access was not verified." :
+            "Catalog unavailable. Please check its protected environment."
+          );
+          products = body.products;
+          selected = null;
+          caption.textContent = "Select a product to begin.";
+          render();
+          announce(products.length + " product records loaded. Choose one to edit.");
+        } catch (error) {
+          products = [];
+          selected = null;
+          list.replaceChildren();
+          const locked = document.createElement("p");
+          locked.className = "rounded-xl border border-dashed border-slate-200 p-6 text-sm text-slate-500";
+          locked.textContent = "The protected catalog is not available.";
+          list.append(locked);
+          count.textContent = "Catalog locked";
+          caption.textContent = "No product selected.";
+          announce(error instanceof Error ? error.message : "Catalog unavailable.", true);
+        } finally {
+          loading = false;
+          refreshButton.disabled = false;
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!selected || saving) return;
+        const data = new FormData(form);
+        const numericPrice = Number(data.get("price"));
+        const cents = Math.round(numericPrice * 100);
+        if (!Number.isFinite(numericPrice) || !Number.isSafeInteger(cents) ||
+            cents < 0 || cents > 100000000 ||
+            Math.abs(numericPrice * 100 - cents) > 1e-6) {
+          announce("Enter a valid USD price with no more than two decimal places.", true);
+          return;
+        }
+        const patch = {
+          version: selected.version,
+          name: String(data.get("name") || "").trim(),
+          description: String(data.get("description") || ""),
+          price_cents: cents,
+          price_mode: String(data.get("price_mode") || ""),
+          image_url: String(data.get("image_url") || ""),
+          status: String(data.get("status") || ""),
+        };
+        saving = true;
+        fields.disabled = true;
+        saveButton.textContent = "Saving…";
+        announce("Saving the selected product…");
+        try {
+          const response = await fetch(endpoint + "?id=" + encodeURIComponent(selected.id), {
+            method: "PATCH",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(patch),
+          });
+          if (response.status === 409) {
+            announce("This product was changed elsewhere. Refresh before editing again.", true);
+            selected = null;
+            await load();
+            return;
+          }
+          if (!response.ok) {
+            announce(response.status === 401 || response.status === 403
+              ? "Save denied. Confirm your administrator access."
+              : "Changes could not be saved. Nothing is confirmed.", true);
+            return;
+          }
+          const body = await response.json();
+          if (!body.success || !body.product || body.product.id !== selected.id) throw new Error("Save was not confirmed.");
+          products = products.map(p => p.id === body.product.id ? body.product : p);
+          choose(body.product);
+          announce("Changes saved and recorded. Revision " + body.product.version + ".");
+        } catch (_) {
+          announce("Unable to confirm the save. Refresh before trying again.", true);
+        } finally {
+          saving = false;
+          saveButton.textContent = "Save product changes";
+          fields.disabled = !selected;
+          render();
+        }
+      });
+      refreshButton.addEventListener("click", load);
+      void load();
+    </script>
+  </body>
+</html>
