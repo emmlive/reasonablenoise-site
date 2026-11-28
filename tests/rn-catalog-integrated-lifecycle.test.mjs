@@ -196,6 +196,8 @@ test("integrated D1 admin status -> checkout -> stock change -> paid snapshot ->
     const webhookEnv = {
       RN_CATALOG_CHECKOUT_GATE_ENABLED: "true",
       RN_CATALOG_ORDER_SNAPSHOT_REQUIRED: "true",
+      RN_CATALOG_FULFILLMENT_REVIEW_ENABLED: "true",
+      RN_CATALOG_DB: db,
       RN_CATALOG_SNAPSHOT_SECRET: SNAPSHOT_KEY,
       STRIPE_WEBHOOK_SECRET: WEBHOOK_KEY,
       ARTWORK_BUCKET: r2,
@@ -214,6 +216,9 @@ test("integrated D1 admin status -> checkout -> stock change -> paid snapshot ->
     assert.equal(firstRecord.catalog_snapshot.catalog_version, 2);
     assert.equal(firstRecord.catalog_snapshot.checkout_cents, 2900);
     assert.equal(firstRecord.catalog_snapshot.catalog_price_cents, 2900);
+    assert.equal(firstRecord.fulfillment.inventory_review_required, true);
+    assert.equal(firstRecord.fulfillment.inventory_review_reason, "availability_changed");
+    assert.equal(firstRecord.fulfillment.inventory_observed_status, "out_of_stock");
     assert.equal((await db.prepare("SELECT status,version FROM rn_catalog_products WHERE id=?").bind(PRODUCT_ID).first()).status, "out_of_stock");
 
     const emailCount = requests.emails;
@@ -223,21 +228,42 @@ test("integrated D1 admin status -> checkout -> stock change -> paid snapshot ->
     assert.equal(requests.emails, emailCount);
     assert.equal(r2.writes.filter(key => key === orderKey).length, 1);
 
-    response = await setOrderStatus({
-      request: new Request("https://catalog.test.invalid/api/order-status", {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-admin-order-token": "disposable-admin" },
-        body: JSON.stringify({
-          orderReference: createdSession.client_reference_id,
-          status: "completed",
-          catalog_snapshot: { catalog_version: 999 },
-        }),
+    const fulfillmentRequest = (body, jwt = "") => new Request("https://catalog.test.invalid/api/order-status", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-admin-order-token": "disposable-admin",
+        ...(jwt ? { "cf-access-jwt-assertion": jwt } : {}),
+      },
+      body: JSON.stringify({
+        orderReference: createdSession.client_reference_id,
+        status: "completed",
+        catalog_snapshot: { catalog_version: 999 },
+        ...body,
       }),
+    });
+    // The existing orders emergency token alone must not release flagged stock.
+    response = await setOrderStatus({
+      request: fulfillmentRequest({}),
       env: { ARTWORK_BUCKET: r2, ADMIN_ORDER_TOKEN: "disposable-admin" },
+    });
+    assert.equal(response.status, 409);
+    assert.equal((await response.json()).code, "INVENTORY_REVIEW_REQUIRED");
+    assert.equal(JSON.parse(r2.values.get(orderKey)).status, "order_received");
+
+    response = await setOrderStatus({
+      request: fulfillmentRequest({
+        inventory_review_resolution: "approved",
+        inventory_review_note: "Physical stock checked and fulfillment approved.",
+      }, token),
+      env: { ...catalogEnv(db), ARTWORK_BUCKET: r2, ADMIN_ORDER_TOKEN: "disposable-admin" },
     });
     assert.equal(response.status, 200);
     const final = JSON.parse(r2.values.get(orderKey));
     assert.equal(final.status, "completed");
+    assert.equal(final.fulfillment.inventory_review_required, false);
+    assert.equal(final.fulfillment.inventory_review_resolved_by, ADMIN_EMAIL);
+    assert.ok(final.timeline.some(item => item.status === "inventory_review_approved"));
     assert.deepEqual(final.catalog_snapshot, firstRecord.catalog_snapshot);
     const audits = await db.prepare("SELECT previous_version,next_version FROM rn_catalog_audit WHERE product_id=? ORDER BY id").bind(PRODUCT_ID).all();
     assert.deepEqual(audits.results.map(a => [a.previous_version, a.next_version]), [[1,2],[2,3]]);
