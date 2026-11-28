@@ -6,11 +6,17 @@ import { inventoryPagesFunctions, assessPreviewCompatibility, forbiddenPreviewLi
 const inventory = inventoryPagesFunctions(path.resolve("functions/api"));
 const routes = inventory.map(x => x.route);
 
-test("all ten existing API routes audited, including catalog, checkout and webhook", () => {
-  assert.equal(inventory.length, 10);
-  for (const route of ["/api/admin-products", "/api/create-checkout-session", "/api/stripe-webhook", "/api/upload-artwork", "/api/contact"]) {
+test("all eleven existing API routes audited, including catalog, checkout and webhook", () => {
+  assert.equal(inventory.length, 11);
+  for (const route of ["/api/admin-products", "/api/catalog", "/api/create-checkout-session", "/api/stripe-webhook", "/api/upload-artwork", "/api/contact"]) {
     assert.ok(routes.includes(route), route);
   }
+});
+test("preview catalog API remains disabled in isolated Pages acceptance", () => {
+  const route = inventory.find(x => x.route === "/api/catalog");
+  assert.ok(route);
+  assert.ok(route.references.includes("RN_PUBLIC_CATALOG_ENABLED"));
+  assert.ok(route.references.includes("RN_CATALOG_DB"));
 });
 test("Preview-only D1 candidate is NOT falsely certified for entire application", () => {
   const result = assessPreviewCompatibility(inventory, ["RN_CATALOG_DB"]);
