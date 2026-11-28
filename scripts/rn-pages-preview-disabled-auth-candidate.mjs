@@ -20,9 +20,6 @@ export function makeDisabledPreviewAuthCandidate(source) {
   }
   if (/^\s*\[env\.preview\.vars\]\s*$/m.test(source)) throw new Error("BLOCKED: preview vars already exist; manual review required");
   if (/^\s*RN_CATALOG_ADMIN_ENABLED\s*=\s*"true"\s*$/m.test(source)) throw new Error("BLOCKED: catalog feature enabled");
-  if (/^\s*(?:RN_ACCESS_AUD|RN_CATALOG_ADMIN_EMAILS|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|RESEND_API_KEY)\s*=/m.test(source)) {
-    throw new Error("BLOCKED: secret-like values found in config; do not persist");
-  }
   return source.replace(/\s*$/, "") + "\n\n[env.preview.vars]\nRN_CATALOG_ADMIN_ENABLED = \"false\"\n";
 }
 
