@@ -113,6 +113,6 @@ test("shop starts unconfirmed, updates only from public catalog and hides unpubl
   assert.match(shop, /card\.style\.display = show \? "" : "none"/);
   assert.match(shop, /data-shop-filter/);
   assert.match(shop, /aria-pressed/);
-  assert.match(shop, /no longer/i.test(shop) ? /./ : /Live product availability is not confirmed/);
+  assert.match(shop, /Live product availability is not confirmed/);
   assert.doesNotMatch(shop, /https?:\/\/api\.stripe\.com/);
 });
