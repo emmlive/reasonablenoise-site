@@ -252,7 +252,7 @@ const transferSizes = [
 
     <script>
       const form = document.getElementById("rn-transfer-form");
-      const isolatedPreview = /(?:^|\\.)reasonablenoise-catalog-isolated\\.pages\\.dev$/.test(window.location.hostname);
+      const isolatedPreview = window.location.hostname === "reasonablenoise-catalog-isolated.pages.dev" || window.location.hostname.endsWith(".reasonablenoise-catalog-isolated.pages.dev");
       if (isolatedPreview) document.getElementById("rn-transfer-preview-notice")?.classList.remove("hidden");
       const fileInput = document.getElementById("rn-transfer-artwork");
       const fileNote = document.getElementById("rn-transfer-file-note");
