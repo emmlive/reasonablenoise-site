@@ -36,6 +36,9 @@ on:
       - "functions/api/order-status.js"
       - "functions/api/admin-orders.js"
       - "tests/rn-catalog-fulfillment-review.test.mjs"
+      - "src/pages/admin-orders.astro"
+      - "src/pages/admin-order-update.astro"
+      - "tests/rn-catalog-inventory-review-ui.test.mjs"
 
 permissions:
   contents: read
@@ -75,6 +78,8 @@ jobs:
         run: node --test tests/rn-catalog-order-snapshot.test.mjs
       - name: Paid-order manual inventory review and fulfillment restrictions
         run: node --test tests/rn-catalog-fulfillment-review.test.mjs
+      - name: Review flag and signed-approval UI source contracts
+        run: node --test tests/rn-catalog-inventory-review-ui.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
