@@ -6,6 +6,9 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const accessDomain = /^[a-z0-9-]+\.cloudflareaccess\.com$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isFalse = value => value === "false" || value === "0" || value === "unset";
+const isolatedHost = "reasonablenoise-catalog-isolated.pages.dev";
+const isIsolatedHost = host => host === isolatedHost ||
+  /^[a-z0-9-]+\.reasonablenoise-catalog-isolated\.pages\.dev$/.test(host);
 
 export function validateHostedReadiness(env = {}) {
   const checks = [
@@ -19,10 +22,10 @@ export function validateHostedReadiness(env = {}) {
     ["admin_allowlist", Boolean((env.RN_CATALOG_ADMIN_EMAILS || "").split(",").map(x => x.trim()).filter(Boolean).length) &&
       (env.RN_CATALOG_ADMIN_EMAILS || "").split(",").map(x => x.trim()).every(x => emailPattern.test(x))],
     ["preview_host_distinct_from_production", Boolean(env.RN_PREVIEW_HOST) &&
-      /^[a-z0-9.-]+$/.test(env.RN_PREVIEW_HOST) &&
-      !["reasonablenoise.com", "www.reasonablenoise.com"].includes(env.RN_PREVIEW_HOST)],
+      isIsolatedHost(env.RN_PREVIEW_HOST)],
     ["access_route_covers_admin_api", env.RN_ACCESS_APPLICATION_PATH === "/api/admin-products*" ||
-      env.RN_ACCESS_APPLICATION_PATH === "*.reasonablenoise-site.pages.dev"],
+      env.RN_ACCESS_APPLICATION_PATH === isolatedHost ||
+      env.RN_ACCESS_APPLICATION_PATH === "*." + isolatedHost],
   ];
   const failed = checks.filter(([, pass]) => !pass).map(([name]) => name);
   return { status: failed.length ? "BLOCKED" : "CONFIG_PRECHECK_PASS",
