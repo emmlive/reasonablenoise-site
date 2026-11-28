@@ -39,6 +39,13 @@ on:
       - "src/pages/admin-orders.astro"
       - "src/pages/admin-order-update.astro"
       - "tests/rn-catalog-inventory-review-ui.test.mjs"
+      - "functions/api/catalog.js"
+      - "src/data/printShopCatalog.js"
+      - "src/pages/index.astro"
+      - "src/pages/shop.astro"
+      - "public/sitemap.xml"
+      - "tests/rn-storefront-experience.test.mjs"
+      - "tests/brand-voice-rn-v1.test.mjs"
 
 permissions:
   contents: read
@@ -80,6 +87,8 @@ jobs:
         run: node --test tests/rn-catalog-fulfillment-review.test.mjs
       - name: Review flag and signed-approval UI source contracts
         run: node --test tests/rn-catalog-inventory-review-ui.test.mjs
+      - name: Light storefront, published availability and static pricing parity
+        run: node --test tests/rn-storefront-experience.test.mjs tests/brand-voice-rn-v1.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
