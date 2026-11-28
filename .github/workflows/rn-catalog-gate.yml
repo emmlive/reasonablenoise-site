@@ -10,6 +10,7 @@ on:
       - "tests/rn-catalog-admin.test.mjs"
       - "tests/rn-catalog-workerd.test.mjs"
       - "tests/rn-catalog-hosted-preflight.test.mjs"
+      - "docs/rn-final-release-readiness.md"
       - "scripts/rn-catalog-hosted-boundary.mjs"
       - "tests/rn-catalog-hosted-boundary.test.mjs"
       - "scripts/rn-catalog-hosted-preflight.mjs"
