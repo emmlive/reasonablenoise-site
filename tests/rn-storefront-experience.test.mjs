@@ -116,3 +116,16 @@ test("shop starts unconfirmed, updates only from public catalog and hides unpubl
   assert.match(shop, /Live product availability is not confirmed/);
   assert.doesNotMatch(shop, /https?:\/\/api\.stripe\.com/);
 });
+
+test("apparel card uses full-width desktop feature without breaking category filtering or honest quotes", () => {
+  assert.match(shop, /item\.id === "dtf-shirts" \? "lg:col-span-3 lg:flex-row"/);
+  assert.match(shop, /item\.id === "dtf-shirts" \? "lg:h-auto lg:min-h-56 lg:w-1\/3 lg:shrink-0"/);
+  assert.match(shop, /item\.id === "dtf-shirts" \? "lg:p-8"/);
+  assert.match(shop, /card\.dataset\.shopCategory === activeFilter/);
+  assert.match(shop, /item\.cta/);
+  const apparel = printShopItems.filter(x => x.category === "Apparel");
+  assert.equal(apparel.length, 1);
+  assert.equal(apparel[0].id, "dtf-shirts");
+  assert.equal(apparel[0].pricing, "quote_only");
+  assert.equal(apparel[0].href, "/contact?topic=dtf");
+});
