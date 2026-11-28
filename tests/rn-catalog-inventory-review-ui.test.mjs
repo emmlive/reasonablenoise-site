@@ -27,7 +27,7 @@ test("review approval requires explicit checkbox and sends typed explanation onl
   assert.match(update, /reviewExplanation\.length < 12/);
   assert.match(update, /inventory_review_resolution: "approved"/);
   assert.match(update, /inventory_review_note: reviewExplanation/);
-  assert.match(update, /Signed Cloudflare Access administrator session/);
+  assert.match(update, /signed Cloudflare Access administrator session/i);
 });
 
 test("server requires verified JWT and explanation before completing a flagged order", () => {
