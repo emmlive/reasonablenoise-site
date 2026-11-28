@@ -18,7 +18,7 @@ test("all seven core customer pages share the clear, grounded service promise", 
   const assurance = read("src/components/BrandAssurance.astro");
   for (const page of pages) {
     assert.match(read(page), /import BrandAssurance from/);
-    assert.match(read(page), /<BrandAssurance(?: compact)?\s*\/>/);
+    assert.match(read(page), /<BrandAssurance(?: compact| theme="light")?\s*\/>/);
   }
   assert.match(assurance, /Clear expectations/);
   assert.match(assurance, /Care with every design/);
