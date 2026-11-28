@@ -32,6 +32,10 @@ on:
       - "functions/api/stripe-webhook.js"
       - "tests/rn-catalog-order-snapshot.test.mjs"
       - "tests/rn-catalog-integrated-lifecycle.test.mjs"
+      - "functions/_catalog-fulfillment-review.js"
+      - "functions/api/order-status.js"
+      - "functions/api/admin-orders.js"
+      - "tests/rn-catalog-fulfillment-review.test.mjs"
 
 permissions:
   contents: read
@@ -69,6 +73,8 @@ jobs:
         run: node --test tests/rn-catalog-checkout-gate.test.mjs
       - name: Signed catalog paid order snapshot end-to-end tests (mock Stripe, R2)
         run: node --test tests/rn-catalog-order-snapshot.test.mjs
+      - name: Paid-order manual inventory review and fulfillment restrictions
+        run: node --test tests/rn-catalog-fulfillment-review.test.mjs
       - name: Astro production build (no deployment)
         run: npm run build
       - name: Install disposable workerd/Miniflare test runtime (no lockfile changes)
