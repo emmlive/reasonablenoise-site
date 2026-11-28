@@ -78,3 +78,35 @@ test("local development retains existing handlers without production secrets", (
   const request = new Request("http://localhost:8788/api/contact", { method: "POST" });
   assert.equal(catalogPreviewDecision(request), "local-pass");
 });
+
+test("independent catalog acceptance project canonical and hashed hosts are catalog-only", async () => {
+  const hosts = [
+    "reasonablenoise-catalog-isolated.pages.dev",
+    "a1b2c3d4.reasonablenoise-catalog-isolated.pages.dev",
+    "feature-rn-catalog.reasonablenoise-catalog-isolated.pages.dev",
+  ];
+  for (const host of hosts) {
+    for (const method of ["GET", "PATCH"]) {
+      const request = new Request(`https://${host}/api/admin-products`, { method });
+      assert.equal(catalogPreviewDecision(request), "catalog-pass", host);
+    }
+    for (const endpoint of ["stripe-webhook", "upload-artwork", "create-checkout-session", "contact", "order-status"]) {
+      let reached = false;
+      const request = new Request(`https://${host}/api/${endpoint}`, { method: "POST" });
+      const response = await onRequest({request, next: () => { reached = true; return new Response("UNSAFE"); }});
+      assert.equal(response.status, 403, host + "/" + endpoint);
+      assert.equal(reached, false);
+    }
+  }
+});
+
+test("catalog acceptance domain lookalikes and another Pages project stay denied", () => {
+  for (const host of [
+    "reasonablenoise-catalog-isolated.pages.dev.evil.test",
+    "reasonablenoise-catalog-isolated.evil.pages.dev",
+    "other-reasonablenoise-catalog-isolated.pages.dev",
+    "otherproject.pages.dev",
+  ]) {
+    assert.equal(catalogPreviewDecision(new Request(`https://${host}/api/admin-products`)), "deny", host);
+  }
+});
