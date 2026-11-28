@@ -1,3 +1,4 @@
+import { authorizeCatalogCheckout } from "../_catalog-checkout-gate.js";
 ﻿function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -200,6 +201,12 @@ export async function onRequestPost(context) {
         success: false,
         error: "Please enter your name and email before checkout.",
       }, 400);
+    }
+
+    // When expressly enabled, availability and price integrity are authoritative before Stripe.
+    const catalogDecision = await authorizeCatalogCheckout(env, checkoutPricing);
+    if (!catalogDecision.allowed) {
+      return json({ success: false, error: "This product cannot be checked out right now.", code: catalogDecision.code }, catalogDecision.status);
     }
 
     const params = new URLSearchParams();
