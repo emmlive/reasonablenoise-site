@@ -1,460 +1,245 @@
-﻿---
+---
 import "../styles/global.css";
 import SiteAnalytics from "../components/SiteAnalytics.astro";
 import WhatsAppChat from "../components/WhatsAppChat.astro";
 import QuickQuote from "../components/QuickQuote.astro";
 import BrandAssurance from "../components/BrandAssurance.astro";
+import { printShopItems } from "../data/printShopCatalog.js";
 
-const products = [
-  {
-    title: "USDOT Sticker Sets",
-    text: "Clean, compliant-looking USDOT number decals for trucks, trailers, and commercial vehicles.",
-  },
-  {
-    title: "Custom Business Decals",
-    text: "Upload your logo, artwork, or idea and get premium vinyl stickers made for your brand.",
-  },
-  {
-    title: "Fleet Lettering",
-    text: "Consistent vehicle branding for multiple trucks, vans, trailers, and service vehicles.",
-  },
-];
-
-const steps = [
-  "Choose your sticker type",
-  "Send your USDOT number or design",
-  "Approve the layout",
-  "We print and prepare your order",
-];
-
+const featured = [
+  printShopItems.find((item) => item.id === "usdot-sticker-pair"),
+  printShopItems.find((item) => item.id === "custom-business-decals"),
+  printShopItems.find((item) => item.id === "truck-door-lettering"),
+].filter(Boolean);
 const homeSeoFaqs = [
   {
     question: "What does ReasonableNoise make?",
-    answer:
-      "ReasonableNoise makes premium USDOT stickers, custom business decals, commercial vehicle lettering, fleet decals, and vinyl stickers for brands and working vehicles.",
+    answer: "ReasonableNoise makes USDOT stickers, custom business decals, truck door lettering, fleet lettering, logo stickers, and custom DTF shirt requests.",
   },
   {
-    question: "Can I order custom decals with my logo?",
-    answer:
-      "Yes. You can upload your logo, artwork, reference image, or design file through the secure upload order form.",
+    question: "Can I upload a logo or artwork?",
+    answer: "Yes. You can share artwork or reference files when starting a sticker or decal order, or request a DTF shirt quote.",
   },
   {
-    question: "Can ReasonableNoise make decals for trucks and fleets?",
-    answer:
-      "Yes. ReasonableNoise can prepare USDOT number decals, truck lettering, trailer decals, van decals, and matching fleet branding for multiple vehicles.",
+    question: "Can I choose shipping or local pickup?",
+    answer: "For sticker and decal orders, choose local pickup or shipping and review the checkout amount before payment.",
   },
 ];
-
 ---
-
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>ReasonableNoise | Premium USDOT Stickers &amp; Custom Decals</title>
-    <meta name="description" content="Order premium USDOT stickers, custom decals, business stickers, and fleet lettering for commercial vehicles and brands." />
-    <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
-    <link rel="shortcut icon" type="image/png" href="/assets/rn-logo.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-  
-    <!-- RN-2I-A SEO START -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ReasonableNoise | USDOT Stickers, Custom Decals &amp; Print Shop</title>
+    <meta name="description" content="Shop USDOT sticker sets, custom decals, vehicle lettering and DTF shirt quotes. Clear pricing guides, artwork upload, pickup or shipping." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://reasonablenoise.com/" />
+    <link rel="icon" type="image/png" href="/assets/rn-logo.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ReasonableNoise" />
-    <meta property="og:title" content="ReasonableNoise | Premium USDOT Stickers &amp; Custom Decals" />
-    <meta property="og:description" content="Order premium USDOT stickers, custom decals, business stickers, and fleet lettering for commercial vehicles and brands." />
+    <meta property="og:title" content="ReasonableNoise | USDOT Stickers, Custom Decals & Print Shop" />
+    <meta property="og:description" content="Discover USDOT sticker sets, custom decals and print-shop ordering with clear next steps." />
     <meta property="og:url" content="https://reasonablenoise.com/" />
     <meta property="og:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ReasonableNoise | Premium USDOT Stickers &amp; Custom Decals" />
-    <meta name="twitter:description" content="Order premium USDOT stickers, custom decals, business stickers, and fleet lettering for commercial vehicles and brands." />
+    <meta name="twitter:title" content="ReasonableNoise Print Shop" />
+    <meta name="twitter:description" content="Custom printing made clear, from your idea to your order." />
     <meta name="twitter:image" content="https://reasonablenoise.com/assets/rn-logo.png" />
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "ReasonableNoise",
-  "url": "https://reasonablenoise.com",
-  "logo": "https://reasonablenoise.com/assets/rn-logo.png",
-  "description": "ReasonableNoise creates premium USDOT stickers, custom decals, business stickers, and fleet lettering."
-}
-    </script>
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "ReasonableNoise",
-  "url": "https://reasonablenoise.com"
-}
-    </script>
     <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
+      "@context": "https://schema.org", "@type": "Organization",
+      name: "ReasonableNoise", url: "https://reasonablenoise.com",
+      logo: "https://reasonablenoise.com/assets/rn-logo.png",
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org", "@type": "FAQPage",
       mainEntity: homeSeoFaqs.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
+        "@type": "Question", name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
       })),
     })} />
-    <!-- RN-2I-A SEO END -->
   </head>
-
-  <body class="min-h-screen bg-[#050608] text-white antialiased">
-    <main class="relative overflow-hidden">
-      <div class="absolute inset-0 -z-10">
-        <div class="absolute left-1/2 top-0 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-[120px]"></div>
-        <div class="absolute right-[-120px] top-[260px] h-[420px] w-[420px] rounded-full bg-cyan-400/10 blur-[100px]"></div>
-        <div class="absolute left-[-120px] bottom-[120px] h-[360px] w-[360px] rounded-full bg-white/10 blur-[120px]"></div>
+  <body class="min-h-screen bg-[#F9FAF8] text-[#162234] antialiased">
+    <div class="border-b border-[#E6EBE9] bg-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs font-medium text-slate-600 sm:px-6">
+        <span>Thoughtful printing for working vehicles &amp; businesses</span>
+        <a href="/contact" class="font-semibold text-blue-700 underline-offset-4 hover:underline">Questions? Contact us</a>
       </div>
-
-      <header class="rn-reveal mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
-        <a href="/" class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-black p-2 shadow-lg shadow-black/30 ring-1 ring-white/10 sm:h-16 sm:w-16 sm:rounded-3xl">
-            <img
-              src="/assets/rn-logo.png"
-              alt="ReasonableNoise logo"
-              class="h-full w-full object-contain"
-            />
-          </div>
-          <div>
-            <p class="text-sm font-semibold tracking-wide">ReasonableNoise</p>
-            <p class="hidden text-xs text-white/50 sm:block">Premium sticker printing</p>
-          </div>
+    </div>
+    <header class="border-b border-[#E6EBE9] bg-white/95">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <a href="/" class="flex items-center gap-3" aria-label="ReasonableNoise home">
+          <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-black p-2">
+            <img src="/assets/rn-logo.png" alt="" width="44" height="44" class="h-full w-full object-contain" />
+          </span>
+          <span>
+            <span class="block text-base font-extrabold tracking-tight">ReasonableNoise</span>
+            <span class="block text-xs font-medium text-slate-500">Custom print shop</span>
+          </span>
         </a>
-
-        <nav class="hidden items-center gap-8 text-sm text-white/70 lg:flex">
-          <a class="hover:text-white" href="/usdot-stickers">USDOT Stickers</a>
-          <a class="hover:text-white" href="/faq">FAQ</a>
-          <a class="hover:text-white" href="/upload-design">Upload Design</a>
+        <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-700 sm:gap-6">
+          <a class="rounded-md py-2 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700" href="/shop">Shop products</a>
+          <a class="hidden rounded-md py-2 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700 sm:inline" href="/usdot-stickers">USDOT stickers</a>
+          <a class="hidden rounded-md py-2 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700 md:inline" href="/dtf-shirts">DTF shirts</a>
+          <a href="/upload-design" class="rounded-full bg-[#175CD3] px-4 py-3 text-center text-white shadow-sm transition hover:bg-[#1248A8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:px-5">Start an order</a>
         </nav>
-
-        <div class="flex items-center gap-3">
-        <a
-          data-rn-hero-quote-link
-          href="#quick-quote"
-          class="hidden rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white shadow-2xl shadow-white/10 transition hover:bg-white/10 sm:inline-flex"
-        >
-          Get Quote
-        </a>
-<a
-          href="/upload-design"
-          class="shrink-0 rounded-full border border-white/15 bg-white px-4 py-3 text-xs font-bold text-black shadow-2xl shadow-white/10 transition hover:bg-white/90 sm:px-5 sm:text-sm"
-        >
-          Start Order
-        </a>
       </div>
-      </header>
-
-      <section class="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:pb-28 lg:pt-24">
-        <div>
-          <div class="rn-reveal rn-delay-1 mb-5 inline-flex max-w-full rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs leading-5 text-white/70 backdrop-blur sm:text-sm">
-            USDOT stickers • custom decals • fleet branding
-          </div>
-
-          <h1 class="rn-reveal rn-delay-2 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl xl:text-7xl">
-            Custom printing made clear, from your idea to your order.
-          </h1>
-
-          <p class="rn-reveal rn-delay-3 mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
-            From a single USDOT sticker set to branded decals for your business, we make it easier to share your details, understand your options, and know what happens next.
-          </p>
-
-          <div class="rn-reveal rn-delay-4 mt-9 flex flex-col flex-wrap gap-4 sm:flex-row">
-            <a
-              data-rn-primary-quote-cta
-              href="#quick-quote"
-              class="rounded-full bg-cyan-300 px-7 py-4 text-center text-sm font-black text-black shadow-2xl shadow-cyan-300/20 transition hover:bg-cyan-200"
-            >
-              Get Quote First
-            </a>
-            <a
-              href="/upload-design"
-              class="rounded-full bg-white px-7 py-4 text-center text-sm font-bold text-black shadow-2xl shadow-white/10 transition hover:bg-white/90"
-            >
-              Order USDOT Stickers
-            </a>
-            <a
-              href="/usdot-stickers"
-              class="rounded-full border border-white/15 bg-white/5 px-7 py-4 text-center text-sm font-bold text-white backdrop-blur transition hover:bg-white/10"
-            >
-              View Products
-            </a>
-          </div>
-
-          <div class="rn-reveal rn-delay-5 mt-10 grid max-w-lg gap-4 text-sm text-white/60 sm:grid-cols-3">
-            <div>
-              <p class="text-2xl font-semibold text-white">Vinyl</p>
-              <p>Weather-resistant material</p>
+    </header>
+    <main>
+      <section class="relative overflow-hidden border-b border-[#E6EBE9] bg-gradient-to-br from-[#F8FAFD] via-white to-[#F1F5FB]">
+        <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-14 lg:py-24">
+          <div>
+            <p class="inline-flex rounded-full border border-[#C7D7F0] bg-[#EAF2FE] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#175CD3]">Made for businesses that move</p>
+            <h1 class="mt-7 max-w-2xl text-4xl font-extrabold leading-[1.07] tracking-[-0.045em] text-[#142035] sm:text-5xl lg:text-6xl xl:text-7xl">
+              Your next print job, <span class="text-[#175CD3]">made simple.</span>
+            </h1>
+            <p class="mt-6 max-w-xl text-lg leading-8 text-slate-600">Custom printing made clear, from your idea to your order. Get USDOT stickers, business decals and vehicle lettering with an easy way to share your details.</p>
+            <div class="mt-8 flex flex-col flex-wrap gap-3 sm:flex-row">
+              <a href="/shop" class="rounded-full bg-[#175CD3] px-7 py-4 text-center text-sm font-bold text-white shadow-lg shadow-blue-700/10 transition hover:bg-[#1248A8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Explore products</a>
+              <a href="#quick-quote" data-rn-primary-quote-cta class="rounded-full border border-[#CAD6E5] bg-white px-7 py-4 text-center text-sm font-bold text-slate-900 transition hover:border-[#175CD3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Get Quote First</a>
+              <a href="/upload-design" class="rounded-full border border-[#CAD6E5] bg-white px-7 py-4 text-center text-sm font-bold text-slate-900 transition hover:border-[#175CD3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Upload design</a>
             </div>
-            <div>
-              <p class="text-2xl font-semibold text-white">Fast</p>
-              <p>Simple order process</p>
-            </div>
-            <div>
-              <p class="text-2xl font-semibold text-white">Custom</p>
-              <p>Upload your own design</p>
+            <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
+              <span class="flex items-center gap-2"><span class="text-[#175CD3]" aria-hidden="true">✓</span> Clear price guides</span>
+              <span class="flex items-center gap-2"><span class="text-[#175CD3]" aria-hidden="true">✓</span> Pickup or shipping</span>
+              <span class="flex items-center gap-2"><span class="text-[#175CD3]" aria-hidden="true">✓</span> Your own artwork welcome</span>
             </div>
           </div>
-        </div>
-
-        <div class="rn-reveal rn-delay-4 relative">
-          <div class="rn-float rounded-[2rem] border border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-black/40 backdrop-blur-xl sm:rounded-[2.5rem] sm:p-5">
-            <div class="rounded-[1.5rem] bg-[#0b0d12] p-4 sm:rounded-[2rem] sm:p-6">
-              <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p class="text-xs uppercase tracking-[0.35em] text-cyan-300">Vehicle decal preview</p>
-                  <p class="mt-2 text-xl font-semibold sm:text-2xl">USDOT 1234567</p>
-                </div>
-                <div class="rn-pulse-soft rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-                  Print Ready
-                </div>
-              </div>
-
-              <div class="rounded-3xl bg-gradient-to-br from-zinc-900 to-black p-4 sm:p-6">
-                <div class="rn-shimmer rounded-2xl border border-white/10 bg-white p-4 text-black shadow-xl sm:p-6">
-                  <p class="text-xs font-bold tracking-widest sm:text-sm">REASONABLENOISE LOGISTICS</p>
-                  <p class="mt-5 text-4xl font-black tracking-tight sm:text-5xl">USDOT</p>
-                  <p class="text-5xl font-black tracking-tighter sm:text-6xl">1234567</p>
-                  <p class="mt-5 text-xs font-semibold uppercase tracking-[0.25em] text-black/50">
-                    Commercial Vehicle Decal Set
-                  </p>
-                </div>
-              </div>
-
-              <div class="mt-5 grid gap-3 text-xs text-white/60 sm:grid-cols-3">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="font-semibold text-white">2 sides</p>
-                  <p>left + right</p>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="font-semibold text-white">Custom</p>
-                  <p>name + number</p>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="font-semibold text-white">Durable</p>
-                  <p>outdoor vinyl</p>
-                </div>
+          <div class="relative rounded-[2rem] border border-[#DDE6F2] bg-white p-5 shadow-[0_25px_80px_rgba(32,51,81,0.10)] sm:p-7">
+            <div class="mb-5 flex items-center justify-between gap-2">
+              <div><p class="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Print preview</p><p class="mt-1 text-lg font-bold">Commercial vehicle decals</p></div>
+              <span class="rounded-full bg-[#EAF2FE] px-3 py-1 text-xs font-semibold text-blue-700">Sample artwork</span>
+            </div>
+            <div class="relative rounded-[1.5rem] bg-[#ECF2F8] p-6 sm:p-9">
+              <div class="mx-auto max-w-md rotate-[-2deg] rounded-xl bg-white p-6 text-[#111827] shadow-xl ring-1 ring-[#D6DFE9] sm:p-8">
+                <p class="text-xs font-extrabold tracking-[0.18em]">YOUR BUSINESS NAME</p>
+                <p class="mt-7 text-3xl font-black tracking-tight sm:text-5xl">USDOT</p>
+                <p class="text-4xl font-black tracking-[-0.05em] sm:text-6xl">1234567</p>
+                <p class="mt-7 text-xs font-bold uppercase tracking-[0.19em] text-slate-500">Custom vehicle lettering</p>
               </div>
             </div>
+            <div class="mt-5 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-xl bg-[#F7F9FC] p-4"><p class="font-bold">USDOT pairs</p><p class="mt-1 text-slate-500">Price guide from $29</p></div>
+              <div class="rounded-xl bg-[#F7F9FC] p-4"><p class="font-bold">Custom decals</p><p class="mt-1 text-slate-500">Made for your artwork</p></div>
+            </div>
+            <p class="mt-4 text-xs leading-5 text-slate-500">Illustrative design only. Final artwork, pricing and availability are reviewed during ordering.</p>
           </div>
         </div>
       </section>
 
-      <section id="products" class="rn-reveal mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+      <section id="products" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+        <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">USDOT Stickers</p>
-            <h2 class="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-              Stickers made for vehicles, businesses, and real-world use.
-            </h2>
+            <p class="text-xs font-extrabold uppercase tracking-[0.16em] text-blue-700">Browse the print shop</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Start with what you need printed.</h2>
+            <p class="mt-3 max-w-xl leading-7 text-slate-600">Explore clear product options. Final availability is confirmed when you order.</p>
           </div>
-          <p class="max-w-md text-white/60">
-            Choose a ready-to-order sticker option or tell us about a custom project. We'll explain the next step before you commit.
-          </p>
+          <a href="/shop" class="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-blue-700 hover:border-blue-500">View all products →</a>
         </div>
-
         <div class="grid gap-5 md:grid-cols-3">
-          {products.map((product) => (
-            <article class="rn-hover-lift rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 backdrop-blur transition hover:bg-white/[0.09]">
-              <div class="mb-12 h-12 w-12 rounded-2xl bg-white text-black flex items-center justify-center font-black">
-                RN
+          {featured.map((item, index) => (
+            <article class="flex min-w-0 flex-col overflow-hidden rounded-[1.6rem] border border-[#E2E9F1] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <div class:list={["relative flex h-40 items-center justify-center p-6", index === 0 ? "bg-[#DDEBFA]" : index === 1 ? "bg-[#E8F0EA]" : "bg-[#EDF0F6]"]}>
+                <div class="rounded-xl border-2 border-slate-800 bg-white px-8 py-5 text-center shadow-lg">
+                  <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{index === 1 ? "YOUR BRAND" : index === 2 ? "YOUR COMPANY" : "VEHICLE DECAL"}</p>
+                  <p class="mt-2 text-2xl font-black tracking-[-0.04em] text-slate-900">{index === 0 ? "USDOT 1234567" : index === 1 ? "YOUR LOGO" : "TRUCK LETTERING"}</p>
+                </div>
               </div>
-              <h3 class="text-2xl font-semibold">{product.title}</h3>
-              <p class="mt-4 leading-7 text-white/60">{product.text}</p>
+              <div class="flex flex-1 flex-col p-6">
+                <p class="text-xs font-bold uppercase tracking-[0.1em] text-slate-500">{item.category}</p>
+                <h3 class="mt-2 text-xl font-bold">{item.title}</h3>
+                <p class="mt-3 flex-1 text-sm leading-6 text-slate-600">{item.description}</p>
+                <div class="mt-6 flex flex-wrap items-end justify-between gap-3">
+                  <div><p class="text-xs text-slate-500">Price guide</p><p class="mt-1 text-2xl font-extrabold">{item.price}</p></div>
+                  <a href="/shop" class="rounded-full bg-[#175CD3] px-5 py-3 text-sm font-bold text-white hover:bg-[#1248A8]">View details</a>
+                </div>
+              </div>
             </article>
           ))}
         </div>
       </section>
 
-
-      <section id="services" class="rn-reveal mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:grid-cols-[0.9fr_1.1fr] md:p-12">
+      <section class="border-y border-[#E1E9E5] bg-[#F0F5F1]">
+        <div class="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:gap-14">
           <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Custom Decals & Vehicle Lettering</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-              Sticker printing for business vehicles, fleets, and brands that need a clean professional look.
-            </h2>
-            <p class="mt-5 leading-7 text-white/60">
-              ReasonableNoise creates custom decals, USDOT stickers, truck lettering, business vehicle decals, fleet graphics, and vinyl stickers for commercial vehicles and brands. The order process is built for speed: choose the sticker type, upload artwork or order details, select pickup or shipping, and pay securely through Stripe.
-            </p>
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
-              <p class="font-bold text-white">USDOT stickers</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">
-                Clean USDOT number decals for trucks, trailers, vans, and commercial vehicle doors.
-              </p>
-            </div>
-
-            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
-              <p class="font-bold text-white">Custom business decals</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">
-                Upload a logo, artwork file, or design reference for custom vinyl decals.
-              </p>
-            </div>
-
-            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
-              <p class="font-bold text-white">Fleet lettering</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">
-                Keep vehicle branding consistent across multiple trucks, vans, trailers, or service vehicles.
-              </p>
-            </div>
-
-            <div class="rounded-3xl border border-white/10 bg-black/20 p-5">
-              <p class="font-bold text-white">Secure order flow</p>
-              <p class="mt-2 text-sm leading-6 text-white/55">
-                Upload artwork, choose local pickup or shipping, and pay the order deposit online.
-              </p>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[#27664C]">Custom print jobs</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Need something a little different?</h2>
+            <p class="mt-4 max-w-xl leading-7 text-slate-600">Upload artwork for custom decals, order vehicle lettering, or request a quote for fleet jobs and DTF shirts. We'll help you identify the right next step.</p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="/upload-design" class="rounded-full bg-[#142035] px-6 py-3 text-sm font-bold text-white hover:bg-slate-700">Upload your artwork</a>
+              <a href="/contact?topic=dtf" class="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-900 hover:border-[#27664C]">Request shirt quote</a>
+              <a href="/dtf-transfers/#transfer-quote" class="rounded-full border border-blue-300 bg-white px-6 py-3 text-sm font-bold text-blue-700 hover:border-blue-600">DTF transfers &amp; Gang Sheets</a>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section id="process" class="rn-reveal rn-delay-1 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 sm:p-8 md:rounded-[2.5rem] md:p-12">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Simple Process</p>
-          <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-            From idea to print-ready sticker without the back and forth.
-          </h2>
-
-          <div class="mt-10 grid gap-4 md:grid-cols-4">
-            {steps.map((step, index) => (
-              <div class="rounded-3xl border border-white/10 bg-black/20 p-6">
-                <p class="text-sm text-white/40">0{index + 1}</p>
-                <p class="mt-8 text-lg font-semibold">{step}</p>
+          <div class="grid grid-cols-2 gap-3">
+            {[
+              { title: "Truck lettering", detail: "Numbers, names & contact details" },
+              { title: "Fleet branding", detail: "Matching multiple vehicles" },
+              { title: "Logo stickers", detail: "Stickers from your artwork" },
+              { title: "DTF shirts", detail: "Custom apparel, quoted first" },
+            ].map((item) => (
+              <div class="rounded-2xl border border-[#DDE8E1] bg-white p-5 shadow-sm">
+                <span aria-hidden="true" class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF4ED] text-lg text-[#27664C]">✓</span>
+                <h3 class="mt-4 font-bold">{item.title}</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">{item.detail}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="quote" class="rn-reveal rn-delay-2 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="grid gap-8 rounded-[2rem] border border-white/10 bg-white p-5 text-black sm:p-8 md:grid-cols-2 md:rounded-[2.5rem] md:p-12">
-          <div>
-            <p class="text-sm font-bold uppercase tracking-[0.3em] text-black/50">Start your order</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-              Upload your design or request USDOT stickers.
-            </h2>
-            <p class="mt-5 max-w-lg leading-7 text-black/60">
-              Start a secure order, upload artwork, choose pickup or shipping, and pay the order deposit through Stripe.
-            </p>
-          </div>
-
-          <form class="rounded-[2rem] border border-black/10 bg-black/[0.03] p-6">
-            <div class="grid gap-4">
-              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Your name" />
-              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Email address" />
-              <input class="rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="USDOT number or sticker type" />
-              <textarea class="min-h-32 rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none" placeholder="Tell us what you need printed"></textarea>
-              <a href="/upload-design" class="rounded-full bg-black px-6 py-4 text-center text-sm font-bold text-white">
-                Start Secure Order
-              </a>
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">How it works</p>
+        <h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">From idea to print, four clear steps.</h2>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            "Choose a product or request a quote",
+            "Share your details and artwork",
+            "Review pricing before payment",
+            "We prepare your order for pickup or shipping",
+          ].map((step, index) => (
+            <div class="rounded-2xl border border-[#E1E8F1] bg-white p-6">
+              <span class="text-sm font-extrabold text-blue-700">0{index + 1}</span>
+              <h3 class="mt-5 text-lg font-bold leading-snug">{step}</h3>
             </div>
-          </form>
-        </div>
-      </section>
-
-
-
-      <section id="dtf-coming-soon" class="rn-reveal mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="grid gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-8 md:grid-cols-[0.9fr_1.1fr] md:p-12">
-          <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Now Accepting Orders</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-              DTF T-Shirt Printing for brands, teams, and small businesses.
-            </h2>
-            <p class="mt-5 leading-7 text-white/60">
-              ReasonableNoise is now accepting custom DTF shirt order requests for logo shirts, event shirts, work shirts, and small business apparel. Send your shirt details, including whether you want us to supply shirts or you’ll bring your own, and we’ll confirm pricing and the next payment step before production.
-            </p>
-          </div>
-
-          <div class="rounded-[2rem] border border-cyan-300/20 bg-cyan-300/10 p-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Estimated DTF Pricing</p>
-            <div class="mt-5 grid gap-4">
-              <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
-                <span class="text-white/70">Single custom shirt</span>
-                <span class="font-bold text-white">From $24</span>
-              </div>
-              <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
-                <span class="text-white/70">Small batch 6+</span>
-                <span class="font-bold text-white">From $20/shirt</span>
-              </div>
-              <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
-                <span class="text-white/70">Bulk 12+</span>
-                <span class="font-bold text-white">From $18/shirt</span>
-              </div>
-              <div class="flex items-center justify-between gap-4">
-                <span class="text-white/70">Front + back print</span>
-                <span class="font-bold text-white">Quote required</span>
-              </div>
-            </div>
-            <div data-rn-byo-shirt-option class="flex items-center justify-between rounded-[1.7rem] border border-white/10 bg-black/20 px-5 py-4">
-              <span>Bring your own shirt</span>
-              <strong>Print-only quote</strong>
-            </div>
-
-            <p class="mt-5 text-sm leading-6 text-white/55">
-              Estimated pricing only. Final DTF pricing is confirmed after shirt type, quantity, artwork, print size, placement, and whether shirts are supplied or customer-provided.
-            </p>
-
-            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a href="/dtf-shirts" class="rounded-full bg-white px-5 py-3 text-center text-sm font-bold text-black">
-                View DTF Details
-              </a>
-              <a href="/contact?topic=dtf" class="rounded-full border border-white/15 px-5 py-3 text-center text-sm font-bold text-white">
-                Request DTF Order Quote
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="home-faq" class="rn-reveal rn-delay-1 mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-20">
-        <div class="mb-10">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
-          <h2 class="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
-            Common sticker order questions.
-          </h2>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-3">
-          {homeSeoFaqs.map((item) => (
-            <article class="rn-hover-lift rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 backdrop-blur">
-              <h3 class="text-xl font-semibold text-white">{item.question}</h3>
-              <p class="mt-4 leading-7 text-white/60">{item.answer}</p>
-            </article>
           ))}
         </div>
       </section>
 
-      <QuickQuote />
-
-      <BrandAssurance />
-
-      <footer class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-10 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <p>© 2026 ReasonableNoise. Thoughtful printing. Clear expectations.</p>
-        <div class="flex flex-wrap gap-5">
-          <a href="/privacy" class="hover:text-white">Privacy</a>
-          <a href="/terms" class="hover:text-white">Terms</a>
-          <a href="/contact" class="hover:text-white">Contact</a>
+      <section id="home-faq" class="border-y border-[#E6EBE9] bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Useful answers</p>
+          <h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Print-shop questions, answered.</h2>
+          <div class="mt-8 grid gap-4 md:grid-cols-3">
+            {homeSeoFaqs.map((item) => (
+              <article class="rounded-2xl border border-[#E5EAF0] bg-[#F9FAFC] p-6">
+                <h3 class="font-bold">{item.question}</h3>
+                <p class="mt-3 text-sm leading-6 text-slate-600">{item.answer}</p>
+              </article>
+            ))}
+          </div>
         </div>
-      </footer>
+      </section>
+
+      <QuickQuote />
+      <BrandAssurance theme="light" />
     </main>
-      <WhatsAppChat />
-      <SiteAnalytics />
+    <footer class="mt-10 border-t border-[#E6EBE9] bg-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-4 py-9 text-sm text-slate-600 sm:px-6">
+        <p>© 2026 ReasonableNoise. Thoughtful printing. Clear expectations.</p>
+        <nav aria-label="Footer navigation" class="flex flex-wrap gap-5">
+          <a class="hover:text-blue-700" href="/shop">Shop</a>
+          <a class="hover:text-blue-700" href="/usdot-stickers">USDOT stickers</a>
+          <a class="hover:text-blue-700" href="/dtf-shirts">DTF shirts</a>
+          <a class="hover:text-blue-700" href="/faq">FAQ</a>
+          <a class="hover:text-blue-700" href="/privacy">Privacy</a>
+          <a class="hover:text-blue-700" href="/terms">Terms</a>
+          <a class="hover:text-blue-700" href="/contact">Contact</a>
+        </nav>
+      </div>
+    </footer>
+    <WhatsAppChat />
+    <SiteAnalytics />
   </body>
 </html>
-
-
-
-
-
-
-
-

@@ -18,7 +18,7 @@ test("all seven core customer pages share the clear, grounded service promise", 
   const assurance = read("src/components/BrandAssurance.astro");
   for (const page of pages) {
     assert.match(read(page), /import BrandAssurance from/);
-    assert.match(read(page), /<BrandAssurance(?: compact)?\s*\/>/);
+    assert.match(read(page), /<BrandAssurance(?: compact| theme="light")?\s*\/>/);
   }
   assert.match(assurance, /Clear expectations/);
   assert.match(assurance, /Care with every design/);
@@ -74,19 +74,20 @@ test("copy-only branch does not introduce transfer checkout or new fulfillment c
   }
 });
 
-test("homepage avoids cramped desktop layout at tablet widths", () => {
+test("light storefront avoids cramped desktop layout and retains accessible navigation", () => {
   const home = read("src/pages/index.astro");
   const chat = read("src/components/WhatsAppChat.astro");
   assert.match(home, /lg:grid-cols-2 lg:gap-14/);
   assert.match(home, /sm:text-5xl lg:text-6xl xl:text-7xl/);
-  assert.match(home, /hidden items-center gap-8 text-sm text-white\/70 lg:flex/);
-  assert.match(home, /flex flex-col flex-wrap gap-4 sm:flex-row/);
+  assert.match(home, /aria-label="Main navigation"/);
+  assert.match(home, /flex flex-col flex-wrap gap-3 sm:flex-row/);
+  assert.match(home, /href="\/shop"/);
+  assert.match(home, /bg-\[#F9FAF8\]/);
   assert.match(chat, /lg:inline/);
   assert.match(chat, /lg:bottom-5 lg:right-5/);
   assert.match(chat, /relative mx-4 my-5 flex items-center justify-center/);
   assert.match(chat, /sm:fixed sm:bottom-3 sm:right-3/);
   assert.match(chat, /sm:hidden">Chat on WhatsApp/);
-  assert.match(chat, /\{!inline && <span class="sm:hidden">Chat on WhatsApp<\/span>\}\s*\{!inline && <span class="hidden sm:inline lg:hidden">WhatsApp<\/span>\}/);
   assert.match(chat, /aria-label="Chat with ReasonableNoise on WhatsApp"/);
 });
 

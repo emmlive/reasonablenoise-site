@@ -1,3 +1,5 @@
+import { createCatalogSnapshot } from "../_catalog-order-snapshot.js";
+import { authorizeCatalogCheckout } from "../_catalog-checkout-gate.js";
 ﻿function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -202,6 +204,19 @@ export async function onRequestPost(context) {
       }, 400);
     }
 
+    // When expressly enabled, availability and price integrity are authoritative before Stripe.
+    const catalogDecision = await authorizeCatalogCheckout(env, checkoutPricing);
+    if (!catalogDecision.allowed) {
+      return json({ success: false, error: "This product cannot be checked out right now.", code: catalogDecision.code }, catalogDecision.status);
+    }
+
+    const catalogSnapshot = catalogDecision.gate_active
+      ? await createCatalogSnapshot(catalogDecision, checkoutPricing, orderReference, env.RN_CATALOG_SNAPSHOT_SECRET)
+      : null;
+    if (catalogDecision.gate_active && !catalogSnapshot) {
+      return json({ success: false, error: "Catalog snapshot signing unavailable.", code: "CATALOG_SNAPSHOT_UNAVAILABLE" }, 503);
+    }
+
     const params = new URLSearchParams();
 
     params.set("mode", "payment");
@@ -262,6 +277,11 @@ export async function onRequestPost(context) {
     params.set("metadata[artwork_size]", artworkSize);
     params.set("metadata[artwork_type]", artworkType);
     params.set("metadata[upload_id]", uploadId);
+    if (catalogSnapshot) {
+      for (const [key, value] of Object.entries(catalogSnapshot)) {
+        params.set(`metadata[${key}]`, value);
+      }
+    }
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",

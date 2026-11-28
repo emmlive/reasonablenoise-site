@@ -1,0 +1,242 @@
+---
+import "../styles/global.css";
+import SiteAnalytics from "../components/SiteAnalytics.astro";
+import WhatsAppChat from "../components/WhatsAppChat.astro";
+import BrandAssurance from "../components/BrandAssurance.astro";
+import { printShopItems } from "../data/printShopCatalog.js";
+
+// Secondary USDOT options remain in the order form and catalog, not separate shop cards.
+const hiddenUsdots = new Set(["usdot-business-name-pair", "extra-usdot-pair", "one-side-usdot-replacement"]);
+const shopItems = printShopItems.filter(item => !hiddenUsdots.has(item.id));
+const categories = ["All products", "USDOT stickers", "Decals & lettering", "Design help", "DTF shirts"];
+const displayCategory = category => ({
+  "USDOT & truck decals": "USDOT stickers",
+  "Custom printing": "Decals & lettering",
+  "Design assistance": "Design help",
+  "Apparel": "DTF shirts",
+})[category] || category;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shop USDOT Stickers, Decals &amp; Custom Printing | ReasonableNoise</title>
+    <meta name="description" content="Explore USDOT stickers, truck door lettering, business decals, fleet lettering, design cleanup and DTF shirt quote options." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://reasonablenoise.com/shop/" />
+    <link rel="icon" href="/assets/rn-logo.png" type="image/png" />
+    <meta property="og:title" content="ReasonableNoise Print Shop" />
+    <meta property="og:description" content="Browse custom sticker and printing options with transparent price guides and availability checks." />
+    <meta property="og:url" content="https://reasonablenoise.com/shop/" />
+  </head>
+  <body class="min-h-screen bg-[#F9FAF8] text-[#162234] antialiased">
+    <header class="border-b border-[#E2E8EF] bg-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <a href="/" class="flex items-center gap-3">
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-black p-2">
+            <img src="/assets/rn-logo.png" alt="" class="h-full w-full object-contain" width="44" height="44" />
+          </span>
+          <span><strong class="block text-base tracking-tight">ReasonableNoise</strong><small class="block text-xs text-slate-500">Print shop</small></span>
+        </a>
+        <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-3 text-sm font-semibold sm:gap-5">
+          <a href="/" class="py-2 hover:text-blue-700">Home</a>
+          <a href="/usdot-stickers" class="hidden py-2 hover:text-blue-700 sm:inline">USDOT details</a>
+          <a href="/contact" class="hidden py-2 hover:text-blue-700 sm:inline">Contact</a>
+          <a href="/upload-design" class="rounded-full bg-[#175CD3] px-5 py-3 text-center text-white hover:bg-[#1248A8]">Upload design</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="border-b border-[#E4EAF1] bg-gradient-to-br from-white to-[#F0F6FD]">
+        <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-18">
+          <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-700">The ReasonableNoise shop</p>
+          <h1 class="mt-4 max-w-3xl text-4xl font-extrabold tracking-[-0.045em] sm:text-5xl">Find the right print for your business.</h1>
+          <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">From USDOT sticker pairs to custom decals and fleet lettering, browse your options and share your artwork when you're ready.</p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a href="/upload-design" class="rounded-full bg-[#175CD3] px-6 py-3 text-sm font-bold text-white hover:bg-[#1248A8]">Start a sticker order</a>
+            <a href="/contact?topic=dtf" class="rounded-full border border-[#C9D6E5] bg-white px-6 py-3 text-sm font-bold text-slate-900 hover:border-blue-500">Request a custom quote</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14" aria-labelledby="catalog-title">
+        <div class="mb-8 flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Print shop categories</p>
+            <h2 id="catalog-title" class="mt-2 text-3xl font-extrabold tracking-tight">Explore printing services</h2>
+          </div>
+          <div id="catalog-availability-note" role="status" aria-live="polite" class="max-w-md rounded-xl border border-[#D9E3EF] bg-white px-4 py-3 text-sm leading-6 text-slate-600">Price guides are shown below. Availability is confirmed during ordering or quote review.</div>
+        </div>
+        <div role="group" aria-label="Filter products" class="mb-8 flex flex-wrap gap-2">
+          {categories.map((category, index) => (
+            <button
+              type="button"
+              data-shop-filter={category}
+              aria-pressed={index === 0 ? "true" : "false"}
+              class:list={["rounded-full border px-4 py-2.5 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700",
+                index === 0 ? "border-[#175CD3] bg-[#175CD3] text-white" : "border-slate-300 bg-white text-slate-700 hover:border-blue-500"]}
+            >{category}</button>
+          ))}
+        </div>
+
+        <div id="shop-grid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {shopItems.map((item) => (
+            <article data-catalog-product={item.id} data-shop-category={displayCategory(item.category)} class:list={["flex min-w-0 flex-col overflow-hidden rounded-[1.6rem] border border-[#E2E9F1] bg-white shadow-sm transition hover:shadow-lg", item.id === "dtf-shirts" ? "lg:col-span-3 lg:flex-row" : ""]}>
+              <div class:list={["relative flex h-40 items-center justify-center overflow-hidden p-6",
+                item.visual === "usdot" || item.visual === "replacement" || item.visual === "duo" ? "bg-[#DFEBF8]" :
+                item.visual === "decal" || item.visual === "design" ? "bg-[#E8F2ED]" : "bg-[#EEF0F6]", item.id === "dtf-shirts" ? "lg:h-auto lg:min-h-56 lg:w-1/3 lg:shrink-0" : ""]}>
+                <div data-shop-illustration class="max-w-full rounded-xl border-2 border-slate-800 bg-white px-5 py-4 text-center text-slate-900 shadow-md">
+                  <p class="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{item.visual === "shirt" ? "Custom apparel" : item.visual === "decal" ? "Business printing" : "ReasonableNoise print"}</p>
+                  <p class="mt-2 text-lg font-black tracking-[-0.02em] sm:text-xl">{item.visual === "usdot" || item.visual === "replacement" || item.visual === "duo" ? "USDOT 1234567" : item.visual === "shirt" ? "YOUR DESIGN" : item.visual === "decal" ? "YOUR LOGO" : item.visual === "fleet" ? "FLEET GRAPHICS" : item.visual === "design" ? "DESIGN HELP" : "YOUR BUSINESS"}</p>
+                </div>
+              </div>
+              <div class:list={["flex flex-1 flex-col p-6", item.id === "dtf-shirts" ? "lg:p-8" : ""]}>
+                <p class="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{displayCategory(item.category)}</p>
+                <h3 class="mt-2 text-xl font-bold">{item.id === "usdot-sticker-pair" ? "USDOT stickers" : item.title}</h3>
+                <p class="mt-3 flex-1 text-sm leading-6 text-slate-600">{item.id === "usdot-sticker-pair" ? "Standard pairs, extra pairs, single replacements and business-name lettering. Choose your option when ordering." : item.description}</p>
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p data-shop-price-caption class="text-xs text-slate-500">Price guide</p>
+                    <p data-shop-price class="mt-1 text-2xl font-extrabold">{item.price}</p>
+                  </div>
+                  <span data-shop-status class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">Availability unconfirmed</span>
+                </div>
+                <a data-shop-action href={item.href} class="mt-6 rounded-full bg-[#175CD3] px-5 py-3 text-center text-sm font-bold text-white hover:bg-[#1248A8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">{item.cta}</a>
+              </div>
+            </article>
+          ))}
+        </div>
+        <section aria-labelledby="transfer-section-heading" class="mt-8 grid items-center gap-5 rounded-[1.6rem] border border-[#D4E4F2] bg-[#EDF5FC] p-5 sm:p-7 lg:grid-cols-[1fr_auto]">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">DTF transfers &amp; Gang Sheet requests</p>
+            <h3 id="transfer-section-heading" class="mt-2 text-2xl font-extrabold tracking-tight">Have transfers or a Gang Sheet layout?</h3>
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-700">Choose a transfer size, quantity, placement and upload artwork for a quote. Finished gang sheet layouts can be discussed in project notes. The visual gang sheet builder is planned, not available for direct ordering.</p>
+            <p class="mt-2 text-xs font-semibold text-slate-600">Quote-first. No payment when requesting a quote.</p>
+          </div>
+          <a href="/dtf-transfers/#transfer-quote" class="rounded-full bg-[#175CD3] px-6 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Explore DTF transfers</a>
+        </section>
+        <p id="shop-empty" class="mt-7 hidden rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600" role="status">No products match this filter. Try another category or contact us for a quote.</p>
+        <p class="mt-8 max-w-4xl text-sm leading-6 text-slate-600">Price guides are not final quotes, guaranteed stock, or a promise of immediate shipment. Shipping, artwork preparation and special sizes may change the total. The checkout amount is reviewed before payment, and custom work may require a separate quote.</p>
+      </section>
+      <section class="border-t border-[#E2E9F1] bg-[#EFF4F1]">
+        <div class="mx-auto grid max-w-7xl items-center gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto]">
+          <div>
+            <h2 class="text-2xl font-extrabold">Not sure which product fits?</h2>
+            <p class="mt-3 max-w-2xl leading-7 text-slate-600">Share your artwork or project details first. We'll clarify pricing and your options before you commit.</p>
+          </div>
+          <a href="/contact" class="rounded-full bg-[#142035] px-6 py-3 text-center text-sm font-bold text-white hover:bg-slate-700">Ask a print question</a>
+        </div>
+      </section>
+      <BrandAssurance theme="light" />
+    </main>
+    <footer class="border-t border-[#E2E9F1] bg-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-slate-600 sm:px-6">
+        <p>© 2026 ReasonableNoise. Clear expectations, thoughtful printing.</p>
+        <nav aria-label="Footer navigation" class="flex flex-wrap gap-4">
+          <a href="/" class="hover:text-blue-700">Home</a><a href="/upload-design" class="hover:text-blue-700">Upload design</a><a href="/faq" class="hover:text-blue-700">FAQ</a><a href="/privacy" class="hover:text-blue-700">Privacy</a><a href="/terms" class="hover:text-blue-700">Terms</a><a href="/contact" class="hover:text-blue-700">Contact</a>
+        </nav>
+      </div>
+    </footer>
+    <WhatsAppChat />
+    <SiteAnalytics />
+
+    <script>
+      const catalogEndpoint = "/api/catalog";
+      const cards = [...document.querySelectorAll("[data-catalog-product]")];
+      const filters = [...document.querySelectorAll("[data-shop-filter]")];
+      const note = document.getElementById("catalog-availability-note");
+      const empty = document.getElementById("shop-empty");
+      let activeFilter = "All products";
+
+      function renderFilter() {
+        let visible = 0;
+        for (const card of cards) {
+          const categoryMatch = activeFilter === "All products" || card.dataset.shopCategory === activeFilter;
+          const unpublished = card.dataset.unpublished === "true";
+          const show = categoryMatch && !unpublished;
+          card.style.display = show ? "" : "none";
+          if (show) visible += 1;
+        }
+        empty.classList.toggle("hidden", visible !== 0);
+        for (const button of filters) {
+          const selected = button.dataset.shopFilter === activeFilter;
+          button.setAttribute("aria-pressed", String(selected));
+          button.classList.toggle("bg-[#175CD3]", selected);
+          button.classList.toggle("text-white", selected);
+          button.classList.toggle("border-[#175CD3]", selected);
+          button.classList.toggle("bg-white", !selected);
+          button.classList.toggle("text-slate-700", !selected);
+          button.classList.toggle("border-slate-300", !selected);
+        }
+      }
+      for (const button of filters) {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.shopFilter || "All products";
+          renderFilter();
+        });
+      }
+
+      function money(cents) {
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(cents / 100);
+      }
+      function applyPublicCatalog(products) {
+        const published = new Map(products.map(product => [product.id, product]));
+        for (const card of cards) {
+          const live = published.get(card.dataset.catalogProduct);
+          if (!live) {
+            card.dataset.unpublished = "true";
+            continue;
+          }
+          if (!["available", "out_of_stock"].includes(live.status) ||
+              !Number.isSafeInteger(live.price_cents) ||
+              !["fixed", "starting_at", "quote_only"].includes(live.price_mode)) {
+            throw new Error("Catalog returned an invalid product");
+          }
+          const price = card.querySelector("[data-shop-price]");
+          const caption = card.querySelector("[data-shop-price-caption]");
+          const status = card.querySelector("[data-shop-status]");
+          const action = card.querySelector("[data-shop-action]");
+          const illustrated = card.querySelector("[data-shop-illustration]");
+          const formatted = money(live.price_cents);
+          price.textContent = live.price_mode === "quote_only" ? "Quote first" : live.price_mode === "starting_at" ? "From " + formatted : formatted;
+          caption.textContent = live.price_mode === "quote_only" ? "Price" : "Catalog price";
+          status.textContent = live.status === "available" ? "Available for new orders" : "Out of stock";
+          status.className = live.status === "available"
+            ? "rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800"
+            : "rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900";
+          if (live.status === "out_of_stock") {
+            action.href = "/contact";
+            action.textContent = "Ask about availability";
+            action.className = "mt-6 rounded-full border border-amber-300 bg-amber-50 px-5 py-3 text-center text-sm font-bold text-amber-900 hover:bg-amber-100";
+          }
+          if (typeof live.image_url === "string" && /^\/assets\/[a-zA-Z0-9/_-]+\.(png|jpg|jpeg|webp)$/.test(live.image_url)) {
+            const picture = document.createElement("img");
+            picture.src = live.image_url;
+            picture.alt = "";
+            picture.loading = "lazy";
+            picture.className = "max-h-36 w-auto max-w-full object-contain";
+            illustrated.replaceWith(picture);
+          }
+        }
+        note.textContent = "Catalog prices and availability loaded. Stock can change before checkout; final approval happens when you place an order.";
+        renderFilter();
+      }
+
+      async function loadCatalog() {
+        try {
+          const response = await fetch(catalogEndpoint, { method: "GET", credentials: "same-origin", cache: "no-store" });
+          if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) return;
+          const body = await response.json();
+          if (!body?.success || !Array.isArray(body.products)) return;
+          applyPublicCatalog(body.products);
+        } catch (_) {
+          // Keep guides and unconfirmed status. Never pretend a failed D1 read is in-stock.
+        }
+      }
+      renderFilter();
+      void loadCatalog();
+    </script>
+  </body>
+</html>

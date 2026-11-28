@@ -193,6 +193,8 @@ import "../styles/global.css";
             order.tracking_number,
             order.carrier,
             order.status_label,
+            order.inventory_review_required ? "inventory review required" : "",
+            order.inventory_review_reason,
           ]
             .join(" ")
             .toLowerCase();
@@ -244,6 +246,7 @@ import "../styles/global.css";
                   <span class="rounded-full border px-3 py-1 text-xs font-bold ${statusBadgeClass(order.status)}">
                     ${escapeHtml(order.status_label || order.status || "Unknown")}
                   </span>
+                  ${order.inventory_review_required ? `<span class="rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-bold text-amber-950">Inventory review required</span>` : ""}
                 </div>
 
                 <div class="mt-3 grid gap-1 text-sm text-black/60">

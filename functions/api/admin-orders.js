@@ -106,6 +106,8 @@ function summarizeOrder(record, key) {
     business_name: customer.business_name || "",
     order_type: order.sticker_type || "",
     fulfillment_method: order.fulfillment_method || "",
+    inventory_review_required: fulfillment.inventory_review_required === true,
+    inventory_review_reason: fulfillment.inventory_review_reason || "",
     amount_total: stripe.amount_total || "",
     shipping_name: fulfillment.shipping_name || "",
     tracking_number: fulfillment.tracking_number || "",

@@ -1,3 +1,4 @@
+import { verifyCatalogAdminAccess } from "./admin-products.js";
 ﻿function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -396,6 +397,43 @@ export async function onRequestPost(context) {
 
   const now = new Date().toISOString();
   const record = result.record;
+
+  // A payment issued before a stock change remains honored, but it cannot
+  // be marked ready, shipped or complete until a named, JWT-verified admin
+  // explicitly approves the inventory review with an explanation.
+  const reviewRequired = record.fulfillment?.inventory_review_required === true;
+  const fulfillmentCompletion = ["ready_for_pickup", "shipped", "completed"].includes(status);
+  let inventoryReviewer = "";
+  let inventoryReviewNote = "";
+  if (reviewRequired && body.inventory_review_resolution === "approved") {
+    inventoryReviewer = await verifyCatalogAdminAccess(request, env) || "";
+    inventoryReviewNote = clean(body.inventory_review_note, 700);
+    if (!inventoryReviewer || inventoryReviewNote.length < 12) {
+      return json({ success: false, error: "Signed administrator approval and a review note of at least 12 characters are required." }, 403);
+    }
+  }
+  if (reviewRequired && fulfillmentCompletion && !inventoryReviewer) {
+    return json({ success: false, error: "Manual inventory review approval is required before fulfillment.", code: "INVENTORY_REVIEW_REQUIRED" }, 409);
+  }
+  if (!reviewRequired && body.inventory_review_resolution === "approved") {
+    return json({ success: false, error: "No open inventory review to approve." }, 409);
+  }
+  if (inventoryReviewer) {
+    record.fulfillment.inventory_review_required = false;
+    record.fulfillment.inventory_review_resolved_at = now;
+    record.fulfillment.inventory_review_resolved_by = inventoryReviewer;
+    record.fulfillment.inventory_review_resolution = "approved";
+    record.fulfillment.inventory_review_note = inventoryReviewNote;
+    record.timeline = Array.isArray(record.timeline) ? record.timeline : [];
+    record.timeline.push({
+      status: "inventory_review_approved",
+      label: "Inventory review approved",
+      at: now,
+      source: "signed_catalog_admin_review",
+      actor: inventoryReviewer,
+      note: inventoryReviewNote,
+    });
+  }
 
   record.status = status;
   record.status_label = STATUS_LABELS[status];
